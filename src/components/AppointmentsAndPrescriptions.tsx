@@ -21,9 +21,7 @@ import {
   Eye,
   FileCheck,
   Check,
-  Building,
   AlertCircle,
-  ExternalLink,
 } from 'lucide-react';
 
 interface AppointmentsAndPrescriptionsProps {
@@ -81,12 +79,12 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
   return (
     <div className="space-y-6">
       {/* Top Section Tabs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-white rounded-xl border border-neutral-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-white rounded-xl border border-[#E9DCC4] shadow-xs">
         <div>
-          <h2 className="text-lg font-bold text-neutral-900">
+          <h2 className="text-lg font-bold text-[#493B2A]">
             Agenda Médica y Documentación Digital
           </h2>
-          <p className="text-xs text-neutral-500 mt-0.5">
+          <p className="text-xs text-[#796B59] mt-0.5">
             Turnos programados, preparación previa, recetas de farmacia y certificados de aptitud
           </p>
         </div>
@@ -95,17 +93,17 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
           {activeSection === 'appointments' ? (
             <button
               onClick={onAddAppointment}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-neutral-900 rounded-lg hover:bg-neutral-800 transition-colors whitespace-nowrap shadow-xs"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors whitespace-nowrap shadow-xs"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-3.5 h-3.5 text-white" />
               <span>Agendar Turno</span>
             </button>
           ) : (
             <button
               onClick={onAddPrescription}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-neutral-900 rounded-lg hover:bg-neutral-800 transition-colors whitespace-nowrap shadow-xs"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors whitespace-nowrap shadow-xs"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-3.5 h-3.5 text-white" />
               <span>Subir Receta / Estudio</span>
             </button>
           )}
@@ -113,27 +111,27 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
       </div>
 
       {/* Segmented Switcher between Appointments & Prescriptions */}
-      <div className="flex items-center gap-2 p-1 bg-neutral-100 rounded-lg w-fit">
+      <div className="flex items-center gap-2 p-1 bg-[#FFF9ED] border border-[#E9DCC4] rounded-lg w-fit">
         <button
           onClick={() => setActiveSection('appointments')}
           className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-md transition-all ${
             activeSection === 'appointments'
-              ? 'bg-white text-neutral-900 shadow-xs'
-              : 'text-neutral-600 hover:text-neutral-900'
+              ? 'bg-white text-[#493B2A] shadow-xs'
+              : 'text-[#796B59] hover:text-[#493B2A]'
           }`}
         >
-          <Calendar className="w-4 h-4 text-emerald-600" />
+          <Calendar className="w-4 h-4 text-[#D9A441]" />
           <span>Turnos Médicos ({upcomingAppointments.length} próximos)</span>
         </button>
         <button
           onClick={() => setActiveSection('prescriptions')}
           className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-md transition-all ${
             activeSection === 'prescriptions'
-              ? 'bg-white text-neutral-900 shadow-xs'
-              : 'text-neutral-600 hover:text-neutral-900'
+              ? 'bg-white text-[#493B2A] shadow-xs'
+              : 'text-[#796B59] hover:text-[#493B2A]'
           }`}
         >
-          <FileText className="w-4 h-4 text-emerald-600" />
+          <FileText className="w-4 h-4 text-[#D9A441]" />
           <span>Recetas y Estudios ({filteredPrescriptions.length})</span>
         </button>
       </div>
@@ -143,17 +141,17 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
         <div className="space-y-6">
           {/* Upcoming appointments */}
           <div>
-            <h3 className="text-xs font-bold text-neutral-700 uppercase tracking-wider mb-3">
+            <h3 className="text-xs font-bold text-[#493B2A] uppercase tracking-wider mb-3">
               Próximos Turnos Programados
             </h3>
 
             {upcomingAppointments.length === 0 ? (
-              <div className="p-8 text-center bg-white rounded-xl border border-neutral-200">
-                <Calendar className="w-8 h-8 text-neutral-400 mx-auto mb-2" />
-                <h4 className="text-sm font-semibold text-neutral-800">
+              <div className="p-8 text-center bg-white rounded-xl border border-[#E9DCC4]">
+                <Calendar className="w-8 h-8 text-[#D9A441] mx-auto mb-2" />
+                <h4 className="text-sm font-semibold text-[#493B2A]">
                   No hay turnos próximos programados
                 </h4>
-                <p className="text-xs text-neutral-500 mt-1">
+                <p className="text-xs text-[#796B59] mt-1">
                   Mantén al día los controles médicos anuales y visitas pediátricas.
                 </p>
               </div>
@@ -165,48 +163,48 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
                   return (
                     <div
                       key={apt.id}
-                      className="p-5 rounded-xl border border-neutral-200 bg-white hover:border-neutral-300 transition-all flex flex-col justify-between shadow-xs"
+                      className="p-5 rounded-xl border border-[#E9DCC4] bg-white hover:border-[#D9A441] transition-all flex flex-col justify-between shadow-xs"
                     >
                       <div>
                         {/* Header: Specialty & Member */}
                         <div className="flex items-start justify-between gap-2 mb-2">
                           <div>
-                            <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">
+                            <span className="text-[11px] font-bold text-[#B87932] uppercase tracking-wider">
                               {apt.specialty}
                             </span>
-                            <h4 className="text-base font-bold text-neutral-900 mt-0.5">
+                            <h4 className="text-base font-bold text-[#493B2A] mt-0.5">
                               {apt.doctorName}
                             </h4>
                           </div>
                           {member && (
-                            <span className="text-xs font-semibold px-2 py-0.5 bg-neutral-100 rounded text-neutral-700">
+                            <span className="text-xs font-semibold px-2 py-0.5 bg-[#FFF9ED] border border-[#E9DCC4] rounded text-[#493B2A]">
                               {member.name.split(' ')[0]}
                             </span>
                           )}
                         </div>
 
                         {/* Date and Clinic Info */}
-                        <div className="space-y-1.5 text-xs text-neutral-600 my-3">
-                          <div className="flex items-center gap-2 font-mono font-semibold text-neutral-900">
-                            <Clock className="w-3.5 h-3.5 text-neutral-400" />
+                        <div className="space-y-1.5 text-xs text-[#796B59] my-3">
+                          <div className="flex items-center gap-2 font-mono font-semibold text-[#493B2A]">
+                            <Clock className="w-3.5 h-3.5 text-[#D9A441]" />
                             <span>{formatDateTime(apt.dateTime)}</span>
                           </div>
-                          <div className="flex items-center gap-2 text-neutral-600">
-                            <MapPin className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                          <div className="flex items-center gap-2 text-[#796B59]">
+                            <MapPin className="w-3.5 h-3.5 text-[#D9A441] shrink-0" />
                             <span className="truncate">{apt.clinicAddress}</span>
                           </div>
                         </div>
 
                         {/* Reason */}
-                        <div className="text-xs text-neutral-700 bg-neutral-50 p-2.5 rounded-lg border border-neutral-100 mb-3">
-                          <div className="font-semibold text-neutral-800 mb-0.5">Motivo de consulta:</div>
+                        <div className="text-xs text-[#493B2A] bg-[#FFF9ED] p-2.5 rounded-lg border border-[#E9DCC4] mb-3">
+                          <div className="font-semibold text-[#493B2A] mb-0.5">Motivo de consulta:</div>
                           {apt.reason}
                         </div>
 
                         {/* Preparation instructions */}
                         {apt.preparationNotes && (
-                          <div className="text-[11px] text-amber-800 bg-amber-50 p-2.5 rounded-lg border border-amber-200/60 mb-2 flex items-start gap-1.5">
-                            <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                          <div className="text-[11px] text-[#8A570A] bg-[#FDF5E6] p-2.5 rounded-lg border border-[#F4DF9B] mb-2 flex items-start gap-1.5">
+                            <AlertCircle className="w-3.5 h-3.5 text-[#8A570A] shrink-0 mt-0.5" />
                             <div>
                               <strong>Preparación:</strong> {apt.preparationNotes}
                             </div>
@@ -215,19 +213,19 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
                       </div>
 
                       {/* Card actions */}
-                      <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between gap-2">
+                      <div className="mt-4 pt-3 border-t border-[#E9DCC4] flex items-center justify-between gap-2">
                         <button
                           onClick={() => handleExportICS(apt)}
-                          className="flex items-center gap-1.5 text-xs font-semibold text-neutral-700 hover:text-neutral-900 bg-neutral-100 hover:bg-neutral-200 px-3 py-1.5 rounded-lg transition-colors"
+                          className="flex items-center gap-1.5 text-xs font-semibold text-[#493B2A] hover:text-[#B87932] bg-[#FFF9ED] hover:bg-[#F8E8A6]/40 border border-[#E9DCC4] px-3 py-1.5 rounded-lg transition-colors shadow-2xs"
                           title="Descargar archivo .ics para Google Calendar / Apple"
                         >
-                          <CalendarPlus className="w-3.5 h-3.5 text-neutral-600" />
+                          <CalendarPlus className="w-3.5 h-3.5 text-[#B87932]" />
                           <span>Añadir a Calendario</span>
                         </button>
 
                         <button
                           onClick={() => handleToggleComplete(apt)}
-                          className="flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-200 transition-colors"
+                          className="flex items-center gap-1 text-xs font-semibold text-[#287653] bg-[#EDF6F1] hover:bg-[#DDF0E5] px-3 py-1.5 rounded-lg border border-[#B8DDCB] transition-colors"
                         >
                           <Check className="w-3.5 h-3.5" />
                           <span>Marcar Realizado</span>
@@ -242,31 +240,31 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
 
           {/* Past / Completed Consultations */}
           {pastAppointments.length > 0 && (
-            <div className="pt-4 border-t border-neutral-200">
-              <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">
+            <div className="pt-4 border-t border-[#E9DCC4]">
+              <h3 className="text-xs font-bold text-[#796B59] uppercase tracking-wider mb-3">
                 Historial de Consultas Realizadas
               </h3>
-              <div className="bg-white rounded-xl border border-neutral-200 divide-y divide-neutral-100 overflow-hidden">
+              <div className="bg-white rounded-xl border border-[#E9DCC4] divide-y divide-[#E9DCC4]/50 overflow-hidden">
                 {pastAppointments.map((apt) => {
                   const member = members.find((m) => m.id === apt.memberId);
                   return (
                     <div key={apt.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                       <div>
                         <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span className="font-bold text-neutral-900">{apt.specialty}</span>
-                          <span className="text-neutral-500">· {apt.doctorName}</span>
+                          <CheckCircle2 className="w-4 h-4 text-[#287653] shrink-0" />
+                          <span className="font-bold text-[#493B2A]">{apt.specialty}</span>
+                          <span className="text-[#796B59]">· {apt.doctorName}</span>
                           {member && (
-                            <span className="px-1.5 py-0.2 bg-neutral-100 text-neutral-600 rounded text-[10px]">
+                            <span className="px-1.5 py-0.2 bg-[#FFF9ED] border border-[#E9DCC4] text-[#493B2A] rounded text-[10px]">
                               {member.name.split(' ')[0]}
                             </span>
                           )}
                         </div>
-                        <div className="text-neutral-500 mt-1 pl-6">
+                        <div className="text-[#796B59] mt-1 pl-6">
                           {formatDateTime(apt.dateTime)} · Motivo: {apt.reason}
                         </div>
                         {apt.postVisitNotes && (
-                          <div className="text-neutral-800 bg-neutral-50 p-2 rounded mt-2 ml-6 text-[11px] border border-neutral-200">
+                          <div className="text-[#493B2A] bg-[#FFF9ED] p-2 rounded mt-2 ml-6 text-[11px] border border-[#E9DCC4]">
                             <strong>Indicaciones del médico:</strong> {apt.postVisitNotes}
                           </div>
                         )}
@@ -291,39 +289,39 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
               return (
                 <div
                   key={rx.id}
-                  className="p-5 rounded-xl border border-neutral-200 bg-white hover:border-neutral-300 transition-all flex flex-col justify-between shadow-xs"
+                  className="p-5 rounded-xl border border-[#E9DCC4] bg-white hover:border-[#D9A441] transition-all flex flex-col justify-between shadow-xs"
                 >
                   <div>
                     {/* Badge & Member */}
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                      <span className="text-[11px] font-semibold text-[#B87932] bg-[#F8E8A6]/40 px-2 py-0.5 rounded border border-[#E9DCC4]">
                         {rx.type}
                       </span>
                       {member && (
-                        <span className="text-xs font-semibold text-neutral-600">
+                        <span className="text-xs font-semibold text-[#796B59]">
                           {member.name.split(' ')[0]}
                         </span>
                       )}
                     </div>
 
-                    <h4 className="font-bold text-sm text-neutral-900 leading-snug">
+                    <h4 className="font-bold text-sm text-[#493B2A] leading-snug">
                       {rx.title}
                     </h4>
-                    <div className="text-xs text-neutral-500 mt-1 flex items-center gap-1">
-                      <User className="w-3.5 h-3.5 text-neutral-400" />
+                    <div className="text-xs text-[#796B59] mt-1 flex items-center gap-1">
+                      <User className="w-3.5 h-3.5 text-[#D9A441]" />
                       <span>{rx.doctorName}</span>
                     </div>
 
                     {/* Dates */}
-                    <div className="mt-3 py-2 border-y border-neutral-100 text-xs space-y-1">
-                      <div className="flex justify-between text-neutral-600">
+                    <div className="mt-3 py-2 border-y border-[#E9DCC4] text-xs space-y-1">
+                      <div className="flex justify-between text-[#796B59]">
                         <span>Emisión:</span>
-                        <span className="font-mono tabular-nums">{formatDate(rx.issueDate)}</span>
+                        <span className="font-mono tabular-nums text-[#493B2A]">{formatDate(rx.issueDate)}</span>
                       </div>
                       {rx.expiryDate && (
-                        <div className="flex justify-between text-neutral-600">
+                        <div className="flex justify-between text-[#796B59]">
                           <span>Vencimiento receta:</span>
-                          <span className="font-mono tabular-nums font-semibold text-neutral-800">
+                          <span className="font-mono tabular-nums font-semibold text-[#493B2A]">
                             {formatDate(rx.expiryDate)}
                           </span>
                         </div>
@@ -333,10 +331,10 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
                     {/* Medications list */}
                     {rx.medicationsIncluded && rx.medicationsIncluded.length > 0 && (
                       <div className="mt-3">
-                        <div className="text-[11px] font-semibold text-neutral-700 mb-1">
+                        <div className="text-[11px] font-semibold text-[#493B2A] mb-1">
                           Medicamentos indicados:
                         </div>
-                        <ul className="text-xs text-neutral-600 list-disc list-inside space-y-0.5">
+                        <ul className="text-xs text-[#796B59] list-disc list-inside space-y-0.5">
                           {rx.medicationsIncluded.map((med, i) => (
                             <li key={i}>{med}</li>
                           ))}
@@ -345,20 +343,20 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
                     )}
 
                     {rx.notes && (
-                      <div className="mt-2 text-[11px] text-neutral-500 italic">
+                      <div className="mt-2 text-[11px] text-[#796B59] italic">
                         {rx.notes}
                       </div>
                     )}
                   </div>
 
                   {/* Actions */}
-                  <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between gap-2">
+                  <div className="mt-4 pt-3 border-t border-[#E9DCC4] flex items-center justify-between gap-2">
                     <button
                       onClick={() => handleTogglePrescriptionStatus(rx)}
-                      className={`text-xs px-2.5 py-1 rounded-md transition-colors font-medium ${
+                      className={`text-xs px-2.5 py-1 rounded-md transition-colors font-semibold ${
                         isVigente
-                          ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                          : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          ? 'bg-[#FFF9ED] text-[#493B2A] border border-[#E9DCC4] hover:bg-[#F8E8A6]/40'
+                          : 'bg-[#EDF6F1] text-[#287653] border border-[#B8DDCB]'
                       }`}
                     >
                       {isVigente ? 'Marcar Comprada' : 'Comprada en Farmacia'}
@@ -366,7 +364,7 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
 
                     <button
                       onClick={() => setSelectedPrescription(rx)}
-                      className="flex items-center gap-1 text-xs font-semibold text-neutral-900 hover:underline"
+                      className="flex items-center gap-1 text-xs font-semibold text-[#B87932] hover:text-[#A06424] hover:underline"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       <span>Ver Receta</span>
@@ -381,71 +379,71 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
 
       {/* Prescription Preview Modal */}
       {selectedPrescription && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl border border-neutral-200 shadow-2xl max-w-lg w-full p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl border border-[#E9DCC4] shadow-2xl max-w-lg w-full p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-[#E9DCC4] pb-3">
               <div className="flex items-center gap-2">
-                <FileCheck className="w-5 h-5 text-emerald-600" />
-                <h3 className="text-base font-bold text-neutral-900">
+                <FileCheck className="w-5 h-5 text-[#B87932]" />
+                <h3 className="text-base font-bold text-[#493B2A]">
                   {selectedPrescription.title}
                 </h3>
               </div>
               <button
                 onClick={() => setSelectedPrescription(null)}
-                className="text-neutral-400 hover:text-neutral-700 text-xs font-bold"
+                className="text-[#796B59] hover:text-[#493B2A] text-xs font-bold"
               >
                 Cerrar
               </button>
             </div>
 
-            {/* Simulated Medical Document Sheet */}
-            <div className="bg-neutral-50 p-6 rounded-xl border border-neutral-200 space-y-4 text-xs">
-              <div className="border-b border-neutral-200 pb-3 flex justify-between items-start">
+            {/* Medical Document Sheet */}
+            <div className="bg-[#FFF9ED] p-6 rounded-xl border border-[#E9DCC4] space-y-4 text-xs">
+              <div className="border-b border-[#E9DCC4] pb-3 flex justify-between items-start">
                 <div>
-                  <div className="font-bold text-neutral-900 text-sm">
+                  <div className="font-bold text-[#493B2A] text-sm">
                     {selectedPrescription.doctorName}
                   </div>
-                  <div className="text-neutral-500">Médico Matriculado · Receta Oficial</div>
+                  <div className="text-[#796B59]">Médico Matriculado · Receta Oficial</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-neutral-400 text-[10px]">FECHA DE EMISIÓN</div>
-                  <div className="font-mono font-semibold text-neutral-800 tabular-nums">
+                  <div className="text-[#796B59] text-[10px]">FECHA DE EMISIÓN</div>
+                  <div className="font-mono font-semibold text-[#493B2A] tabular-nums">
                     {formatDate(selectedPrescription.issueDate)}
                   </div>
                 </div>
               </div>
 
               <div>
-                <div className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
+                <div className="text-[11px] font-bold text-[#B87932] uppercase tracking-wider mb-1">
                   Rp. / Prescripción:
                 </div>
                 {selectedPrescription.medicationsIncluded ? (
                   <div className="space-y-1">
                     {selectedPrescription.medicationsIncluded.map((item, idx) => (
-                      <div key={idx} className="font-semibold text-neutral-900 pl-2 border-l-2 border-emerald-500">
+                      <div key={idx} className="font-semibold text-[#493B2A] pl-2 border-l-2 border-[#D9A441]">
                         {item}
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-neutral-800">{selectedPrescription.notes}</p>
+                  <p className="text-[#493B2A]">{selectedPrescription.notes}</p>
                 )}
               </div>
 
               {selectedPrescription.expiryDate && (
-                <div className="text-[11px] text-neutral-500 pt-2 border-t border-neutral-200">
+                <div className="text-[11px] text-[#796B59] pt-2 border-t border-[#E9DCC4]">
                   Válido para compra en farmacias hasta el {formatDate(selectedPrescription.expiryDate)}.
                 </div>
               )}
             </div>
 
             <div className="flex items-center justify-between pt-2">
-              <div className="text-xs text-neutral-500">
+              <div className="text-xs text-[#796B59]">
                 Archivo: {selectedPrescription.fileName || 'documento_medico.pdf'}
               </div>
               <button
                 onClick={() => window.print()}
-                className="px-4 py-2 text-xs font-semibold text-white bg-neutral-900 hover:bg-neutral-800 rounded-lg transition-colors"
+                className="px-4 py-2 text-xs font-semibold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors shadow-xs"
               >
                 Imprimir Documento
               </button>

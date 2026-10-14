@@ -1,9 +1,65 @@
 @import "tailwindcss";
 
+@theme {
+  --color-crema: #FFF9ED;
+  --color-superficie: #FFFFFF;
+  --color-manteca: #F8E8A6;
+  --color-dorado: #E9C46A;
+  --color-miel: #D9A441;
+  --color-tostado: #B87932;
+  --color-tostado-hover: #A06424;
+  --color-terracota: #C97759;
+  --color-terracota-light: #FBF0EB;
+  --color-borde: #E9DCC4;
+  --color-marron-dark: #493B2A;
+  --color-marron-muted: #796B59;
+  --color-exito: #287653;
+  --color-exito-light: #EDF6F1;
+  --color-alerta: #8A570A;
+  --color-alerta-light: #FDF5E6;
+  --color-peligro: #B42332;
+  --color-peligro-light: #FDF1F2;
+}
+
+:root {
+  --bg-main: #FFF9ED;
+  --bg-surface: #FFFFFF;
+  --butter: #F8E8A6;
+  --gold: #E9C46A;
+  --honey: #D9A441;
+  --toasted-ochre: #B87932;
+  --toasted-ochre-hover: #A06424;
+  --terracotta: #C97759;
+  --border-beige: #E9DCC4;
+  --text-main: #493B2A;
+  --text-secondary: #796B59;
+  --success: #287653;
+  --warning: #8A570A;
+  --error: #B42332;
+}
+
 @layer base {
   body {
+    background-color: #FFF9ED;
+    color: #493B2A;
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   }
+}
+
+/* Custom scrollbars with warm beige tones */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #FFF9ED;
+}
+::-webkit-scrollbar-thumb {
+  background: #E9DCC4;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #D9A441;
 }
 
 @media print {

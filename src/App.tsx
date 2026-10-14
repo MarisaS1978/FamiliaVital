@@ -160,7 +160,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col text-neutral-900">
+    <div className="min-h-screen bg-[#FFF9ED] flex flex-col text-[#493B2A]">
       {/* Top Header */}
       <Header
         activeTab={activeTab}
@@ -242,20 +242,20 @@ export default function App() {
         )}
       </main>
 
-      {/* Quiet, unpretentious footer */}
-      <footer className="no-print bg-white border-t border-neutral-200 py-6 mt-12 text-xs text-neutral-500">
+      {/* Quiet, warm footer */}
+      <footer className="no-print bg-white border-t border-[#E9DCC4] py-6 mt-12 text-xs text-[#796B59]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-neutral-800">SaludFamiliar</span>
+            <span className="font-bold text-[#493B2A]">FamiliaVital</span>
             <span>·</span>
             <span>Libreta Digital de Salud & Fichas Médicas Familiares</span>
           </div>
-          <div className="flex items-center gap-4 text-[11px] text-neutral-400">
+          <div className="flex items-center gap-4 text-[11px] text-[#796B59]">
             <span>Privacidad protegida · Almacenamiento local</span>
             <span>·</span>
             <button
               onClick={() => setIsEmergencySOSOpen(true)}
-              className="text-rose-600 hover:underline font-medium"
+              className="text-[#B42332] hover:underline font-bold"
             >
               Ficha de Emergencia (SOS)
             </button>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { FamilyMember } from '../types/health';
 import { formatAge } from '../utils/healthUtils';
-import { Users, UserPlus, Droplets } from 'lucide-react';
+import { Users, UserPlus } from 'lucide-react';
 
 interface MemberSelectorProps {
   members: FamilyMember[];
@@ -17,85 +17,85 @@ export const MemberSelector: React.FC<MemberSelectorProps> = ({
   onAddNewMember,
 }) => {
   return (
-    <div className="bg-white border-b border-neutral-200 py-3">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-4 overflow-x-auto no-scrollbar py-0.5">
-          <div className="flex items-center gap-2 shrink-0">
-            {/* All family button */}
-            <button
-              onClick={() => onSelectMember('all')}
-              className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                selectedMemberId === 'all'
-                  ? 'bg-neutral-900 text-white shadow-sm'
-                  : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>Toda la Familia</span>
-              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono tabular-nums ${
-                selectedMemberId === 'all' ? 'bg-neutral-800 text-neutral-300' : 'bg-neutral-200 text-neutral-600'
-              }`}>
-                {members.length}
-              </span>
-            </button>
+    <div className="bg-white border-b border-[#E9DCC4] py-2 sm:py-3 shadow-2xs">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar overscroll-x-contain py-0.5">
+          {/* All family button */}
+          <button
+            onClick={() => onSelectMember('all')}
+            className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition-all shrink-0 ${
+              selectedMemberId === 'all'
+                ? 'bg-[#B87932] text-white shadow-xs'
+                : 'bg-[#FFF9ED] text-[#493B2A] border border-[#E9DCC4] hover:bg-[#F8E8A6]/40'
+            }`}
+          >
+            <Users className={`w-3.5 h-3.5 ${selectedMemberId === 'all' ? 'text-[#F8E8A6]' : 'text-[#B87932]'}`} />
+            <span className="hidden sm:inline">Toda la Familia</span>
+            <span className="sm:hidden">Todos</span>
+            <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono tabular-nums ${
+              selectedMemberId === 'all' ? 'bg-[#A06424] text-[#F8E8A6]' : 'bg-[#E9DCC4] text-[#796B59]'
+            }`}>
+              {members.length}
+            </span>
+          </button>
 
-            {/* Individual member buttons */}
-            {members.map((member) => {
-              const isSelected = selectedMemberId === member.id;
-              const age = formatAge(member.birthDate);
+          {/* Individual member buttons */}
+          {members.map((member) => {
+            const isSelected = selectedMemberId === member.id;
+            const age = formatAge(member.birthDate);
 
-              return (
-                <button
-                  key={member.id}
-                  onClick={() => onSelectMember(member.id)}
-                  className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg border text-left transition-all shrink-0 ${
-                    isSelected
-                      ? 'border-neutral-900 bg-neutral-900 text-white shadow-sm'
-                      : 'border-neutral-200 bg-white text-neutral-800 hover:border-neutral-300 hover:bg-neutral-50'
-                  }`}
-                >
-                  {/* Avatar with fallback */}
-                  <div className="relative w-7 h-7 rounded-full overflow-hidden bg-neutral-100 flex items-center justify-center shrink-0 border border-neutral-200">
-                    {member.avatarUrl ? (
-                      <img
-                        src={member.avatarUrl}
-                        alt={member.name}
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          // Fallback to initials if image fails
-                          (e.currentTarget as HTMLElement).style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <span className="text-xs font-bold text-neutral-700">
-                        {member.name.charAt(0)}
-                      </span>
-                    )}
+            return (
+              <button
+                key={member.id}
+                onClick={() => onSelectMember(member.id)}
+                className={`flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-lg border text-left transition-all shrink-0 ${
+                  isSelected
+                    ? 'border-[#B87932] bg-[#B87932] text-white shadow-xs'
+                    : 'border-[#E9DCC4] bg-white text-[#493B2A] hover:border-[#D9A441] hover:bg-[#FFF9ED]'
+                }`}
+              >
+                {/* Avatar with fallback */}
+                <div className="relative w-6 h-6 sm:w-7 sm:h-7 rounded-full overflow-hidden bg-[#FFF9ED] flex items-center justify-center shrink-0 border border-[#E9DCC4]">
+                  {member.avatarUrl ? (
+                    <img
+                      src={member.avatarUrl}
+                      alt={member.name}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    <span className="text-[11px] font-bold text-[#B87932]">
+                      {member.name.charAt(0)}
+                    </span>
+                  )}
+                </div>
+
+                <div className="leading-tight">
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs font-semibold whitespace-nowrap">{member.name.split(' ')[0]}</span>
+                    <span className={`text-[10px] font-mono tabular-nums ${isSelected ? 'text-[#F8E8A6]' : 'text-[#796B59]'}`}>
+                      {member.bloodType}
+                    </span>
                   </div>
-
-                  <div className="leading-tight">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-semibold whitespace-nowrap">{member.name.split(' ')[0]}</span>
-                      <span className={`text-[10px] font-mono tabular-nums ${isSelected ? 'text-neutral-300' : 'text-neutral-500'}`}>
-                        {member.bloodType}
-                      </span>
-                    </div>
-                    <div className={`text-[10px] ${isSelected ? 'text-neutral-300' : 'text-neutral-500'}`}>
-                      {member.relationship} · {age}
-                    </div>
+                  <div className={`text-[10px] ${isSelected ? 'text-[#F8E8A6]/90' : 'text-[#796B59]'}`}>
+                    {member.relationship} · {age}
                   </div>
-                </button>
-              );
-            })}
-          </div>
+                </div>
+              </button>
+            );
+          })}
 
+          {/* Add member button in the direct flow of the list */}
           <button
             onClick={onAddNewMember}
-            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors shrink-0 border border-dashed border-neutral-300"
+            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-[#493B2A] hover:bg-[#FFF9ED] bg-white rounded-lg transition-colors shrink-0 border border-dashed border-[#B87932] shadow-2xs"
+            title="Agregar nuevo familiar"
           >
-            <UserPlus className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Agregar Integrante</span>
+            <UserPlus className="w-3.5 h-3.5 text-[#B87932]" />
+            <span>+ Integrante</span>
           </button>
         </div>
       </div>

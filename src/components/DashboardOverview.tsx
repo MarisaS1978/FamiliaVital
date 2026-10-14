@@ -12,12 +12,10 @@ import {
   ShieldAlert,
   AlertTriangle,
   Calendar,
-  Syringe,
   Pill,
   Share2,
   Search,
   CheckCircle2,
-  Clock,
   ArrowRight,
   HeartPulse,
   Download,
@@ -97,7 +95,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 
   const handleExportBackup = () => {
     const backupData = {
-      app: 'SaludFamiliar',
+      app: 'FamiliaVital',
       exportedAt: new Date().toISOString(),
       members,
       vaccines,
@@ -112,7 +110,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `SaludFamiliar_Respaldo_${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `FamiliaVital_Respaldo_${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -120,111 +118,111 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Hero Welcome & Quick SOS Banner */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-neutral-900 via-neutral-900 to-neutral-800 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
-        <div className="space-y-1.5 max-w-xl">
-          <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400">
-            <HeartPulse className="w-4 h-4" />
+    <div className="space-y-4 sm:space-y-6">
+      {/* Featured Welcome Panel (Compact and responsive on mobile) */}
+      <div className="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-[#F8E8A6] border border-[#E9DCC4] text-[#493B2A] flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 shadow-xs">
+        <div className="space-y-1 max-w-xl">
+          <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-[#B87932] uppercase tracking-wider">
+            <HeartPulse className="w-3.5 h-3.5 text-[#B87932]" />
             <span>Libreta Médica Familiar Centralizada</span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#493B2A]">
             Familia Rossi Gómez
           </h1>
-          <p className="text-xs text-neutral-300 leading-relaxed">
+          <p className="text-xs text-[#796B59] leading-relaxed">
             {members.length} integrantes registrados · Esquemas de vacunación al día, botiquín doméstico controlado y fichas médicas preparadas para emergencias o cuidadores.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 shrink-0 w-full md:w-auto">
           <button
             onClick={onOpenEmergencySOS}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all shadow-md shadow-rose-900/30 whitespace-nowrap"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-[#B42332] hover:bg-[#9E1B28] text-white text-xs font-bold transition-all shadow-sm shadow-[#B42332]/25 whitespace-nowrap"
           >
-            <ShieldAlert className="w-4 h-4" />
-            <span>Ficha SOS de Emergencia</span>
+            <ShieldAlert className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white shrink-0" />
+            <span className="truncate">Ficha SOS</span>
           </button>
           <button
             onClick={onOpenShare}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition-all backdrop-blur-xs whitespace-nowrap"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-white text-[#493B2A] border border-[#E9DCC4] hover:bg-[#FFF9ED] text-xs font-semibold transition-all shadow-2xs whitespace-nowrap"
           >
-            <Share2 className="w-4 h-4 text-neutral-300" />
-            <span>Compartir con Cuidador</span>
+            <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#B87932] shrink-0" />
+            <span className="truncate">Compartir</span>
           </button>
         </div>
       </div>
 
       {/* Global Search Bar */}
       <div className="relative">
-        <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-[#D9A441] absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           type="text"
-          placeholder="Buscar medicamentos, vacunas, turnos, alergias o integrantes en toda la libreta..."
+          placeholder="Buscar medicamentos, vacunas, turnos, alergias o integrantes..."
           value={globalSearch}
           onChange={(e) => setGlobalSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 text-xs bg-white border border-neutral-200 rounded-xl text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
+          className="w-full pl-10 pr-16 py-2.5 text-xs bg-white border border-[#E9DCC4] rounded-xl text-[#493B2A] placeholder:text-[#796B59]/70 focus:outline-none focus:ring-2 focus:ring-[#E9C46A] focus:border-transparent shadow-xs"
         />
         {globalSearch && (
           <button
             onClick={() => setGlobalSearch('')}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-neutral-400 hover:text-neutral-700"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-[#796B59] hover:text-[#493B2A]"
           >
             Limpiar
           </button>
         )}
       </div>
 
-      {/* Search results popup if active */}
+      {/* Search results panel if active */}
       {searchResults && (
-        <div className="p-4 rounded-xl bg-white border border-emerald-300 shadow-md space-y-3">
-          <div className="text-xs font-bold text-neutral-800">
+        <div className="p-4 rounded-xl bg-white border border-[#E9C46A] shadow-md space-y-3">
+          <div className="text-xs font-bold text-[#493B2A]">
             Resultados de búsqueda para "{globalSearch}":
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
             {/* Meds */}
-            <div className="p-3 bg-neutral-50 rounded-lg">
-              <span className="font-semibold text-neutral-700 block mb-1">
+            <div className="p-3 bg-[#FFF9ED] rounded-lg border border-[#E9DCC4]">
+              <span className="font-semibold text-[#493B2A] block mb-1">
                 Medicamentos ({searchResults.medicines.length})
               </span>
               {searchResults.medicines.map((m) => (
-                <div key={m.id} className="text-[11px] text-neutral-600 truncate">
+                <div key={m.id} className="text-[11px] text-[#796B59] truncate">
                   • {m.name} ({m.location})
                 </div>
               ))}
             </div>
 
             {/* Vaccines */}
-            <div className="p-3 bg-neutral-50 rounded-lg">
-              <span className="font-semibold text-neutral-700 block mb-1">
+            <div className="p-3 bg-[#FFF9ED] rounded-lg border border-[#E9DCC4]">
+              <span className="font-semibold text-[#493B2A] block mb-1">
                 Vacunas ({searchResults.vaccines.length})
               </span>
               {searchResults.vaccines.map((v) => (
-                <div key={v.id} className="text-[11px] text-neutral-600 truncate">
+                <div key={v.id} className="text-[11px] text-[#796B59] truncate">
                   • {v.vaccineName} ({v.recommendedAge})
                 </div>
               ))}
             </div>
 
             {/* Turnos */}
-            <div className="p-3 bg-neutral-50 rounded-lg">
-              <span className="font-semibold text-neutral-700 block mb-1">
+            <div className="p-3 bg-[#FFF9ED] rounded-lg border border-[#E9DCC4]">
+              <span className="font-semibold text-[#493B2A] block mb-1">
                 Turnos ({searchResults.appointments.length})
               </span>
               {searchResults.appointments.map((a) => (
-                <div key={a.id} className="text-[11px] text-neutral-600 truncate">
+                <div key={a.id} className="text-[11px] text-[#796B59] truncate">
                   • {a.specialty} ({a.doctorName})
                 </div>
               ))}
             </div>
 
             {/* Integrantes */}
-            <div className="p-3 bg-neutral-50 rounded-lg">
-              <span className="font-semibold text-neutral-700 block mb-1">
+            <div className="p-3 bg-[#FFF9ED] rounded-lg border border-[#E9DCC4]">
+              <span className="font-semibold text-[#493B2A] block mb-1">
                 Familiares ({searchResults.members.length})
               </span>
               {searchResults.members.map((m) => (
-                <div key={m.id} className="text-[11px] text-neutral-600 truncate">
+                <div key={m.id} className="text-[11px] text-[#796B59] truncate">
                   • {m.name} ({m.bloodType})
                 </div>
               ))}
@@ -233,24 +231,24 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         </div>
       )}
 
-      {/* Critical Health Alerts Strip */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Critical Health Alerts Strip - Cards with prominent, fully visible action buttons */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4">
         {/* 1. Alergias Críticas */}
-        <div className="p-4 rounded-xl border border-red-200 bg-red-50/60 flex flex-col justify-between">
+        <div className="p-4 rounded-xl border border-[#F5B8BE] bg-[#FDF1F2] flex flex-col justify-between shadow-2xs">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold text-red-800 uppercase tracking-wider mb-2">
-              <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+            <div className="flex items-center gap-1.5 text-xs font-bold text-[#B42332] uppercase tracking-wider mb-2">
+              <AlertTriangle className="w-4 h-4 text-[#B42332] shrink-0" />
               <span>Alergias Severas Declaradas</span>
             </div>
-            <div className="space-y-1.5 text-xs text-red-950">
+            <div className="space-y-1.5 text-xs text-[#493B2A]">
               {severeAllergies.map((a) => {
                 const member = members.find((m) => m.id === a.memberId);
                 return (
-                  <div key={a.id} className="bg-white/80 p-2 rounded border border-red-200">
-                    <div className="font-bold">
+                  <div key={a.id} className="bg-white p-2 rounded-lg border border-[#F5B8BE]">
+                    <div className="font-bold text-[#B42332]">
                       {member?.name.split(' ')[0]}: {a.allergen}
                     </div>
-                    <div className="text-[11px] text-red-800 mt-0.5">
+                    <div className="text-[11px] text-[#796B59] mt-0.5 line-clamp-2">
                       {a.reactionDescription}
                     </div>
                   </div>
@@ -260,79 +258,79 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           </div>
           <button
             onClick={() => onSelectTab('perfiles')}
-            className="mt-3 text-xs font-semibold text-red-700 hover:text-red-900 inline-flex items-center gap-1"
+            className="mt-3.5 text-xs font-bold text-[#B42332] bg-white border border-[#F5B8BE] hover:bg-[#FDF1F2] px-3 py-1.5 rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors shadow-2xs self-start"
           >
             <span>Ver protocolos de emergencia</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-3.5 h-3.5 text-[#B42332]" />
           </button>
         </div>
 
         {/* 2. Botiquín & Vencimientos */}
-        <div className="p-4 rounded-xl border border-neutral-200 bg-white flex flex-col justify-between">
+        <div className="p-4 rounded-xl border border-[#E9DCC4] bg-white flex flex-col justify-between shadow-2xs">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold text-neutral-800 uppercase tracking-wider mb-2">
-              <Pill className="w-4 h-4 text-emerald-600 shrink-0" />
+            <div className="flex items-center gap-1.5 text-xs font-bold text-[#493B2A] uppercase tracking-wider mb-2">
+              <Pill className="w-4 h-4 text-[#D9A441] shrink-0" />
               <span>Estado del Botiquín</span>
             </div>
             <div className="space-y-2 text-xs">
               {expiredMeds.length > 0 ? (
-                <div className="p-2 bg-red-50 text-red-900 rounded border border-red-200">
+                <div className="p-2 bg-[#FDF1F2] text-[#B42332] rounded-lg border border-[#F5B8BE]">
                   <span className="font-bold">
                     {expiredMeds.length} medicamento vencido:
                   </span>{' '}
                   {expiredMeds.map((m) => m.name).join(', ')}
                 </div>
               ) : (
-                <div className="text-emerald-700 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Sin medicamentos vencidos</span>
+                <div className="text-[#287653] flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#287653]" />
+                  <span className="font-medium">Sin medicamentos vencidos</span>
                 </div>
               )}
 
               {warningMeds.length > 0 && (
-                <div className="p-2 bg-amber-50 text-amber-900 rounded border border-amber-200">
+                <div className="p-2 bg-[#FDF5E6] text-[#8A570A] rounded-lg border border-[#E9DCC4]">
                   <span className="font-bold">Por vencer pronto:</span>{' '}
                   {warningMeds.map((m) => m.name).join(', ')}
                 </div>
               )}
 
-              <div className="text-[11px] text-neutral-500 pt-1">
-                Total de fármacos e insumos registrados: {medicines.length} unidades
+              <div className="text-[11px] text-[#796B59] pt-1">
+                Total de fármacos registrados: {medicines.length} unidades
               </div>
             </div>
           </div>
           <button
             onClick={() => onSelectTab('botiquin')}
-            className="mt-3 text-xs font-semibold text-neutral-900 hover:text-emerald-700 inline-flex items-center gap-1"
+            className="mt-3.5 text-xs font-semibold text-[#B87932] bg-[#FFF9ED] border border-[#E9DCC4] hover:bg-[#F8E8A6]/40 px-3 py-1.5 rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors shadow-2xs self-start"
           >
             <span>Administrar botiquín</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-3.5 h-3.5 text-[#B87932]" />
           </button>
         </div>
 
         {/* 3. Vacunas & Próximos Turnos */}
-        <div className="p-4 rounded-xl border border-neutral-200 bg-white flex flex-col justify-between">
+        <div className="p-4 rounded-xl border border-[#E9DCC4] bg-white flex flex-col justify-between shadow-2xs">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold text-neutral-800 uppercase tracking-wider mb-2">
-              <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
+            <div className="flex items-center gap-1.5 text-xs font-bold text-[#493B2A] uppercase tracking-wider mb-2">
+              <Calendar className="w-4 h-4 text-[#D9A441] shrink-0" />
               <span>Agenda Médica Inmediata</span>
             </div>
             <div className="space-y-2 text-xs">
               {upcomingAppointments.length > 0 ? (
-                <div className="p-2.5 bg-neutral-50 rounded border border-neutral-100">
-                  <div className="font-bold text-neutral-900">
+                <div className="p-2.5 bg-[#FFF9ED] rounded-lg border border-[#E9DCC4]">
+                  <div className="font-bold text-[#493B2A]">
                     {upcomingAppointments[0].specialty} · {upcomingAppointments[0].doctorName}
                   </div>
-                  <div className="text-[11px] text-neutral-600 mt-0.5">
+                  <div className="text-[11px] text-[#796B59] mt-0.5">
                     {formatDateTime(upcomingAppointments[0].dateTime)}
                   </div>
                 </div>
               ) : (
-                <div className="text-neutral-500">No hay turnos próximos programados.</div>
+                <div className="text-[#796B59]">No hay turnos próximos programados.</div>
               )}
 
               {overdueVaccines.length > 0 && (
-                <div className="p-2 bg-rose-50 text-rose-900 rounded border border-rose-200 text-[11px]">
+                <div className="p-2 bg-[#FDF1F2] text-[#B42332] rounded-lg border border-[#F5B8BE] text-[11px]">
                   <strong>Vacuna atrasada:</strong> {overdueVaccines[0].vaccineName} ({members.find(m => m.id === overdueVaccines[0].memberId)?.name.split(' ')[0]})
                 </div>
               )}
@@ -340,10 +338,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           </div>
           <button
             onClick={() => onSelectTab('turnos-recetas')}
-            className="mt-3 text-xs font-semibold text-neutral-900 hover:text-emerald-700 inline-flex items-center gap-1"
+            className="mt-3.5 text-xs font-semibold text-[#B87932] bg-[#FFF9ED] border border-[#E9DCC4] hover:bg-[#F8E8A6]/40 px-3 py-1.5 rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors shadow-2xs self-start"
           >
             <span>Ver agenda y recetas</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-3.5 h-3.5 text-[#B87932]" />
           </button>
         </div>
       </div>
@@ -351,22 +349,19 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       {/* Family Members Cards Overview */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xs font-bold text-neutral-700 uppercase tracking-wider">
+          <h3 className="text-xs font-bold text-[#493B2A] uppercase tracking-wider">
             Integrantes de la Familia
           </h3>
-          <span className="text-xs text-neutral-500">
+          <span className="text-xs text-[#796B59] hidden sm:inline">
             Haz clic en un integrante para ver su ficha específica
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {members.map((member) => {
             const memberVaccines = vaccines.filter((v) => v.memberId === member.id);
             const appliedVac = memberVaccines.filter((v) => v.status === 'applied').length;
             const memberAllergies = allergies.filter((a) => a.memberId === member.id);
-            const nextApt = appointments.find(
-              (a) => a.memberId === member.id && a.status === 'scheduled'
-            );
 
             return (
               <div
@@ -375,10 +370,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                   onSelectMember(member.id);
                   onSelectTab('perfiles');
                 }}
-                className="p-4 rounded-xl border border-neutral-200 bg-white hover:border-neutral-400 hover:shadow-xs transition-all cursor-pointer flex flex-col justify-between"
+                className="p-3.5 sm:p-4 rounded-xl border border-[#E9DCC4] bg-white hover:border-[#D9A441] hover:shadow-xs transition-all cursor-pointer flex flex-col justify-between"
               >
                 <div>
-                  <div className="w-12 h-12 rounded-full overflow-hidden bg-neutral-100 border border-neutral-200 mb-3 mx-auto">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-[#FFF9ED] border border-[#E9DCC4] mb-2 sm:mb-3 mx-auto">
                     {member.avatarUrl ? (
                       <img
                         src={member.avatarUrl}
@@ -387,36 +382,36 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center font-bold text-sm text-neutral-600">
+                      <div className="w-full h-full flex items-center justify-center font-bold text-sm text-[#B87932]">
                         {member.name.charAt(0)}
                       </div>
                     )}
                   </div>
 
                   <div className="text-center">
-                    <h4 className="font-bold text-xs text-neutral-900 truncate">
+                    <h4 className="font-bold text-xs text-[#493B2A] truncate">
                       {member.name}
                     </h4>
-                    <div className="text-[11px] text-neutral-500">
+                    <div className="text-[11px] text-[#796B59]">
                       {member.relationship} · {formatAge(member.birthDate)}
                     </div>
                   </div>
 
-                  <div className="mt-3 pt-3 border-t border-neutral-100 text-[11px] space-y-1 text-neutral-600">
+                  <div className="mt-2.5 pt-2.5 border-t border-[#E9DCC4] text-[11px] space-y-1 text-[#796B59]">
                     <div className="flex justify-between">
-                      <span className="text-neutral-400">Grupo:</span>
-                      <span className="font-mono font-bold text-rose-600">
+                      <span className="text-[#796B59]/80">Grupo:</span>
+                      <span className="font-mono font-bold text-[#C97759]">
                         {member.bloodType}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-neutral-400">Vacunas:</span>
-                      <span className="font-mono tabular-nums">
+                      <span className="text-[#796B59]/80">Vacunas:</span>
+                      <span className="font-mono tabular-nums text-[#493B2A] font-semibold">
                         {appliedVac}/{memberVaccines.length}
                       </span>
                     </div>
                     {memberAllergies.length > 0 && (
-                      <div className="flex justify-between text-rose-700">
+                      <div className="flex justify-between text-[#B42332]">
                         <span>Alergias:</span>
                         <span className="font-bold">{memberAllergies.length}</span>
                       </div>
@@ -424,8 +419,8 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                   </div>
                 </div>
 
-                <div className="mt-3 pt-2 text-center text-[10px] text-emerald-700 font-semibold border-t border-neutral-50">
-                  Ver Ficha Clínica →
+                <div className="mt-2.5 pt-2 text-center text-[10px] text-[#B87932] font-semibold border-t border-[#E9DCC4]/50">
+                  Ver Ficha →
                 </div>
               </div>
             );
@@ -434,25 +429,25 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       </div>
 
       {/* Footer Utility Actions: Backup and Data Safety */}
-      <div className="p-4 rounded-xl bg-neutral-100 border border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-neutral-600">
+      <div className="p-3.5 sm:p-4 rounded-xl bg-white border border-[#E9DCC4] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#796B59]">
         <div>
-          <strong>Respaldo de Seguridad:</strong> Puedes descargar una copia completa de las fichas familiares o restaurar datos de demostración.
+          <strong className="text-[#493B2A]">Respaldo de Seguridad:</strong> Descarga una copia de las fichas familiares o restaura los datos iniciales.
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
             onClick={handleExportBackup}
-            className="flex items-center gap-1 px-3 py-1.5 bg-white border border-neutral-300 rounded-lg text-neutral-800 hover:bg-neutral-50 transition-colors font-medium shadow-2xs"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#FFF9ED] border border-[#E9DCC4] rounded-lg text-[#493B2A] hover:bg-[#F8E8A6]/30 transition-colors font-medium shadow-2xs"
           >
-            <Download className="w-3.5 h-3.5" />
-            <span>Descargar Respaldo JSON</span>
+            <Download className="w-3.5 h-3.5 text-[#B87932]" />
+            <span>Descargar Respaldo</span>
           </button>
           <button
             onClick={onResetData}
-            className="flex items-center gap-1 px-3 py-1.5 text-neutral-500 hover:text-neutral-800 rounded-lg transition-colors"
+            className="flex items-center justify-center gap-1 px-3 py-1.5 text-[#796B59] hover:text-[#493B2A] rounded-lg transition-colors"
             title="Restaurar datos predeterminados de la familia"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Restablecer Demo</span>
+            <RotateCcw className="w-3.5 h-3.5 text-[#D9A441]" />
+            <span>Restablecer</span>
           </button>
         </div>
       </div>

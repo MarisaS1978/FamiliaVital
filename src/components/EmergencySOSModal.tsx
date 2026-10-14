@@ -56,7 +56,7 @@ export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
       .map((c) => `• ${c.name} (${c.relation}): ${c.phone}`)
       .join('\n');
 
-    const summary = `🚨 FICHA MÉDICA DE EMERGENCIA - SALUDFAMILIAR
+    const summary = `🚨 FICHA MÉDICA DE EMERGENCIA - FAMILIAVITAL
 Nombre: ${currentMember.name}
 Edad: ${formatAge(currentMember.birthDate)} (${currentMember.birthDate})
 DNI: ${currentMember.idNumber}
@@ -77,7 +77,7 @@ ${currentMember.primaryDoctor?.name || 'No especificado'} (${currentMember.prima
 ${emergencyContacts}
 
 Notas: ${currentMember.vitalNotes || 'Ninguna'}
-Generado desde SaludFamiliar`;
+Generado desde FamiliaVital`;
 
     navigator.clipboard.writeText(summary);
     setCopied(true);
@@ -89,43 +89,46 @@ Generado desde SaludFamiliar`;
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-3xl w-full border border-neutral-200 shadow-2xl overflow-hidden my-8">
-        {/* Top Emergency Header */}
-        <div className="bg-rose-600 px-6 py-4 text-white flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-xs">
-              <ShieldAlert className="w-6 h-6 text-white" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl max-w-2xl w-full border border-[#E9DCC4] shadow-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[88vh]">
+        {/* Top Emergency Header - Always pinned and fully visible */}
+        <div className="bg-[#B42332] px-4 py-3 sm:px-6 sm:py-3.5 text-white flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+              <ShieldAlert className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-bold tracking-tight">Ficha Médica de Emergencia (SOS)</h2>
-              <p className="text-xs text-rose-100">
-                Información vital accesible para médicos de guardia, paramédicos y cuidadores
+              <h2 className="text-sm sm:text-base font-bold tracking-tight text-white leading-tight">
+                Ficha Médica de Emergencia (SOS)
+              </h2>
+              <p className="text-[11px] text-white/90 leading-tight">
+                Información vital accesible para guardia y cuidadores
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+            className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors"
             title="Cerrar modal"
+            aria-label="Cerrar"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
 
-        {/* Member Selector Tabs */}
-        <div className="bg-neutral-100 px-6 py-3 border-b border-neutral-200 flex items-center gap-2 overflow-x-auto no-scrollbar">
-          <span className="text-xs font-semibold text-neutral-600 whitespace-nowrap mr-1">
+        {/* Member Selector Tabs - Always pinned */}
+        <div className="bg-[#FFF9ED] px-4 py-2 sm:px-6 sm:py-2.5 border-b border-[#E9DCC4] flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
+          <span className="text-[11px] font-bold text-[#796B59] whitespace-nowrap mr-1">
             Ficha de:
           </span>
           {members.map((m) => (
             <button
               key={m.id}
               onClick={() => setSelectedId(m.id)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors ${
+              className={`px-2.5 py-1 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors ${
                 selectedId === m.id
-                  ? 'bg-neutral-900 text-white shadow-xs'
-                  : 'bg-white text-neutral-700 hover:bg-neutral-200 border border-neutral-200'
+                  ? 'bg-[#B87932] text-white shadow-xs'
+                  : 'bg-white text-[#493B2A] hover:bg-[#F8E8A6]/40 border border-[#E9DCC4]'
               }`}
             >
               {m.name.split(' ')[0]} ({m.relationship})
@@ -133,13 +136,13 @@ Generado desde SaludFamiliar`;
           ))}
         </div>
 
-        {/* Emergency Card Content */}
+        {/* Emergency Card Content - Independently scrollable */}
         {currentMember && (
-          <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
-            {/* Top Identity Grid */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl bg-neutral-50 border border-neutral-200">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-xl overflow-hidden bg-neutral-200 border border-neutral-300 shrink-0">
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 space-y-3.5 sm:space-y-4">
+            {/* Top Identity Grid - Compact & Responsive */}
+            <div className="p-3 sm:p-4 rounded-xl bg-[#FFF9ED] border border-[#E9DCC4] flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden bg-white border border-[#E9DCC4] shrink-0">
                   {currentMember.avatarUrl ? (
                     <img
                       src={currentMember.avatarUrl}
@@ -148,14 +151,16 @@ Generado desde SaludFamiliar`;
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center font-bold text-xl text-neutral-600">
+                    <div className="w-full h-full flex items-center justify-center font-bold text-lg text-[#B87932]">
                       {currentMember.name.charAt(0)}
                     </div>
                   )}
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-neutral-900">{currentMember.name}</h3>
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-600 mt-0.5">
+                <div className="min-w-0">
+                  <h3 className="text-base sm:text-lg font-bold text-[#493B2A] truncate">
+                    {currentMember.name}
+                  </h3>
+                  <div className="flex flex-wrap items-center gap-1.5 text-xs text-[#796B59] mt-0.5">
                     <span>{currentMember.relationship}</span>
                     <span aria-hidden="true">·</span>
                     <span className="font-mono tabular-nums">DNI {currentMember.idNumber}</span>
@@ -165,32 +170,32 @@ Generado desde SaludFamiliar`;
                 </div>
               </div>
 
-              {/* Blood group spotlight */}
-              <div className="bg-rose-50 border border-rose-200 rounded-xl px-5 py-2.5 text-center shrink-0 w-full sm:w-auto">
-                <div className="text-[10px] font-semibold text-rose-800 uppercase tracking-wider">
-                  Grupo Sanguíneo
+              {/* Compact Blood group badge */}
+              <div className="bg-[#FDF1F2] border border-[#F5B8BE] rounded-xl px-3 py-1.5 sm:px-4 sm:py-2 text-center shrink-0">
+                <div className="text-[9px] sm:text-[10px] font-bold text-[#B42332] uppercase tracking-wider">
+                  Grupo
                 </div>
-                <div className="text-2xl font-black text-rose-600 font-mono tabular-nums">
+                <div className="text-lg sm:text-xl font-black text-[#B42332] font-mono tabular-nums leading-none mt-0.5">
                   {currentMember.bloodType}
                 </div>
               </div>
             </div>
 
-            {/* Critical Allergy Warning Banner (if any) */}
+            {/* Critical Allergy Warning Banner */}
             {severeAllergies.length > 0 && (
-              <div className="p-4 rounded-xl bg-red-50 border-2 border-red-500/40 text-red-950">
-                <div className="flex items-center gap-2 text-red-700 font-bold text-sm">
-                  <AlertTriangle className="w-5 h-5 shrink-0 text-red-600" />
-                  <span>ALERTA CRÍTICA DE SEGURIDAD DEL PACIENTE</span>
+              <div className="p-3 sm:p-3.5 rounded-xl bg-[#FDF1F2] border border-[#F5B8BE] text-[#493B2A]">
+                <div className="flex items-center gap-1.5 text-[#B42332] font-bold text-xs sm:text-sm">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-[#B42332]" />
+                  <span>ALERTA CRÍTICA: RIESGO DE SEGURIDAD</span>
                 </div>
-                <div className="mt-2 space-y-2">
+                <div className="mt-1.5 space-y-1.5">
                   {severeAllergies.map((allergy) => (
                     <div key={allergy.id} className="text-xs">
-                      <div className="font-semibold text-red-900">
+                      <div className="font-bold text-[#B42332]">
                         {allergy.allergen}
                       </div>
-                      <div className="text-red-800 mt-0.5">
-                        <span className="font-medium">Protocolo de emergencia:</span>{' '}
+                      <div className="text-[#796B59] text-[11px] mt-0.5">
+                        <strong className="text-[#493B2A]">Protocolo de urgencia:</strong>{' '}
                         {allergy.emergencyProtocol}
                       </div>
                     </div>
@@ -200,94 +205,93 @@ Generado desde SaludFamiliar`;
             )}
 
             {/* Medical Insurance & Pediatrician / Doctor */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl border border-neutral-200 bg-white">
-                <div className="flex items-center gap-2 text-xs font-bold text-neutral-800 uppercase tracking-wider mb-2">
-                  <FileText className="w-4 h-4 text-emerald-600" />
-                  <span>Cobertura Médica & Urgencias</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="p-3 sm:p-3.5 rounded-xl border border-[#E9DCC4] bg-white">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-[#493B2A] uppercase tracking-wider mb-1.5">
+                  <FileText className="w-3.5 h-3.5 text-[#D9A441]" />
+                  <span>Cobertura Médica</span>
                 </div>
                 <div className="space-y-1 text-xs">
-                  <div className="flex justify-between py-1 border-b border-neutral-100">
-                    <span className="text-neutral-500">Obra Social / Prepaga:</span>
-                    <span className="font-semibold text-neutral-900">
+                  <div className="flex justify-between py-0.5 border-b border-[#E9DCC4]/40">
+                    <span className="text-[#796B59]">Prestador:</span>
+                    <span className="font-semibold text-[#493B2A]">
                       {currentMember.medicalInsurance.provider} (Plan {currentMember.medicalInsurance.plan})
                     </span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-neutral-100">
-                    <span className="text-neutral-500">N° de Afiliado:</span>
-                    <span className="font-mono font-semibold text-neutral-900 tabular-nums">
+                  <div className="flex justify-between py-0.5 border-b border-[#E9DCC4]/40">
+                    <span className="text-[#796B59]">N° Afiliado:</span>
+                    <span className="font-mono font-semibold text-[#493B2A] tabular-nums">
                       {currentMember.medicalInsurance.affiliateNumber}
                     </span>
                   </div>
-                  <div className="flex justify-between py-1 pt-2">
-                    <span className="text-neutral-500">Teléfono Urgencias:</span>
+                  <div className="flex justify-between py-0.5 pt-1">
+                    <span className="text-[#796B59]">Urgencias:</span>
                     {currentMember.medicalInsurance.emergencyPhone ? (
                       <a
                         href={`tel:${currentMember.medicalInsurance.emergencyPhone}`}
-                        className="font-mono font-bold text-rose-600 hover:underline flex items-center gap-1"
+                        className="font-mono font-bold text-[#B42332] hover:underline flex items-center gap-1"
                       >
                         <Phone className="w-3 h-3" />
                         {currentMember.medicalInsurance.emergencyPhone}
                       </a>
                     ) : (
-                      <span className="text-neutral-600">107 (SAME)</span>
+                      <span className="text-[#796B59]">107 (SAME)</span>
                     )}
                   </div>
                 </div>
               </div>
 
               {/* Primary Doctor */}
-              <div className="p-4 rounded-xl border border-neutral-200 bg-white">
-                <div className="flex items-center gap-2 text-xs font-bold text-neutral-800 uppercase tracking-wider mb-2">
-                  <User className="w-4 h-4 text-emerald-600" />
-                  <span>Médico / Pediatra de Cabecera</span>
+              <div className="p-3 sm:p-3.5 rounded-xl border border-[#E9DCC4] bg-white">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-[#493B2A] uppercase tracking-wider mb-1.5">
+                  <User className="w-3.5 h-3.5 text-[#D9A441]" />
+                  <span>Médico de Cabecera</span>
                 </div>
                 {currentMember.primaryDoctor ? (
                   <div className="space-y-1 text-xs">
-                    <div className="font-semibold text-neutral-900">
+                    <div className="font-semibold text-[#493B2A]">
                       {currentMember.primaryDoctor.name}
                     </div>
-                    <div className="text-neutral-500">{currentMember.primaryDoctor.specialty}</div>
-                    <div className="text-neutral-500">{currentMember.primaryDoctor.clinic}</div>
-                    <div className="pt-2">
+                    <div className="text-[#796B59] text-[11px]">{currentMember.primaryDoctor.specialty} · {currentMember.primaryDoctor.clinic}</div>
+                    <div className="pt-1">
                       <a
                         href={`tel:${currentMember.primaryDoctor.phone}`}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200 hover:bg-emerald-100 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#FFF9ED] text-[#B87932] font-semibold border border-[#E9DCC4] hover:bg-[#F8E8A6]/40 transition-colors text-xs"
                       >
-                        <Phone className="w-3 h-3" />
-                        <span>Llamar al médico: {currentMember.primaryDoctor.phone}</span>
+                        <Phone className="w-3 h-3 text-[#B87932]" />
+                        <span>Llamar: {currentMember.primaryDoctor.phone}</span>
                       </a>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-xs text-neutral-500 py-3">
-                    No hay médico de cabecera registrado para este miembro.
+                  <div className="text-xs text-[#796B59] py-2">
+                    Sin médico registrado
                   </div>
                 )}
               </div>
             </div>
 
             {/* Emergency Contacts */}
-            <div className="p-4 rounded-xl border border-neutral-200 bg-white">
-              <div className="flex items-center gap-2 text-xs font-bold text-neutral-800 uppercase tracking-wider mb-3">
-                <Heart className="w-4 h-4 text-rose-600" />
-                <span>Contactos Familiares de Urgencia</span>
+            <div className="p-3 sm:p-3.5 rounded-xl border border-[#E9DCC4] bg-white">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-[#493B2A] uppercase tracking-wider mb-2">
+                <Heart className="w-3.5 h-3.5 text-[#C97759]" />
+                <span>Contactos Familiares Urgentes</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {currentMember.emergencyContacts.map((contact, idx) => (
                   <div
                     key={idx}
-                    className="p-3 rounded-lg bg-neutral-50 border border-neutral-200 flex items-center justify-between"
+                    className="p-2 sm:p-2.5 rounded-lg bg-[#FFF9ED] border border-[#E9DCC4] flex items-center justify-between gap-2"
                   >
-                    <div>
-                      <div className="text-xs font-semibold text-neutral-900">{contact.name}</div>
-                      <div className="text-[11px] text-neutral-500">{contact.relation}</div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-semibold text-[#493B2A] truncate">{contact.name}</div>
+                      <div className="text-[10px] text-[#796B59]">{contact.relation}</div>
                     </div>
                     <a
                       href={`tel:${contact.phone}`}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white border border-neutral-300 text-neutral-800 text-xs font-bold hover:bg-neutral-100 transition-colors shrink-0"
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-white border border-[#E9DCC4] text-[#B87932] text-xs font-bold hover:bg-[#F8E8A6]/30 transition-colors shrink-0"
                     >
-                      <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                      <Phone className="w-3 h-3 text-[#B87932]" />
                       <span>{contact.phone}</span>
                     </a>
                   </div>
@@ -296,46 +300,50 @@ Generado desde SaludFamiliar`;
             </div>
 
             {/* National Emergency Hotline numbers */}
-            <div className="p-3.5 rounded-xl bg-neutral-900 text-white flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div className="p-3 rounded-xl bg-[#493B2A] text-white flex items-center justify-between gap-2 text-xs">
               <div className="flex items-center gap-2">
-                <Ambulance className="w-5 h-5 text-rose-400 shrink-0" />
-                <div>
-                  <div className="font-bold">Líneas Públicas Gratuitas de Urgencia</div>
-                  <div className="text-neutral-400 text-[11px]">
-                    SAME Emergencias: 107 · Policía: 911 · Centro Toxicología Posadas: 0800-333-0160
-                  </div>
+                <Ambulance className="w-4 h-4 text-[#E9C46A] shrink-0" />
+                <div className="text-[11px] leading-tight">
+                  <span className="font-bold">SAME: 107</span> · <span>911</span> · <span>Toxicológico: 0800-333-0160</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <a
-                  href="tel:107"
-                  className="px-3 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-md font-bold transition-colors"
-                >
-                  Llamar 107
-                </a>
-              </div>
+              <a
+                href="tel:107"
+                className="px-2.5 py-1 bg-[#B42332] hover:bg-[#9E1B28] text-white rounded text-xs font-bold whitespace-nowrap shadow-2xs"
+              >
+                Llamar 107
+              </a>
             </div>
           </div>
         )}
 
-        {/* Modal Footer with Actions */}
-        <div className="bg-neutral-50 px-6 py-4 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="text-xs text-neutral-500">
-            Ficha lista para imprimir o compartir vía WhatsApp
+        {/* Modal Footer with Actions - ALWAYS PINNED, ALWAYS 100% VISIBLE */}
+        <div className="bg-[#FFF9ED] px-4 py-2.5 sm:px-6 sm:py-3.5 border-t border-[#E9DCC4] flex items-center justify-between gap-2 shrink-0">
+          <div className="hidden sm:block text-xs text-[#796B59] truncate">
+            Ficha lista para imprimir o compartir
           </div>
-          <div className="flex items-center gap-2.5 w-full sm:w-auto">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={handleCopySummary}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-100 transition-colors"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#493B2A] bg-white border border-[#E9DCC4] rounded-lg hover:bg-[#F8E8A6]/40 transition-colors shadow-2xs whitespace-nowrap"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copied ? '¡Copiado al portapapeles!' : 'Copiar Resumen'}</span>
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-[#287653]" />
+                  <span>¡Copiado!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-[#B87932]" />
+                  <span>Copiar Resumen</span>
+                </>
+              )}
             </button>
             <button
               onClick={handlePrint}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-neutral-900 rounded-lg hover:bg-neutral-800 transition-colors shadow-xs"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors shadow-xs whitespace-nowrap"
             >
-              <Printer className="w-3.5 h-3.5" />
+              <Printer className="w-3.5 h-3.5 text-white" />
               <span>Imprimir Ficha</span>
             </button>
           </div>

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { FamilyMember, AllergyRecord } from '../types/health';
 import { formatAge } from '../utils/healthUtils';
 import {
-  User,
   Shield,
   AlertTriangle,
   Phone,
@@ -11,7 +10,6 @@ import {
   Edit2,
   Trash2,
   FileText,
-  Building,
 } from 'lucide-react';
 
 interface FamilyProfilesViewProps {
@@ -42,12 +40,12 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-white rounded-xl border border-neutral-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-white rounded-xl border border-[#E9DCC4] shadow-xs">
         <div>
-          <h2 className="text-lg font-bold text-neutral-900">
+          <h2 className="text-lg font-bold text-[#493B2A]">
             Fichas Médicas Familiares y Registro de Alergias
           </h2>
-          <p className="text-xs text-neutral-500 mt-0.5">
+          <p className="text-xs text-[#796B59] mt-0.5">
             Datos clínicos esenciales, grupo sanguíneo, coberturas, médicos y protocolos de emergencia
           </p>
         </div>
@@ -55,16 +53,16 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={onAddAllergy}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 transition-colors whitespace-nowrap"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#B42332] bg-[#FDF1F2] border border-[#F5B8BE] rounded-lg hover:bg-[#FCE3E5] transition-colors whitespace-nowrap shadow-2xs"
           >
-            <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
+            <AlertTriangle className="w-3.5 h-3.5 text-[#B42332]" />
             <span>Registrar Alergia</span>
           </button>
           <button
             onClick={onAddMember}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-neutral-900 rounded-lg hover:bg-neutral-800 transition-colors whitespace-nowrap shadow-xs"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors whitespace-nowrap shadow-xs"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-3.5 h-3.5 text-white" />
             <span>Nuevo Integrante</span>
           </button>
         </div>
@@ -78,12 +76,12 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
           return (
             <div
               key={member.id}
-              className="bg-white rounded-xl border border-neutral-200 shadow-xs overflow-hidden"
+              className="bg-white rounded-xl border border-[#E9DCC4] shadow-xs overflow-hidden"
             >
               {/* Profile Top Bar */}
-              <div className="p-6 border-b border-neutral-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-neutral-50/50">
+              <div className="p-6 border-b border-[#E9DCC4] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#FFF9ED]/60">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-xl overflow-hidden bg-neutral-200 border border-neutral-300 shrink-0">
+                  <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#FFF9ED] border border-[#E9DCC4] shrink-0">
                     {member.avatarUrl ? (
                       <img
                         src={member.avatarUrl}
@@ -92,7 +90,7 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center font-bold text-xl text-neutral-600">
+                      <div className="w-full h-full flex items-center justify-center font-bold text-xl text-[#B87932]">
                         {member.name.charAt(0)}
                       </div>
                     )}
@@ -100,12 +98,12 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
 
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-xl font-bold text-neutral-900">{member.name}</h3>
-                      <span className="text-xs px-2 py-0.5 bg-neutral-200 rounded text-neutral-800 font-medium">
+                      <h3 className="text-xl font-bold text-[#493B2A]">{member.name}</h3>
+                      <span className="text-xs px-2 py-0.5 bg-[#FFF9ED] border border-[#E9DCC4] rounded text-[#493B2A] font-medium">
                         {member.relationship}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-neutral-500 mt-1">
+                    <div className="flex items-center gap-2 text-xs text-[#796B59] mt-1">
                       <span>{formatAge(member.birthDate)}</span>
                       <span aria-hidden="true">·</span>
                       <span>Nacimiento: {member.birthDate}</span>
@@ -116,18 +114,18 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="text-center px-4 py-2 bg-white rounded-lg border border-neutral-200 shadow-2xs">
-                    <div className="text-[10px] text-neutral-500 font-medium">Grupo Sanguíneo</div>
-                    <div className="text-lg font-bold font-mono text-rose-600 tabular-nums">
+                  <div className="text-center px-4 py-2 bg-white rounded-lg border border-[#E9DCC4] shadow-2xs">
+                    <div className="text-[10px] text-[#796B59] font-medium">Grupo Sanguíneo</div>
+                    <div className="text-lg font-bold font-mono text-[#C97759] tabular-nums">
                       {member.bloodType}
                     </div>
                   </div>
 
                   <button
                     onClick={() => setEditingMember(member)}
-                    className="flex items-center gap-1 px-3 py-2 text-xs font-medium text-neutral-700 bg-white border border-neutral-200 hover:bg-neutral-100 rounded-lg transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#493B2A] bg-white border border-[#E9DCC4] hover:bg-[#FFF9ED] rounded-lg transition-colors shadow-2xs"
                   >
-                    <Edit2 className="w-3.5 h-3.5 text-neutral-500" />
+                    <Edit2 className="w-3.5 h-3.5 text-[#B87932]" />
                     <span>Editar Ficha</span>
                   </button>
                 </div>
@@ -137,24 +135,24 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
               <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* 1. Cobertura Médica */}
                 <div className="space-y-3">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-800 uppercase tracking-wider">
-                    <Shield className="w-4 h-4 text-emerald-600" />
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#493B2A] uppercase tracking-wider">
+                    <Shield className="w-4 h-4 text-[#D9A441]" />
                     <span>Cobertura de Salud</span>
                   </div>
-                  <div className="p-3.5 rounded-lg bg-neutral-50 border border-neutral-100 text-xs space-y-1.5">
-                    <div className="font-semibold text-neutral-900 text-sm">
+                  <div className="p-3.5 rounded-lg bg-[#FFF9ED] border border-[#E9DCC4] text-xs space-y-1.5">
+                    <div className="font-semibold text-[#493B2A] text-sm">
                       {member.medicalInsurance.provider}
                     </div>
-                    <div className="text-neutral-600">Plan: {member.medicalInsurance.plan}</div>
-                    <div className="text-neutral-600 font-mono">
+                    <div className="text-[#796B59]">Plan: {member.medicalInsurance.plan}</div>
+                    <div className="text-[#796B59] font-mono">
                       N° Afiliado: {member.medicalInsurance.affiliateNumber}
                     </div>
                     {member.medicalInsurance.emergencyPhone && (
-                      <div className="pt-1 border-t border-neutral-200 flex items-center justify-between">
-                        <span className="text-neutral-500">Urgencias:</span>
+                      <div className="pt-1.5 border-t border-[#E9DCC4] flex items-center justify-between">
+                        <span className="text-[#796B59]">Urgencias:</span>
                         <a
                           href={`tel:${member.medicalInsurance.emergencyPhone}`}
-                          className="font-bold text-rose-600 hover:underline font-mono"
+                          className="font-bold text-[#B42332] hover:underline font-mono"
                         >
                           {member.medicalInsurance.emergencyPhone}
                         </a>
@@ -164,18 +162,18 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
 
                   {/* Médico de cabecera */}
                   {member.primaryDoctor && (
-                    <div className="p-3.5 rounded-lg bg-neutral-50 border border-neutral-100 text-xs space-y-1">
-                      <div className="font-semibold text-neutral-900">
+                    <div className="p-3.5 rounded-lg bg-[#FFF9ED] border border-[#E9DCC4] text-xs space-y-1">
+                      <div className="font-semibold text-[#493B2A]">
                         {member.primaryDoctor.name}
                       </div>
-                      <div className="text-neutral-500">{member.primaryDoctor.specialty}</div>
-                      <div className="text-neutral-500">{member.primaryDoctor.clinic}</div>
+                      <div className="text-[#796B59]">{member.primaryDoctor.specialty}</div>
+                      <div className="text-[#796B59]">{member.primaryDoctor.clinic}</div>
                       <div className="pt-1.5">
                         <a
                           href={`tel:${member.primaryDoctor.phone}`}
-                          className="inline-flex items-center gap-1 text-emerald-700 font-bold hover:underline"
+                          className="inline-flex items-center gap-1 text-[#B87932] font-bold hover:underline"
                         >
-                          <Phone className="w-3 h-3" />
+                          <Phone className="w-3 h-3 text-[#B87932]" />
                           <span>{member.primaryDoctor.phone}</span>
                         </a>
                       </div>
@@ -186,14 +184,14 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
                 {/* 2. Historial de Alergias & Intolerancias */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-800 uppercase tracking-wider">
-                      <AlertTriangle className="w-4 h-4 text-rose-600" />
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-[#493B2A] uppercase tracking-wider">
+                      <AlertTriangle className="w-4 h-4 text-[#B42332]" />
                       <span>Alergias ({memberAllergies.length})</span>
                     </div>
                   </div>
 
                   {memberAllergies.length === 0 ? (
-                    <div className="p-4 rounded-lg bg-neutral-50 border border-neutral-100 text-xs text-neutral-500 text-center">
+                    <div className="p-4 rounded-lg bg-[#FFF9ED] border border-[#E9DCC4] text-xs text-[#796B59] text-center">
                       Sin alergias registradas para este miembro.
                     </div>
                   ) : (
@@ -206,18 +204,18 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
                             key={allergy.id}
                             className={`p-3 rounded-lg border text-xs space-y-1 ${
                               isSevere
-                                ? 'bg-red-50/70 border-red-200 text-red-950'
-                                : 'bg-neutral-50 border-neutral-200 text-neutral-800'
+                                ? 'bg-[#FDF1F2] border-[#F5B8BE] text-[#493B2A]'
+                                : 'bg-[#FFF9ED] border-[#E9DCC4] text-[#493B2A]'
                             }`}
                           >
                             <div className="flex items-start justify-between gap-1">
                               <div>
-                                <span className="font-bold text-neutral-900 block">
+                                <span className={`font-bold block ${isSevere ? 'text-[#B42332]' : 'text-[#493B2A]'}`}>
                                   {allergy.allergen}
                                 </span>
                                 <span
                                   className={`text-[10px] font-semibold uppercase tracking-wider ${
-                                    isSevere ? 'text-red-700' : 'text-neutral-500'
+                                    isSevere ? 'text-[#B42332]' : 'text-[#796B59]'
                                   }`}
                                 >
                                   {allergy.type} · {allergy.severity}
@@ -225,18 +223,18 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
                               </div>
                               <button
                                 onClick={() => onDeleteAllergy(allergy.id)}
-                                className="text-neutral-400 hover:text-red-600 p-0.5 rounded"
+                                className="text-[#796B59] hover:text-[#B42332] p-0.5 rounded"
                                 title="Eliminar registro"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </div>
 
-                            <p className="text-[11px] text-neutral-700 mt-1">
-                              <strong>Síntoma:</strong> {allergy.reactionDescription}
+                            <p className="text-[11px] text-[#796B59] mt-1">
+                              <strong className="text-[#493B2A]">Síntoma:</strong> {allergy.reactionDescription}
                             </p>
-                            <p className="text-[11px] text-neutral-700">
-                              <strong>Protocolo:</strong> {allergy.emergencyProtocol}
+                            <p className="text-[11px] text-[#796B59]">
+                              <strong className="text-[#493B2A]">Protocolo:</strong> {allergy.emergencyProtocol}
                             </p>
                           </div>
                         );
@@ -248,28 +246,28 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
                 {/* 3. Condiciones Crónicas & Contactos de Emergencia */}
                 <div className="space-y-4">
                   <div>
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-800 uppercase tracking-wider mb-2">
-                      <FileText className="w-4 h-4 text-emerald-600" />
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-[#493B2A] uppercase tracking-wider mb-2">
+                      <FileText className="w-4 h-4 text-[#B87932]" />
                       <span>Condiciones & Notas Vitales</span>
                     </div>
-                    <div className="p-3.5 rounded-lg bg-neutral-50 border border-neutral-100 text-xs space-y-2">
+                    <div className="p-3.5 rounded-lg bg-[#FFF9ED] border border-[#E9DCC4] text-xs space-y-2">
                       {member.chronicConditions.length > 0 ? (
                         <div className="flex flex-wrap gap-1.5">
                           {member.chronicConditions.map((cond, idx) => (
                             <span
                               key={idx}
-                              className="px-2 py-0.5 bg-white border border-neutral-200 rounded text-neutral-800 font-medium"
+                              className="px-2 py-0.5 bg-white border border-[#E9DCC4] rounded text-[#493B2A] font-medium"
                             >
                               {cond}
                             </span>
                           ))}
                         </div>
                       ) : (
-                        <div className="text-neutral-500">Sin patologías crónicas declaradas.</div>
+                        <div className="text-[#796B59]">Sin patologías crónicas declaradas.</div>
                       )}
 
                       {member.vitalNotes && (
-                        <div className="pt-2 border-t border-neutral-200 text-neutral-700 italic">
+                        <div className="pt-2 border-t border-[#E9DCC4] text-[#796B59] italic">
                           "{member.vitalNotes}"
                         </div>
                       )}
@@ -277,23 +275,23 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
                   </div>
 
                   <div>
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-800 uppercase tracking-wider mb-2">
-                      <Heart className="w-4 h-4 text-rose-600" />
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-[#493B2A] uppercase tracking-wider mb-2">
+                      <Heart className="w-4 h-4 text-[#C97759]" />
                       <span>Contactos de Emergencia</span>
                     </div>
                     <div className="space-y-1.5">
                       {member.emergencyContacts.map((contact, idx) => (
                         <div
                           key={idx}
-                          className="flex items-center justify-between p-2 rounded bg-neutral-50 border border-neutral-200 text-xs"
+                          className="flex items-center justify-between p-2 rounded bg-[#FFF9ED] border border-[#E9DCC4] text-xs"
                         >
                           <div>
-                            <span className="font-semibold text-neutral-900">{contact.name}</span>
-                            <span className="text-neutral-500 text-[11px] ml-1">({contact.relation})</span>
+                            <span className="font-semibold text-[#493B2A]">{contact.name}</span>
+                            <span className="text-[#796B59] text-[11px] ml-1">({contact.relation})</span>
                           </div>
                           <a
                             href={`tel:${contact.phone}`}
-                            className="font-bold font-mono text-emerald-700 hover:underline"
+                            className="font-bold font-mono text-[#B87932] hover:underline"
                           >
                             {contact.phone}
                           </a>
@@ -310,28 +308,28 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
 
       {/* Edit Member Modal */}
       {editingMember && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-xl border border-neutral-200 shadow-xl max-w-lg w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-base font-bold text-neutral-900">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white rounded-xl border border-[#E9DCC4] shadow-xl max-w-lg w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-base font-bold text-[#493B2A]">
               Editar Ficha: {editingMember.name}
             </h3>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-neutral-700 mb-1">Nombre Completo</label>
+                <label className="block font-semibold text-[#493B2A] mb-1">Nombre Completo</label>
                 <input
                   type="text"
                   value={editingMember.name}
                   onChange={(e) =>
                     setEditingMember({ ...editingMember, name: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-neutral-900"
+                  className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-neutral-700 mb-1">
+                  <label className="block font-semibold text-[#493B2A] mb-1">
                     Grupo Sanguíneo
                   </label>
                   <select
@@ -342,7 +340,7 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
                         bloodType: e.target.value as any,
                       })
                     }
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-neutral-900"
+                    className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
                   >
                     {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((bg) => (
                       <option key={bg} value={bg}>
@@ -352,21 +350,21 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
                   </select>
                 </div>
                 <div>
-                  <label className="block font-semibold text-neutral-700 mb-1">DNI / Documento</label>
+                  <label className="block font-semibold text-[#493B2A] mb-1">DNI / Documento</label>
                   <input
                     type="text"
                     value={editingMember.idNumber}
                     onChange={(e) =>
                       setEditingMember({ ...editingMember, idNumber: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-neutral-900 font-mono"
+                    className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] font-mono focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-neutral-700 mb-1">Obra Social / Prepaga</label>
+                  <label className="block font-semibold text-[#493B2A] mb-1">Obra Social / Prepaga</label>
                   <input
                     type="text"
                     value={editingMember.medicalInsurance.provider}
@@ -379,11 +377,11 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
                         },
                       })
                     }
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-neutral-900"
+                    className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-neutral-700 mb-1">N° de Afiliado</label>
+                  <label className="block font-semibold text-[#493B2A] mb-1">N° de Afiliado</label>
                   <input
                     type="text"
                     value={editingMember.medicalInsurance.affiliateNumber}
@@ -396,28 +394,28 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
                         },
                       })
                     }
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-neutral-900 font-mono"
+                    className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] font-mono focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-neutral-700 mb-1">Notas Vitales / Antecedentes</label>
+                <label className="block font-semibold text-[#493B2A] mb-1">Notas Vitales / Antecedentes</label>
                 <textarea
                   rows={3}
                   value={editingMember.vitalNotes || ''}
                   onChange={(e) =>
                     setEditingMember({ ...editingMember, vitalNotes: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-neutral-900"
+                  className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-neutral-100">
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E9DCC4]">
               <button
                 onClick={() => setEditingMember(null)}
-                className="px-3 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors"
+                className="px-3 py-1.5 text-xs font-medium text-[#796B59] hover:bg-[#FFF9ED] rounded-lg transition-colors"
               >
                 Cancelar
               </button>
@@ -426,7 +424,7 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
                   onUpdateMember(editingMember);
                   setEditingMember(null);
                 }}
-                className="px-4 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors shadow-xs"
+                className="px-4 py-1.5 text-xs font-semibold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors shadow-xs"
               >
                 Guardar Cambios
               </button>

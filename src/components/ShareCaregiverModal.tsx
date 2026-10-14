@@ -5,16 +5,12 @@ import {
   Copy,
   Check,
   ShieldCheck,
-  QrCode,
   Lock,
-  UserCheck,
   ExternalLink,
   Plus,
   Trash2,
   X,
   Phone,
-  AlertTriangle,
-  Pill,
   Heart,
 } from 'lucide-react';
 
@@ -95,59 +91,59 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-2xl w-full border border-neutral-200 shadow-2xl overflow-hidden my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl max-w-2xl w-full border border-[#E9DCC4] shadow-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[88vh]">
         {/* Header */}
-        <div className="bg-neutral-900 text-white px-6 py-4 flex items-center justify-between">
+        <div className="bg-[#493B2A] text-white px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-              <Share2 className="w-5 h-5 text-white" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+              <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#E9C46A]" />
             </div>
             <div>
-              <h2 className="text-base font-bold">Compartir Fichas Familiares Seguras</h2>
-              <p className="text-xs text-neutral-400">
+              <h2 className="text-base font-bold text-white">Compartir Fichas Familiares Seguras</h2>
+              <p className="text-xs text-[#E9DCC4]">
                 Otorga acceso protegido por PIN a niñeras, abuelos, escuelas o médicos
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-neutral-400 hover:text-white transition-colors"
+            className="p-1 rounded-lg text-[#E9DCC4] hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab switchers */}
-        <div className="bg-neutral-100 px-6 py-2.5 border-b border-neutral-200 flex items-center gap-2">
+        <div className="bg-[#FFF9ED] px-4 py-2 sm:px-6 sm:py-2.5 border-b border-[#E9DCC4] flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
           <button
             onClick={() => setActiveTab('active')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
               activeTab === 'active'
-                ? 'bg-white text-neutral-900 shadow-xs'
-                : 'text-neutral-600 hover:text-neutral-900'
+                ? 'bg-white text-[#493B2A] shadow-xs'
+                : 'text-[#796B59] hover:text-[#493B2A]'
             }`}
           >
             Accesos Activos ({shareLinks.length})
           </button>
           <button
             onClick={() => setActiveTab('create')}
-            className={`flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+            className={`flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
               activeTab === 'create'
-                ? 'bg-white text-neutral-900 shadow-xs'
-                : 'text-neutral-600 hover:text-neutral-900'
+                ? 'bg-white text-[#493B2A] shadow-xs'
+                : 'text-[#796B59] hover:text-[#493B2A]'
             }`}
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-3.5 h-3.5 text-[#B87932]" />
             <span>Generar Nuevo Enlace</span>
           </button>
           {previewingLink && (
             <button
               onClick={() => setActiveTab('preview')}
-              className={`flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+              className={`flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
                 activeTab === 'preview'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-emerald-700 hover:bg-emerald-50'
+                  ? 'bg-[#B87932] text-white shadow-xs'
+                  : 'text-[#B87932] hover:bg-[#F8E8A6]/40'
               }`}
             >
               <ExternalLink className="w-3.5 h-3.5" />
@@ -158,30 +154,30 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
 
         {/* TAB 1: ACTIVE SHARE LINKS */}
         {activeTab === 'active' && (
-          <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4">
             {shareLinks.length === 0 ? (
-              <div className="p-8 text-center text-neutral-500">
+              <div className="p-8 text-center text-[#796B59]">
                 No tienes enlaces compartidos activos. Genera uno nuevo arriba.
               </div>
             ) : (
               shareLinks.map((link) => (
                 <div
                   key={link.id}
-                  className="p-4 rounded-xl border border-neutral-200 bg-neutral-50/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                  className="p-4 rounded-xl border border-[#E9DCC4] bg-[#FFF9ED]/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-neutral-900 text-sm">
+                      <span className="font-bold text-[#493B2A] text-sm">
                         {link.recipientName}
                       </span>
-                      <span className="text-[11px] px-2 py-0.5 bg-neutral-200 text-neutral-800 rounded font-medium">
+                      <span className="text-[11px] px-2 py-0.5 bg-white border border-[#E9DCC4] text-[#796B59] rounded font-medium">
                         {link.recipientRole}
                       </span>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500">
-                      <span className="flex items-center gap-1 font-mono font-semibold text-neutral-800 bg-white px-2 py-0.5 rounded border border-neutral-200">
-                        <Lock className="w-3 h-3 text-emerald-600" />
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-[#796B59]">
+                      <span className="flex items-center gap-1 font-mono font-bold text-[#493B2A] bg-white px-2 py-0.5 rounded border border-[#E9DCC4]">
+                        <Lock className="w-3 h-3 text-[#B87932]" />
                         PIN: {link.pinCode}
                       </span>
                       <span>·</span>
@@ -202,23 +198,23 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
                         setPreviewingLink(link);
                         setActiveTab('preview');
                       }}
-                      className="px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors border border-emerald-200"
+                      className="px-3 py-1.5 text-xs font-semibold text-[#B87932] bg-white hover:bg-[#F8E8A6]/40 rounded-lg transition-colors border border-[#E9DCC4]"
                     >
                       Ver como Cuidador
                     </button>
 
                     <button
                       onClick={() => handleCopyLink(link)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-neutral-800 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-100 transition-colors shadow-2xs"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors shadow-2xs"
                     >
                       {copiedId === link.id ? (
                         <>
-                          <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          <Check className="w-3.5 h-3.5 text-white" />
                           <span>¡Copiado!</span>
                         </>
                       ) : (
                         <>
-                          <Copy className="w-3.5 h-3.5 text-neutral-600" />
+                          <Copy className="w-3.5 h-3.5 text-white" />
                           <span>Copiar Acceso</span>
                         </>
                       )}
@@ -226,7 +222,7 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
 
                     <button
                       onClick={() => onRevokeShareLink(link.id)}
-                      className="p-1.5 text-neutral-400 hover:text-red-600 transition-colors rounded"
+                      className="p-1.5 text-[#796B59] hover:text-[#B42332] transition-colors rounded"
                       title="Revocar acceso"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -240,9 +236,9 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
 
         {/* TAB 2: CREATE NEW LINK */}
         {activeTab === 'create' && (
-          <form onSubmit={handleCreateLink} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+          <form onSubmit={handleCreateLink} className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-neutral-700 mb-1">
+              <label className="block text-xs font-semibold text-[#493B2A] mb-1">
                 Nombre del Destinatario *
               </label>
               <input
@@ -251,18 +247,18 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
                 placeholder="Ej: Mariana López, Escuela Belgrano, Dra. Romero..."
                 value={recipientName}
                 onChange={(e) => setRecipientName(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-2 text-xs border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-neutral-700 mb-1">
+              <label className="block text-xs font-semibold text-[#493B2A] mb-1">
                 Rol o Relación
               </label>
               <select
                 value={recipientRole}
                 onChange={(e) => setRecipientRole(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-2 text-xs border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
               >
                 <option value="Niñera / Cuidador">Niñera / Cuidador</option>
                 <option value="Médico / Especialista">Médico / Especialista</option>
@@ -272,7 +268,7 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-neutral-700 mb-1">
+              <label className="block text-xs font-semibold text-[#493B2A] mb-1">
                 Nivel de Permisos
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -281,12 +277,12 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
                   onClick={() => setAccessLevel('emergency_only')}
                   className={`p-3 text-left rounded-lg border text-xs transition-all ${
                     accessLevel === 'emergency_only'
-                      ? 'border-emerald-600 bg-emerald-50/50 text-neutral-900 ring-1 ring-emerald-500'
-                      : 'border-neutral-200 text-neutral-600 hover:bg-neutral-50'
+                      ? 'border-[#B87932] bg-[#F8E8A6]/40 text-[#493B2A] ring-1 ring-[#B87932]'
+                      : 'border-[#E9DCC4] bg-white text-[#796B59] hover:bg-[#FFF9ED]'
                   }`}
                 >
-                  <div className="font-bold">Solo Emergencias</div>
-                  <div className="text-[11px] text-neutral-500 mt-1">
+                  <div className="font-bold text-[#493B2A]">Solo Emergencias</div>
+                  <div className="text-[11px] text-[#796B59] mt-1">
                     Grupo sanguíneo, alergias severas y teléfonos de urgencia.
                   </div>
                 </button>
@@ -296,12 +292,12 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
                   onClick={() => setAccessLevel('pediatric_caregiver')}
                   className={`p-3 text-left rounded-lg border text-xs transition-all ${
                     accessLevel === 'pediatric_caregiver'
-                      ? 'border-emerald-600 bg-emerald-50/50 text-neutral-900 ring-1 ring-emerald-500'
-                      : 'border-neutral-200 text-neutral-600 hover:bg-neutral-50'
+                      ? 'border-[#B87932] bg-[#F8E8A6]/40 text-[#493B2A] ring-1 ring-[#B87932]'
+                      : 'border-[#E9DCC4] bg-white text-[#796B59] hover:bg-[#FFF9ED]'
                   }`}
                 >
-                  <div className="font-bold">Cuidador / Niñera</div>
-                  <div className="text-[11px] text-neutral-500 mt-1">
+                  <div className="font-bold text-[#493B2A]">Cuidador / Niñera</div>
+                  <div className="text-[11px] text-[#796B59] mt-1">
                     Ficha SOS + Botiquín pediátrico, dosis de remedios y alergias.
                   </div>
                 </button>
@@ -311,12 +307,12 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
                   onClick={() => setAccessLevel('full_access')}
                   className={`p-3 text-left rounded-lg border text-xs transition-all ${
                     accessLevel === 'full_access'
-                      ? 'border-emerald-600 bg-emerald-50/50 text-neutral-900 ring-1 ring-emerald-500'
-                      : 'border-neutral-200 text-neutral-600 hover:bg-neutral-50'
+                      ? 'border-[#B87932] bg-[#F8E8A6]/40 text-[#493B2A] ring-1 ring-[#B87932]'
+                      : 'border-[#E9DCC4] bg-white text-[#796B59] hover:bg-[#FFF9ED]'
                   }`}
                 >
-                  <div className="font-bold">Médico Completo</div>
-                  <div className="text-[11px] text-neutral-500 mt-1">
+                  <div className="font-bold text-[#493B2A]">Médico Completo</div>
+                  <div className="text-[11px] text-[#796B59] mt-1">
                     Historial vacunas, recetas vigentes y estudios.
                   </div>
                 </button>
@@ -324,7 +320,7 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-neutral-700 mb-1">
+              <label className="block text-xs font-semibold text-[#493B2A] mb-1">
                 Integrantes que podrá ver
               </label>
               <div className="flex flex-wrap gap-2">
@@ -335,10 +331,10 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
                       type="button"
                       key={m.id}
                       onClick={() => toggleMemberSelection(m.id)}
-                      className={`px-3 py-1 text-xs rounded-lg border transition-colors ${
+                      className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
                         isChecked
-                          ? 'bg-neutral-900 text-white border-neutral-900'
-                          : 'bg-white text-neutral-700 border-neutral-200 hover:bg-neutral-100'
+                          ? 'bg-[#B87932] text-white border-[#B87932] font-semibold'
+                          : 'bg-white text-[#493B2A] border-[#E9DCC4] hover:bg-[#FFF9ED]'
                       }`}
                     >
                       {m.name.split(' ')[0]} ({m.relationship})
@@ -348,17 +344,17 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
               </div>
             </div>
 
-            <div className="pt-3 border-t border-neutral-200 flex justify-end gap-2">
+            <div className="pt-3 border-t border-[#E9DCC4] flex justify-end gap-2 shrink-0">
               <button
                 type="button"
                 onClick={() => setActiveTab('active')}
-                className="px-3 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-100 rounded-lg"
+                className="px-3 py-1.5 text-xs font-medium text-[#796B59] hover:bg-[#FFF9ED] rounded-lg"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-4 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors shadow-xs"
+                className="px-4 py-1.5 text-xs font-semibold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors shadow-xs"
               >
                 Generar Enlace con PIN
               </button>
@@ -368,25 +364,25 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
 
         {/* TAB 3: SIMULATED CAREGIVER VIEW */}
         {activeTab === 'preview' && previewingLink && (
-          <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto bg-neutral-100/70">
-            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 flex items-center justify-between">
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4 bg-[#FFF9ED]/70">
+            <div className="p-3 bg-[#F8E8A6] border border-[#E9DCC4] rounded-xl text-xs text-[#493B2A] flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <ShieldCheck className="w-4 h-4 text-[#B87932]" />
                 <span>
                   Simulación de vista para <strong>{previewingLink.recipientName}</strong> (PIN {previewingLink.pinCode})
                 </span>
               </div>
-              <span className="font-semibold text-emerald-800">Modo Solo Lectura</span>
+              <span className="font-bold text-[#B87932]">Modo Solo Lectura</span>
             </div>
 
             {/* Caregiver Mobile Card Frame */}
-            <div className="bg-white rounded-xl border border-neutral-300 p-5 shadow-sm space-y-4 max-w-md mx-auto">
-              <div className="text-center pb-3 border-b border-neutral-200">
-                <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto mb-2">
-                  <Heart className="w-6 h-6" />
+            <div className="bg-white rounded-xl border border-[#E9DCC4] p-5 shadow-sm space-y-4 max-w-md mx-auto">
+              <div className="text-center pb-3 border-b border-[#E9DCC4]">
+                <div className="w-12 h-12 rounded-full bg-[#FFF9ED] text-[#B87932] border border-[#E9DCC4] flex items-center justify-center mx-auto mb-2">
+                  <Heart className="w-6 h-6 text-[#C97759]" />
                 </div>
-                <h3 className="font-bold text-neutral-900">SaludFamiliar · Ficha de Cuidador</h3>
-                <p className="text-xs text-neutral-500">
+                <h3 className="font-bold text-[#493B2A]">FamiliaVital · Ficha de Cuidador</h3>
+                <p className="text-xs text-[#796B59]">
                   Acceso habilitado para {previewingLink.recipientName}
                 </p>
               </div>
@@ -394,15 +390,15 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
               {members
                 .filter((m) => previewingLink.memberIds.includes(m.id))
                 .map((m) => (
-                  <div key={m.id} className="p-3.5 rounded-lg border border-neutral-200 bg-neutral-50/80 space-y-2">
+                  <div key={m.id} className="p-3.5 rounded-lg border border-[#E9DCC4] bg-[#FFF9ED]/80 space-y-2">
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="font-bold text-sm text-neutral-900">{m.name}</div>
-                        <div className="text-xs text-neutral-500">
-                          {m.relationship} · {m.bloodType}
+                        <div className="font-bold text-sm text-[#493B2A]">{m.name}</div>
+                        <div className="text-xs text-[#796B59]">
+                          {m.relationship} · <span className="font-semibold text-[#C97759]">{m.bloodType}</span>
                         </div>
                       </div>
-                      <span className="text-xs font-mono font-bold text-neutral-700 bg-white px-2 py-0.5 rounded border border-neutral-200">
+                      <span className="text-xs font-mono font-bold text-[#493B2A] bg-white px-2 py-0.5 rounded border border-[#E9DCC4]">
                         DNI {m.idNumber}
                       </span>
                     </div>
@@ -410,26 +406,26 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
                     {/* Pediatrician quick call */}
                     {m.primaryDoctor && (
                       <div className="text-xs pt-1">
-                        <div className="text-neutral-500 text-[11px]">Pediatra / Médico:</div>
+                        <div className="text-[#796B59] text-[11px]">Pediatra / Médico:</div>
                         <a
                           href={`tel:${m.primaryDoctor.phone}`}
-                          className="font-semibold text-emerald-700 hover:underline flex items-center gap-1 mt-0.5"
+                          className="font-semibold text-[#B87932] hover:underline flex items-center gap-1 mt-0.5"
                         >
-                          <Phone className="w-3 h-3" />
+                          <Phone className="w-3 h-3 text-[#B87932]" />
                           {m.primaryDoctor.name} ({m.primaryDoctor.phone})
                         </a>
                       </div>
                     )}
 
                     {/* Emergency Contacts */}
-                    <div className="text-xs pt-1 border-t border-neutral-200">
-                      <div className="text-neutral-500 text-[11px] mb-1">Padres / Contactos urgentes:</div>
+                    <div className="text-xs pt-1 border-t border-[#E9DCC4]">
+                      <div className="text-[#796B59] text-[11px] mb-1">Padres / Contactos urgentes:</div>
                       {m.emergencyContacts.map((c, i) => (
                         <div key={i} className="flex justify-between items-center py-0.5">
-                          <span className="text-neutral-800">{c.name}:</span>
+                          <span className="text-[#493B2A]">{c.name}:</span>
                           <a
                             href={`tel:${c.phone}`}
-                            className="font-mono font-bold text-emerald-700 hover:underline"
+                            className="font-mono font-bold text-[#B87932] hover:underline"
                           >
                             {c.phone}
                           </a>
@@ -442,7 +438,7 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
               <div className="text-center pt-2">
                 <button
                   onClick={() => setActiveTab('active')}
-                  className="text-xs text-neutral-600 hover:text-neutral-900 font-semibold"
+                  className="text-xs text-[#796B59] hover:text-[#493B2A] font-semibold"
                 >
                   Volver a Lista de Accesos
                 </button>
