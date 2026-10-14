@@ -27,6 +27,8 @@ import { FamilyProfilesView } from './components/FamilyProfilesView';
 import { EmergencySOSModal } from './components/EmergencySOSModal';
 import { ShareCaregiverModal } from './components/ShareCaregiverModal';
 import { AddRecordModal } from './components/AddRecordModal';
+import { scrollToTop } from './utils/healthUtils';
+import { ArrowUp } from 'lucide-react';
 
 export default function App() {
   // Persistent state with localStorage fallbacks
@@ -74,6 +76,41 @@ export default function App() {
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addModalInitialCategory, setAddModalInitialCategory] = useState<any>('appointment');
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 160);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Navigation handlers that return scroll to the top
+  const handleSelectTab = (tab: string) => {
+    setActiveTab(tab);
+    scrollToTop();
+  };
+
+  const handleSelectMember = (id: string | 'all') => {
+    setSelectedMemberId(id);
+    scrollToTop();
+  };
+
+  const handleCloseEmergencySOS = () => {
+    setIsEmergencySOSOpen(false);
+    scrollToTop();
+  };
+
+  const handleCloseShare = () => {
+    setIsShareOpen(false);
+    scrollToTop();
+  };
+
+  const handleCloseAddModal = () => {
+    setIsAddModalOpen(false);
+    scrollToTop();
+  };
 
   // Sync to localStorage
   useEffect(() => {
@@ -164,7 +201,7 @@ export default function App() {
       {/* Top Header */}
       <Header
         activeTab={activeTab}
-        onSelectTab={setActiveTab}
+        onSelectTab={handleSelectTab}
         onOpenQuickAdd={() => openAddCategory('appointment')}
         onOpenShare={() => setIsShareOpen(true)}
         onOpenEmergencySOS={() => setIsEmergencySOSOpen(true)}
@@ -174,7 +211,7 @@ export default function App() {
       <MemberSelector
         members={members}
         selectedMemberId={selectedMemberId}
-        onSelectMember={setSelectedMemberId}
+        onSelectMember={handleSelectMember}
         onAddNewMember={() => openAddCategory('member')}
       />
 
@@ -188,8 +225,8 @@ export default function App() {
             appointments={appointments}
             allergies={allergies}
             prescriptions={prescriptions}
-            onSelectTab={setActiveTab}
-            onSelectMember={setSelectedMemberId}
+            onSelectTab={handleSelectTab}
+            onSelectMember={handleSelectMember}
             onOpenEmergencySOS={() => setIsEmergencySOSOpen(true)}
             onOpenShare={() => setIsShareOpen(true)}
             onResetData={handleResetData}
@@ -266,7 +303,7 @@ export default function App() {
       {/* MODALS */}
       <EmergencySOSModal
         isOpen={isEmergencySOSOpen}
-        onClose={() => setIsEmergencySOSOpen(false)}
+        onClose={handleCloseEmergencySOS}
         members={members}
         allergies={allergies}
         activeMemberId={selectedMemberId}
@@ -274,7 +311,7 @@ export default function App() {
 
       <ShareCaregiverModal
         isOpen={isShareOpen}
-        onClose={() => setIsShareOpen(false)}
+        onClose={handleCloseShare}
         members={members}
         shareLinks={shareLinks}
         onAddShareLink={handleAddShareLink}
@@ -283,16 +320,47 @@ export default function App() {
 
       <AddRecordModal
         isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        onClose={handleCloseAddModal}
         members={members}
-        onAddAppointment={(apt) => setAppointments((prev) => [apt, ...prev])}
-        onAddMedicine={(med) => setMedicines((prev) => [med, ...prev])}
-        onAddVaccine={(vac) => setVaccines((prev) => [...prev, vac])}
-        onAddAllergy={(alg) => setAllergies((prev) => [...prev, alg])}
-        onAddPrescription={(rx) => setPrescriptions((prev) => [rx, ...prev])}
-        onAddMember={(mem) => setMembers((prev) => [...prev, mem])}
+        onAddAppointment={(apt) => {
+          setAppointments((prev) => [apt, ...prev]);
+          scrollToTop();
+        }}
+        onAddMedicine={(med) => {
+          setMedicines((prev) => [med, ...prev]);
+          scrollToTop();
+        }}
+        onAddVaccine={(vac) => {
+          setVaccines((prev) => [...prev, vac]);
+          scrollToTop();
+        }}
+        onAddAllergy={(alg) => {
+          setAllergies((prev) => [...prev, alg]);
+          scrollToTop();
+        }}
+        onAddPrescription={(rx) => {
+          setPrescriptions((prev) => [rx, ...prev]);
+          scrollToTop();
+        }}
+        onAddMember={(mem) => {
+          setMembers((prev) => [...prev, mem]);
+          scrollToTop();
+        }}
         initialCategory={addModalInitialCategory}
       />
+
+      {/* Floating button to smoothly return to top and show menu */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="no-print fixed bottom-6 right-6 z-30 flex items-center gap-1.5 px-3.5 py-2.5 bg-[#B87932] hover:bg-[#A06424] text-white text-xs font-bold rounded-full shadow-lg shadow-[#B87932]/30 transition-all transform hover:-translate-y-0.5 cursor-pointer border border-[#F8E8A6]/40"
+          title="Volver al menú superior"
+          aria-label="Volver al menú superior"
+        >
+          <ArrowUp className="w-4 h-4 text-[#F8E8A6]" />
+          <span>Volver al menú</span>
+        </button>
+      )}
     </div>
   );
 }

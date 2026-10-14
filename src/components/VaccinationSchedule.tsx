@@ -311,18 +311,33 @@ export const VaccinationSchedule: React.FC<VaccinationScheduleProps> = ({
 
       {/* Mark Applied Modal */}
       {editingVaccine && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white rounded-xl border border-[#E9DCC4] shadow-xl max-w-md w-full p-6 space-y-4">
-            <div>
-              <h3 className="text-base font-bold text-[#493B2A]">
-                Registrar Aplicación de Vacuna
-              </h3>
-              <p className="text-xs text-[#796B59] mt-0.5">
-                {editingVaccine.vaccineName} ({editingVaccine.doseNumber})
-              </p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl border border-[#E9DCC4] shadow-2xl max-w-md w-full flex flex-col max-h-[88vh] sm:max-h-[85vh] overflow-hidden">
+            {/* Pinned Modal Header */}
+            <div className="bg-[#493B2A] text-white px-4 py-3 sm:px-6 sm:py-3.5 flex items-center justify-between shrink-0">
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-white">
+                  Registrar Aplicación de Vacuna
+                </h3>
+                <p className="text-xs text-[#E9DCC4] mt-0.5">
+                  {editingVaccine.vaccineName} ({editingVaccine.doseNumber})
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setEditingVaccine(null);
+                  scrollToTop();
+                }}
+                className="p-1 rounded-lg text-[#E9DCC4] hover:text-white hover:bg-white/10 transition-colors"
+                title="Cerrar ventana"
+                aria-label="Cerrar"
+              >
+                ✕
+              </button>
             </div>
 
-            <div className="space-y-3 text-xs">
+            {/* Scrollable Form Body */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-3.5 text-xs">
               <div>
                 <label className="block font-semibold text-[#493B2A] mb-1">
                   Fecha de Aplicación *
@@ -362,16 +377,23 @@ export const VaccinationSchedule: React.FC<VaccinationScheduleProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E9DCC4]">
+            {/* Pinned Action Footer */}
+            <div className="bg-[#FFF9ED] px-4 py-3 sm:px-6 sm:py-3.5 border-t border-[#E9DCC4] flex items-center justify-end gap-2.5 shrink-0 z-10 shadow-2xs">
               <button
-                onClick={() => setEditingVaccine(null)}
-                className="px-3 py-1.5 text-xs font-medium text-[#796B59] hover:bg-[#FFF9ED] rounded-lg transition-colors"
+                onClick={() => {
+                  setEditingVaccine(null);
+                  scrollToTop();
+                }}
+                className="px-4 py-2 text-xs font-semibold text-[#796B59] hover:text-[#493B2A] hover:bg-white rounded-lg border border-transparent hover:border-[#E9DCC4] transition-colors"
               >
                 Cancelar
               </button>
               <button
-                onClick={handleSaveApplied}
-                className="px-4 py-1.5 text-xs font-semibold text-white bg-[#287653] hover:bg-[#1F5C40] rounded-lg transition-colors shadow-xs"
+                onClick={() => {
+                  handleSaveApplied();
+                  scrollToTop();
+                }}
+                className="px-5 py-2 text-xs font-bold text-white bg-[#287653] hover:bg-[#1F5C40] rounded-lg transition-colors shadow-xs"
               >
                 Guardar en Libreta
               </button>

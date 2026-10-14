@@ -1,4 +1,21 @@
-import { MedicineItem } from '../types/health';
+/**
+ * Smoothly scrolls the window, document, and menu back to the top.
+ */
+export function scrollToTop(): void {
+  if (typeof window !== 'undefined') {
+    try {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch {
+      window.scrollTo(0, 0);
+    }
+    if (document.documentElement) {
+      document.documentElement.scrollTop = 0;
+    }
+    if (document.body) {
+      document.body.scrollTop = 0;
+    }
+  }
+}
 
 /**
  * Calculates human readable age from a YYYY-MM-DD birthdate.

@@ -92,11 +92,11 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl max-w-2xl w-full border border-[#E9DCC4] shadow-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[88vh]">
+      <div className="bg-white rounded-2xl max-w-2xl w-full border border-[#E9DCC4] shadow-2xl overflow-hidden flex flex-col max-h-[88vh] sm:max-h-[85vh]">
         {/* Header */}
-        <div className="bg-[#493B2A] text-white px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between shrink-0">
+        <div className="bg-[#493B2A] text-white px-4 py-3 sm:px-6 sm:py-3.5 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
               <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#E9C46A]" />
             </div>
             <div>
@@ -108,7 +108,9 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-[#E9DCC4] hover:text-white transition-colors"
+            className="p-1.5 rounded-lg text-[#E9DCC4] hover:text-white hover:bg-white/10 transition-colors"
+            title="Cerrar ventana"
+            aria-label="Cerrar"
           >
             <X className="w-5 h-5" />
           </button>
@@ -236,9 +238,10 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
 
         {/* TAB 2: CREATE NEW LINK */}
         {activeTab === 'create' && (
-          <form onSubmit={handleCreateLink} className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-[#493B2A] mb-1">
+          <form onSubmit={handleCreateLink} className="flex-1 min-h-0 flex flex-col overflow-hidden">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-[#493B2A] mb-1">
                 Nombre del Destinatario *
               </label>
               <input
@@ -344,17 +347,20 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
               </div>
             </div>
 
-            <div className="pt-3 border-t border-[#E9DCC4] flex justify-end gap-2 shrink-0">
+            </div>
+
+            {/* Pinned Tab Actions */}
+            <div className="bg-[#FFF9ED] px-4 py-3 sm:px-6 sm:py-3.5 border-t border-[#E9DCC4] flex justify-end gap-2.5 shrink-0 z-10 shadow-2xs">
               <button
                 type="button"
                 onClick={() => setActiveTab('active')}
-                className="px-3 py-1.5 text-xs font-medium text-[#796B59] hover:bg-[#FFF9ED] rounded-lg"
+                className="px-4 py-2 text-xs font-semibold text-[#796B59] hover:text-[#493B2A] hover:bg-white rounded-lg border border-transparent hover:border-[#E9DCC4] transition-colors"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-4 py-1.5 text-xs font-semibold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors shadow-xs"
+                className="px-4 py-2 text-xs font-bold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors shadow-xs"
               >
                 Generar Enlace con PIN
               </button>

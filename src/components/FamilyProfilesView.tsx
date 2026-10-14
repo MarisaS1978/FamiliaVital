@@ -308,13 +308,28 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
 
       {/* Edit Member Modal */}
       {editingMember && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white rounded-xl border border-[#E9DCC4] shadow-xl max-w-lg w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-base font-bold text-[#493B2A]">
-              Editar Ficha: {editingMember.name}
-            </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl border border-[#E9DCC4] shadow-2xl max-w-lg w-full flex flex-col max-h-[88vh] sm:max-h-[85vh] overflow-hidden">
+            {/* Pinned Modal Header */}
+            <div className="bg-[#493B2A] text-white px-4 py-3 sm:px-6 sm:py-3.5 flex items-center justify-between shrink-0">
+              <h3 className="text-sm sm:text-base font-bold text-white">
+                Editar Ficha Médica: {editingMember.name}
+              </h3>
+              <button
+                onClick={() => {
+                  setEditingMember(null);
+                  scrollToTop();
+                }}
+                className="p-1 rounded-lg text-[#E9DCC4] hover:text-white hover:bg-white/10 transition-colors"
+                title="Cerrar ventana"
+                aria-label="Cerrar"
+              >
+                ✕
+              </button>
+            </div>
 
-            <div className="space-y-3 text-xs">
+            {/* Scrollable Form Body */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-3.5 text-xs">
               <div>
                 <label className="block font-semibold text-[#493B2A] mb-1">Nombre Completo</label>
                 <input
@@ -412,10 +427,14 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E9DCC4]">
+            {/* Pinned Action Footer - Always visible */}
+            <div className="bg-[#FFF9ED] px-4 py-3 sm:px-6 sm:py-3.5 border-t border-[#E9DCC4] flex items-center justify-end gap-2.5 shrink-0 z-10 shadow-2xs">
               <button
-                onClick={() => setEditingMember(null)}
-                className="px-3 py-1.5 text-xs font-medium text-[#796B59] hover:bg-[#FFF9ED] rounded-lg transition-colors"
+                onClick={() => {
+                  setEditingMember(null);
+                  scrollToTop();
+                }}
+                className="px-4 py-2 text-xs font-semibold text-[#796B59] hover:text-[#493B2A] hover:bg-white rounded-lg border border-transparent hover:border-[#E9DCC4] transition-colors"
               >
                 Cancelar
               </button>
@@ -423,8 +442,9 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
                 onClick={() => {
                   onUpdateMember(editingMember);
                   setEditingMember(null);
+                  scrollToTop();
                 }}
-                className="px-4 py-1.5 text-xs font-semibold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors shadow-xs"
+                className="px-5 py-2 text-xs font-bold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors shadow-xs"
               >
                 Guardar Cambios
               </button>

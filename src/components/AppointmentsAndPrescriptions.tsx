@@ -378,75 +378,95 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
       )}
 
       {/* Prescription Preview Modal */}
+      {/* Prescription Preview Modal */}
       {selectedPrescription && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl border border-[#E9DCC4] shadow-2xl max-w-lg w-full p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-[#E9DCC4] pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl border border-[#E9DCC4] shadow-2xl max-w-lg w-full flex flex-col max-h-[88vh] sm:max-h-[85vh] overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[#E9DCC4] px-4 py-3 sm:px-6 sm:py-3.5 bg-[#493B2A] text-white shrink-0">
               <div className="flex items-center gap-2">
-                <FileCheck className="w-5 h-5 text-[#B87932]" />
-                <h3 className="text-base font-bold text-[#493B2A]">
+                <FileCheck className="w-5 h-5 text-[#E9C46A]" />
+                <h3 className="text-sm sm:text-base font-bold text-white truncate">
                   {selectedPrescription.title}
                 </h3>
               </div>
               <button
-                onClick={() => setSelectedPrescription(null)}
-                className="text-[#796B59] hover:text-[#493B2A] text-xs font-bold"
+                onClick={() => {
+                  setSelectedPrescription(null);
+                  scrollToTop();
+                }}
+                className="p-1 rounded-lg text-[#E9DCC4] hover:text-white hover:bg-white/10 transition-colors"
+                title="Cerrar"
+                aria-label="Cerrar"
               >
                 Cerrar
               </button>
             </div>
 
-            {/* Medical Document Sheet */}
-            <div className="bg-[#FFF9ED] p-6 rounded-xl border border-[#E9DCC4] space-y-4 text-xs">
-              <div className="border-b border-[#E9DCC4] pb-3 flex justify-between items-start">
-                <div>
-                  <div className="font-bold text-[#493B2A] text-sm">
-                    {selectedPrescription.doctorName}
+            {/* Medical Document Sheet - Scrollable */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4 text-xs">
+              <div className="bg-[#FFF9ED] p-5 sm:p-6 rounded-xl border border-[#E9DCC4] space-y-4">
+                <div className="border-b border-[#E9DCC4] pb-3 flex justify-between items-start">
+                  <div>
+                    <div className="font-bold text-[#493B2A] text-sm">
+                      {selectedPrescription.doctorName}
+                    </div>
+                    <div className="text-[#796B59]">Médico Matriculado · Receta Oficial</div>
                   </div>
-                  <div className="text-[#796B59]">Médico Matriculado · Receta Oficial</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-[#796B59] text-[10px]">FECHA DE EMISIÓN</div>
-                  <div className="font-mono font-semibold text-[#493B2A] tabular-nums">
-                    {formatDate(selectedPrescription.issueDate)}
+                  <div className="text-right">
+                    <div className="text-[#796B59] text-[10px]">FECHA DE EMISIÓN</div>
+                    <div className="font-mono font-semibold text-[#493B2A] tabular-nums">
+                      {formatDate(selectedPrescription.issueDate)}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div>
-                <div className="text-[11px] font-bold text-[#B87932] uppercase tracking-wider mb-1">
-                  Rp. / Prescripción:
-                </div>
-                {selectedPrescription.medicationsIncluded ? (
-                  <div className="space-y-1">
-                    {selectedPrescription.medicationsIncluded.map((item, idx) => (
-                      <div key={idx} className="font-semibold text-[#493B2A] pl-2 border-l-2 border-[#D9A441]">
-                        {item}
-                      </div>
-                    ))}
+                <div>
+                  <div className="text-[11px] font-bold text-[#B87932] uppercase tracking-wider mb-1">
+                    Rp. / Prescripción:
                   </div>
-                ) : (
-                  <p className="text-[#493B2A]">{selectedPrescription.notes}</p>
+                  {selectedPrescription.medicationsIncluded ? (
+                    <div className="space-y-1">
+                      {selectedPrescription.medicationsIncluded.map((item, idx) => (
+                        <div key={idx} className="font-semibold text-[#493B2A] pl-2 border-l-2 border-[#D9A441]">
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[#493B2A]">{selectedPrescription.notes}</p>
+                  )}
+                </div>
+
+                {selectedPrescription.expiryDate && (
+                  <div className="text-[11px] text-[#796B59] pt-2 border-t border-[#E9DCC4]">
+                    Válido para compra en farmacias hasta el {formatDate(selectedPrescription.expiryDate)}.
+                  </div>
                 )}
               </div>
-
-              {selectedPrescription.expiryDate && (
-                <div className="text-[11px] text-[#796B59] pt-2 border-t border-[#E9DCC4]">
-                  Válido para compra en farmacias hasta el {formatDate(selectedPrescription.expiryDate)}.
-                </div>
-              )}
             </div>
 
-            <div className="flex items-center justify-between pt-2">
-              <div className="text-xs text-[#796B59]">
+            {/* Pinned Action Footer */}
+            <div className="bg-[#FFF9ED] px-4 py-3 sm:px-6 sm:py-3.5 border-t border-[#E9DCC4] flex items-center justify-between gap-2 shrink-0">
+              <div className="text-xs text-[#796B59] truncate">
                 Archivo: {selectedPrescription.fileName || 'documento_medico.pdf'}
               </div>
-              <button
-                onClick={() => window.print()}
-                className="px-4 py-2 text-xs font-semibold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors shadow-xs"
-              >
-                Imprimir Documento
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setSelectedPrescription(null);
+                    scrollToTop();
+                  }}
+                  className="px-3.5 py-1.5 text-xs font-semibold text-[#796B59] hover:bg-white rounded-lg transition-colors border border-transparent hover:border-[#E9DCC4]"
+                >
+                  Volver
+                </button>
+                <button
+                  onClick={() => window.print()}
+                  className="px-4 py-1.5 text-xs font-semibold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors shadow-xs whitespace-nowrap"
+                >
+                  Imprimir Documento
+                </button>
+              </div>
             </div>
           </div>
         </div>

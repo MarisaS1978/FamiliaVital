@@ -217,9 +217,9 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl max-w-xl w-full border border-[#E9DCC4] shadow-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[88vh]">
+      <div className="bg-white rounded-2xl max-w-xl w-full border border-[#E9DCC4] shadow-2xl overflow-hidden flex flex-col max-h-[88vh] sm:max-h-[85vh]">
         {/* Header */}
-        <div className="bg-[#493B2A] text-white px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between shrink-0">
+        <div className="bg-[#493B2A] text-white px-4 py-3 sm:px-6 sm:py-3.5 flex items-center justify-between shrink-0">
           <div>
             <h2 className="text-base font-bold text-white">Nuevo Registro en FamiliaVital</h2>
             <p className="text-xs text-[#E9DCC4]">
@@ -228,7 +228,9 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-[#E9DCC4] hover:text-white transition-colors"
+            className="p-1.5 rounded-lg text-[#E9DCC4] hover:text-white hover:bg-white/10 transition-colors"
+            title="Cerrar ventana"
+            aria-label="Cerrar"
           >
             <X className="w-5 h-5" />
           </button>
@@ -251,7 +253,7 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
                 type="button"
                 key={item.id}
                 onClick={() => setCategory(item.id as RecordCategory)}
-                className={`py-2 px-1 rounded-lg text-xs font-semibold flex flex-col items-center gap-1 transition-all ${
+                className={`py-1.5 px-1 rounded-lg text-xs font-semibold flex flex-col items-center gap-1 transition-all ${
                   isSelected
                     ? 'bg-white text-[#493B2A] shadow-xs'
                     : 'text-[#796B59] hover:text-[#493B2A]'
@@ -264,10 +266,12 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
           })}
         </div>
 
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4 text-xs">
-          {/* Member selector for all non-member types */}
-          {category !== 'member' && (
+        {/* Form Container with Pinned Actions */}
+        <form onSubmit={handleSubmit} className="flex-1 min-h-0 flex flex-col overflow-hidden">
+          {/* Scrollable Form Body */}
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 space-y-3.5 text-xs">
+            {/* Member selector for all non-member types */}
+            {category !== 'member' && (
             <div>
               <label className="block font-semibold text-[#493B2A] mb-1">
                 ¿A qué integrante familiar corresponde? *
@@ -770,18 +774,20 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
             </>
           )}
 
-          {/* Form Actions */}
-          <div className="pt-4 border-t border-[#E9DCC4] flex items-center justify-end gap-2 shrink-0">
+          </div>
+
+          {/* Form Actions - ALWAYS PINNED AND FULLY VISIBLE */}
+          <div className="bg-[#FFF9ED] px-4 py-3 sm:px-6 sm:py-3.5 border-t border-[#E9DCC4] flex items-center justify-end gap-2.5 shrink-0 z-10 shadow-2xs">
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-2 text-xs font-semibold text-[#796B59] hover:bg-[#FFF9ED] rounded-lg transition-colors"
+              className="px-4 py-2 text-xs font-semibold text-[#796B59] hover:text-[#493B2A] hover:bg-white rounded-lg border border-transparent hover:border-[#E9DCC4] transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-5 py-2 text-xs font-semibold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors shadow-xs"
+              className="px-5 py-2 text-xs font-bold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors shadow-xs flex items-center gap-1.5"
             >
               Guardar en Libreta
             </button>
