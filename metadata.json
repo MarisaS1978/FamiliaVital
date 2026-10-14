@@ -1,0 +1,6 @@
+{
+  "name": "SaludFamiliar - Libreta Digital de Salud",
+  "description": "Espacio seguro y ordenado para centralizar calendarios de vacunación, turnos médicos, historial de alergias, recetas y botiquín familiar con fichas de emergencia.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
