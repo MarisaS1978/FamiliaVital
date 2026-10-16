@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FamilyMember, AllergyRecord } from '../types/health';
-import { formatAge } from '../utils/healthUtils';
+import { formatAge, shareViaWhatsApp } from '../utils/healthUtils';
 import {
   ShieldAlert,
   Phone,
@@ -13,6 +13,7 @@ import {
   Heart,
   FileText,
   Ambulance,
+  MessageCircle,
 } from 'lucide-react';
 
 interface EmergencySOSModalProps {
@@ -82,6 +83,44 @@ Generado desde FamiliaVital`;
     navigator.clipboard.writeText(summary);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  const handleWhatsAppSOS = () => {
+    if (!currentMember) return;
+    const allergyText =
+      memberAllergies.length > 0
+        ? memberAllergies
+            .map((a) => `• *${a.allergen}* (${a.severity}): ${a.reactionDescription}`)
+            .join('\n')
+        : 'Sin alergias registradas';
+
+    const emergencyContacts = currentMember.emergencyContacts
+      .map((c) => `• ${c.name} (${c.relation}): ${c.phone}`)
+      .join('\n');
+
+    const summary = `🚨 *FICHA MÉDICA DE EMERGENCIA (SOS)*
+👤 *${currentMember.name}* (${currentMember.relationship})
+• Edad: ${formatAge(currentMember.birthDate)} | DNI/ID: ${currentMember.idNumber}
+• Grupo Sanguíneo: *${currentMember.bloodType}*
+
+🏥 *COBERTURA DE SALUD:*
+• ${currentMember.medicalInsurance.provider} (Plan ${currentMember.medicalInsurance.plan})
+• N° Afiliado: ${currentMember.medicalInsurance.affiliateNumber}
+• Urgencias Prepaga: ${currentMember.medicalInsurance.emergencyPhone || '107 (SAME)'}
+
+⚠️ *ALERGIAS & ALERTAS:*
+${allergyText}
+
+🩺 *MÉDICO DE CABECERA:*
+• ${currentMember.primaryDoctor?.name || 'No especificado'} (${currentMember.primaryDoctor?.phone || '-'})
+
+📞 *CONTACTOS DE URGENCIA:*
+${emergencyContacts}
+
+Notas: ${currentMember.vitalNotes || 'Ninguna'}
+_Enviado desde FamiliaVital_`;
+
+    shareViaWhatsApp(summary);
   };
 
   const handlePrint = () => {
@@ -318,33 +357,46 @@ Generado desde FamiliaVital`;
         )}
 
         {/* Modal Footer with Actions - ALWAYS PINNED, ALWAYS 100% VISIBLE */}
-        <div className="bg-[#FFF9ED] px-4 py-2.5 sm:px-6 sm:py-3.5 border-t border-[#E9DCC4] flex items-center justify-between gap-2 shrink-0">
-          <div className="hidden sm:block text-xs text-[#796B59] truncate">
-            Ficha lista para imprimir o compartir
+        <div className="bg-[#FFF9ED] px-4 py-2.5 sm:px-6 sm:py-3.5 border-t border-[#E9DCC4] flex flex-col sm:flex-row items-center justify-between gap-2.5 shrink-0">
+          <div className="hidden sm:block text-xs text-[#6E5F4D] truncate">
+            Ficha lista para enviar a cuidadores, guardias o imprimir
           </div>
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+            {/* WhatsApp Share Button */}
+            <button
+              onClick={handleWhatsAppSOS}
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-[#25D366] hover:bg-[#1EBE5D] rounded-lg transition-colors shadow-2xs whitespace-nowrap cursor-pointer"
+              title="Enviar resumen de emergencia por WhatsApp"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span>Enviar por WhatsApp</span>
+            </button>
+
+            {/* Copy Summary Button */}
             <button
               onClick={handleCopySummary}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#493B2A] bg-white border border-[#E9DCC4] rounded-lg hover:bg-[#F8E8A6]/40 transition-colors shadow-2xs whitespace-nowrap"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#3E3020] bg-white border border-[#E9DCC4] rounded-lg hover:bg-[#FFF9ED] transition-colors shadow-2xs whitespace-nowrap cursor-pointer"
             >
               {copied ? (
                 <>
-                  <Check className="w-3.5 h-3.5 text-[#287653]" />
+                  <Check className="w-3.5 h-3.5 text-[#1E7E52]" />
                   <span>¡Copiado!</span>
                 </>
               ) : (
                 <>
-                  <Copy className="w-3.5 h-3.5 text-[#B87932]" />
-                  <span>Copiar Resumen</span>
+                  <Copy className="w-3.5 h-3.5 text-[#E26D14]" />
+                  <span>Copiar</span>
                 </>
               )}
             </button>
+
+            {/* Print Button */}
             <button
               onClick={handlePrint}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors shadow-xs whitespace-nowrap"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-[#E26D14] hover:bg-[#C55606] rounded-lg transition-colors shadow-xs whitespace-nowrap cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5 text-white" />
-              <span>Imprimir Ficha</span>
+              <span>Imprimir</span>
             </button>
           </div>
         </div>

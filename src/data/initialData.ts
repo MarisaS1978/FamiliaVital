@@ -142,6 +142,45 @@ export const INITIAL_MEMBERS: FamilyMember[] = [
     chronicConditions: ['Hipertensión arterial esencial', 'Osteopenia'],
     vitalNotes: 'Intolerancia severa a la Aspirina (AAS). Toma Enalapril 10mg y Calcio + Vit D.',
   },
+  {
+    id: 'member-simba',
+    name: 'Simba',
+    relationship: 'Mascota',
+    birthDate: '2023-06-10', // 3 años
+    bloodType: 'N/A',
+    idNumber: 'CHIP-981098102394012',
+    medicalInsurance: {
+      provider: 'Veterinaria Belgrano 24hs',
+      plan: 'Plan Salud Canino Integral',
+      affiliateNumber: 'VET-8831',
+      emergencyPhone: '+54 11 4781-9999',
+    },
+    primaryDoctor: {
+      name: 'Dr. Alejandro Peña (Veterinario)',
+      specialty: 'Medicina Veterinaria y Cirugía',
+      phone: '+54 11 4781-9999',
+      clinic: 'Hospital Veterinario Central',
+    },
+    emergencyContacts: [
+      { name: 'Laura Gómez (Dueña)', relation: 'Familia', phone: '+54 11 5491-0022', isPrimary: true },
+      { name: 'Martín Rossi (Dueño)', relation: 'Familia', phone: '+54 11 6321-4455' },
+    ],
+    chronicConditions: ['Piel atópica estacional'],
+    vitalNotes: 'Alimento hipoalergénico. Desparasitación interna y pipeta cada 3 meses.',
+    isPet: true,
+    petDetails: {
+      species: 'Perro',
+      breed: 'Golden Retriever',
+      microchipNumber: '981098102394012',
+      vetName: 'Dr. Alejandro Peña',
+      vetPhone: '+54 11 4781-9999',
+      vetClinic: 'Hospital Veterinario Central',
+      lastDewormingDate: '2026-08-15',
+      isNeutered: true,
+    },
+    avatarType: 'icon',
+    avatarIcon: 'dog',
+  },
 ];
 
 export const INITIAL_ALLERGIES: AllergyRecord[] = [
@@ -494,9 +533,61 @@ export const INITIAL_VACCINES: VaccineRecord[] = [
     notes: 'Última antitetánica hace 11 años tras raspón en obra. Requiere refuerzo.',
     isNationalCalendar: true,
   },
+
+  // Simba (Mascota - Golden Retriever)
+  {
+    id: 'vac-sim-1',
+    memberId: 'member-simba',
+    vaccineName: 'Antirrábica Canina Obligatoria',
+    diseaseTarget: 'Virus de la Rabia',
+    doseNumber: 'Anual 2026',
+    recommendedAge: 'Anual en caninos',
+    recommendedAgeMonths: 36,
+    status: 'applied',
+    applicationDate: '2026-06-15',
+    lotNumber: 'DEFENSOR-3-VET',
+    healthCenter: 'Hospital Veterinario Central',
+    notes: 'Certificado oficial emitido por Dr. Peña. Válido hasta Junio 2027.',
+    isNationalCalendar: true,
+    isPetVaccine: true,
+    documentName: 'Certificado_Oficial_Antirrabica_Simba.pdf',
+    documentType: 'pdf',
+  },
+  {
+    id: 'vac-sim-2',
+    memberId: 'member-simba',
+    vaccineName: 'Séxtuple Canina (DHPPi/L)',
+    diseaseTarget: 'Moquillo, Parvovirus, Hepatitis, Leptospirosis',
+    doseNumber: 'Refuerzo Anual',
+    recommendedAge: 'Anual en caninos',
+    recommendedAgeMonths: 36,
+    status: 'applied',
+    applicationDate: '2026-06-15',
+    lotNumber: 'NOBIVAC-DHPPi',
+    healthCenter: 'Hospital Veterinario Central',
+    notes: 'Excelente tolerancia. Próximo refuerzo Junio 2027.',
+    isNationalCalendar: true,
+    isPetVaccine: true,
+    documentName: 'Libreta_Sanitaria_Canina_Simba.pdf',
+    documentType: 'pdf',
+  },
 ];
 
 export const INITIAL_MEDICINES: MedicineItem[] = [
+  {
+    id: 'med-sim-1',
+    name: 'Bravecto Antiparasitario Canino',
+    activeIngredient: 'Fluralaner 500mg',
+    category: 'Primeros Auxilios',
+    form: 'Comprimidos',
+    stockQuantity: 1,
+    unit: 'comp. masticable',
+    expiryDate: '2027-05-10',
+    location: 'Botiquín Baño',
+    assignedMemberIds: ['member-simba'],
+    dosageInstructions: '1 comprimido masticable cada 12 semanas para protección continua contra pulgas y garrapatas.',
+    requiresPrescription: false,
+  },
   {
     id: 'med-1',
     name: 'Ibuprofeno 4% Pediátrico',
@@ -674,6 +765,17 @@ export const INITIAL_APPOINTMENTS: MedicalAppointment[] = [
     reason: 'Control semestral de TSH y T4 libre por hipotiroidismo.',
     postVisitNotes: 'TSH estable en 2.1 mUI/L. Continuar con dosis idéntica de levotiroxina 50mcg. Repetir en 6 meses.',
   },
+  {
+    id: 'apt-5',
+    memberId: 'member-simba',
+    specialty: 'Control Veterinario y Refuerzo Anual',
+    doctorName: 'Dr. Alejandro Peña (Veterinario)',
+    clinicAddress: 'Hospital Veterinario Central (Av. Cabildo 1250)',
+    dateTime: '2026-11-20T16:00',
+    status: 'scheduled',
+    reason: 'Control clínico anual, pesaje, corte de uñas y revisión de calendario antiparasitario.',
+    preparationNotes: 'Llevar carnet de vacunación física y libreta sanitaria.',
+  },
 ];
 
 export const INITIAL_PRESCRIPTIONS: PrescriptionRecord[] = [
@@ -712,6 +814,19 @@ export const INITIAL_PRESCRIPTIONS: PrescriptionRecord[] = [
     status: 'Utilizada en farmacia',
     fileName: 'resultado_laboratorio_laura_sep2026.pdf',
     notes: 'Hemograma completo, TSH, T4L, Glucemia y Colesterol. Valores dentro de rangos normales.',
+  },
+  {
+    id: 'rx-simba',
+    memberId: 'member-simba',
+    title: 'Certificado Oficial de Vacunación Antirrábica',
+    type: 'Certificado de Aptitud',
+    doctorName: 'Dr. Alejandro Peña (Mat. VET-4491)',
+    issueDate: '2026-06-15',
+    expiryDate: '2027-06-15',
+    status: 'Vigente',
+    fileName: 'certificado_antirrabica_oficial_simba.pdf',
+    notes: 'Certificado oficial con estampilla del Colegio Veterinario.',
+    medicationsIncluded: ['Vacuna Antirrábica Defensor 3'],
   },
 ];
 

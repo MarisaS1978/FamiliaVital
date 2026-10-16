@@ -157,3 +157,43 @@ export function downloadCalendarEvent(
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
+
+/**
+ * Opens WhatsApp with a pre-filled encoded message for instant family or doctor sharing.
+ * Avoids window.open popup blocks by triggering an anchor click safely.
+ */
+export function shareViaWhatsApp(message: string, phoneNumber?: string): void {
+  if (typeof window === 'undefined') return;
+  const cleanPhone = phoneNumber ? phoneNumber.replace(/[^\d+]/g, '') : '';
+  const encoded = encodeURIComponent(message);
+  const url = cleanPhone
+    ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encoded}`
+    : `https://api.whatsapp.com/send?text=${encoded}`;
+  
+  const link = document.createElement('a');
+  link.href = url;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+/**
+ * Reads a user-uploaded File (image or PDF) and extracts its Data URL and format.
+ */
+export function readFileAsDataURL(file: File): Promise<{ url: string; name: string; type: 'pdf' | 'image' }> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const isPdf = file.type.includes('pdf') || file.name.toLowerCase().endsWith('.pdf');
+      resolve({
+        url: reader.result as string,
+        name: file.name,
+        type: isPdf ? 'pdf' : 'image',
+      });
+    };
+    reader.onerror = (err) => reject(err);
+    reader.readAsDataURL(file);
+  });
+}

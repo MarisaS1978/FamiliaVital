@@ -24,6 +24,7 @@ import { VaccinationSchedule } from './components/VaccinationSchedule';
 import { MedicineCabinet } from './components/MedicineCabinet';
 import { AppointmentsAndPrescriptions } from './components/AppointmentsAndPrescriptions';
 import { FamilyProfilesView } from './components/FamilyProfilesView';
+import { PetsView } from './components/PetsView';
 import { EmergencySOSModal } from './components/EmergencySOSModal';
 import { ShareCaregiverModal } from './components/ShareCaregiverModal';
 import { AddRecordModal } from './components/AddRecordModal';
@@ -158,12 +159,28 @@ export default function App() {
     setAppointments((prev) => prev.map((a) => (a.id === updated.id ? updated : a)));
   };
 
+  const handleDeleteAppointment = (id: string) => {
+    setAppointments((prev) => prev.filter((a) => a.id !== id));
+  };
+
   const handleUpdatePrescription = (updated: PrescriptionRecord) => {
     setPrescriptions((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
   };
 
+  const handleDeletePrescription = (id: string) => {
+    setPrescriptions((prev) => prev.filter((p) => p.id !== id));
+  };
+
   const handleUpdateMember = (updated: FamilyMember) => {
     setMembers((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
+  };
+
+  const handleDeleteMember = (id: string) => {
+    setMembers((prev) => prev.filter((m) => m.id !== id));
+    if (selectedMemberId === id) {
+      setSelectedMemberId('all');
+    }
+    scrollToTop();
   };
 
   const handleDeleteAllergy = (id: string) => {
@@ -191,7 +208,7 @@ export default function App() {
     }
   };
 
-  const openAddCategory = (cat: 'appointment' | 'medicine' | 'vaccine' | 'allergy' | 'prescription' | 'member') => {
+  const openAddCategory = (cat: 'appointment' | 'medicine' | 'vaccine' | 'allergy' | 'prescription' | 'member' | 'pet') => {
     setAddModalInitialCategory(cat);
     setIsAddModalOpen(true);
   };
@@ -260,7 +277,9 @@ export default function App() {
             members={members}
             selectedMemberId={selectedMemberId}
             onUpdateAppointment={handleUpdateAppointment}
+            onDeleteAppointment={handleDeleteAppointment}
             onUpdatePrescription={handleUpdatePrescription}
+            onDeletePrescription={handleDeletePrescription}
             onAddAppointment={() => openAddCategory('appointment')}
             onAddPrescription={() => openAddCategory('prescription')}
           />
@@ -272,27 +291,43 @@ export default function App() {
             allergies={allergies}
             selectedMemberId={selectedMemberId}
             onUpdateMember={handleUpdateMember}
+            onDeleteMember={handleDeleteMember}
             onAddAllergy={() => openAddCategory('allergy')}
             onDeleteAllergy={handleDeleteAllergy}
             onAddMember={() => openAddCategory('member')}
+            onAddPet={() => openAddCategory('pet')}
+          />
+        )}
+
+        {activeTab === 'mascotas' && (
+          <PetsView
+            members={members}
+            vaccines={vaccines}
+            appointments={appointments}
+            onUpdateMember={handleUpdateMember}
+            onDeleteMember={handleDeleteMember}
+            onUpdateVaccine={handleUpdateVaccine}
+            onAddVaccine={() => openAddCategory('vaccine')}
+            onAddMember={() => openAddCategory('pet')}
+            onAddAppointment={() => openAddCategory('appointment')}
           />
         )}
       </main>
 
       {/* Quiet, warm footer */}
-      <footer className="no-print bg-white border-t border-[#E9DCC4] py-6 mt-12 text-xs text-[#796B59]">
+      <footer className="no-print bg-white border-t border-[#E9DCC4] py-6 mt-12 text-xs text-[#6E5F4D]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-[#493B2A]">FamiliaVital</span>
+            <span className="font-bold text-[#3E3020]">FamiliaVital</span>
             <span>·</span>
-            <span>Libreta Digital de Salud & Fichas Médicas Familiares</span>
+            <span>Libreta Digital de Salud & Mascotas Familiares</span>
           </div>
-          <div className="flex items-center gap-4 text-[11px] text-[#796B59]">
+          <div className="flex items-center gap-4 text-[11px] text-[#6E5F4D]">
             <span>Privacidad protegida · Almacenamiento local</span>
             <span>·</span>
             <button
               onClick={() => setIsEmergencySOSOpen(true)}
-              className="text-[#B42332] hover:underline font-bold"
+              className="text-[#C21D30] hover:underline font-bold cursor-pointer"
             >
               Ficha de Emergencia (SOS)
             </button>
@@ -353,11 +388,11 @@ export default function App() {
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          className="no-print fixed bottom-6 right-6 z-30 flex items-center gap-1.5 px-3.5 py-2.5 bg-[#B87932] hover:bg-[#A06424] text-white text-xs font-bold rounded-full shadow-lg shadow-[#B87932]/30 transition-all transform hover:-translate-y-0.5 cursor-pointer border border-[#F8E8A6]/40"
+          className="no-print fixed bottom-6 right-6 z-30 flex items-center gap-1.5 px-3.5 py-2.5 bg-[#E27D18] hover:bg-[#C66506] text-white text-xs font-bold rounded-full shadow-lg shadow-[#E27D18]/30 transition-all transform hover:-translate-y-0.5 cursor-pointer border border-[#FEEAA2]/40"
           title="Volver al menú superior"
           aria-label="Volver al menú superior"
         >
-          <ArrowUp className="w-4 h-4 text-[#F8E8A6]" />
+          <ArrowUp className="w-4 h-4 text-[#FEEAA2]" />
           <span>Volver al menú</span>
         </button>
       )}

@@ -122,8 +122,8 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       {/* Featured Welcome Panel (Compact and responsive on mobile) */}
       <div className="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-[#F8E8A6] border border-[#E9DCC4] text-[#493B2A] flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 shadow-xs">
         <div className="space-y-1 max-w-xl">
-          <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-[#B87932] uppercase tracking-wider">
-            <HeartPulse className="w-3.5 h-3.5 text-[#B87932]" />
+          <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-[#E27D18] uppercase tracking-wider">
+            <HeartPulse className="w-3.5 h-3.5 text-[#E27D18]" />
             <span>Libreta Médica Familiar Centralizada</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#493B2A]">
@@ -137,16 +137,16 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 shrink-0 w-full md:w-auto">
           <button
             onClick={onOpenEmergencySOS}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-[#B42332] hover:bg-[#9E1B28] text-white text-xs font-bold transition-all shadow-sm shadow-[#B42332]/25 whitespace-nowrap"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-[#B42332] hover:bg-[#9E1B28] text-white text-xs font-bold transition-all shadow-sm shadow-[#B42332]/25 whitespace-nowrap cursor-pointer"
           >
             <ShieldAlert className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white shrink-0" />
             <span className="truncate">Ficha SOS</span>
           </button>
           <button
             onClick={onOpenShare}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-white text-[#493B2A] border border-[#E9DCC4] hover:bg-[#FFF9ED] text-xs font-semibold transition-all shadow-2xs whitespace-nowrap"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-white text-[#493B2A] border border-[#E9DCC4] hover:bg-[#FFF9ED] text-xs font-semibold transition-all shadow-2xs whitespace-nowrap cursor-pointer"
           >
-            <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#B87932] shrink-0" />
+            <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#E27D18] shrink-0" />
             <span className="truncate">Compartir</span>
           </button>
         </div>
@@ -373,19 +373,28 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                 className="p-3.5 sm:p-4 rounded-xl border border-[#E9DCC4] bg-white hover:border-[#D9A441] hover:shadow-xs transition-all cursor-pointer flex flex-col justify-between"
               >
                 <div>
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-[#FFF9ED] border border-[#E9DCC4] mb-2 sm:mb-3 mx-auto">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-[#FFF9ED] border border-[#E9DCC4] mb-2 sm:mb-3 mx-auto flex items-center justify-center">
                     {member.avatarUrl ? (
                       <img
                         src={member.avatarUrl}
                         alt={member.name}
                         referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          // Hide broken image and show initial/icon
+                          e.currentTarget.style.display = 'none';
+                          const fallback = e.currentTarget.parentElement?.querySelector('.avatar-fallback');
+                          if (fallback) (fallback as HTMLElement).style.display = 'flex';
+                        }}
                         className="w-full h-full object-cover"
                       />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center font-bold text-sm text-[#B87932]">
-                        {member.name.charAt(0)}
-                      </div>
-                    )}
+                    ) : null}
+                    <div
+                      className={`avatar-fallback w-full h-full ${member.avatarUrl ? 'hidden' : 'flex'} items-center justify-center font-bold text-sm ${
+                        member.isPet || member.relationship === 'Mascota' ? 'text-[#E27D18] bg-[#FEEAA2]' : 'text-[#E27D18] bg-[#FFF9ED]'
+                      }`}
+                    >
+                      {member.isPet || member.relationship === 'Mascota' ? '🐾' : member.name.charAt(0)}
+                    </div>
                   </div>
 
                   <div className="text-center">
@@ -393,14 +402,14 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                       {member.name}
                     </h4>
                     <div className="text-[11px] text-[#796B59]">
-                      {member.relationship} · {formatAge(member.birthDate)}
+                      {member.isPet ? '🐾 ' : ''}{member.relationship} · {formatAge(member.birthDate)}
                     </div>
                   </div>
 
                   <div className="mt-2.5 pt-2.5 border-t border-[#E9DCC4] text-[11px] space-y-1 text-[#796B59]">
                     <div className="flex justify-between">
-                      <span className="text-[#796B59]/80">Grupo:</span>
-                      <span className="font-mono font-bold text-[#C97759]">
+                      <span className="text-[#796B59]/80">Grupo / ID:</span>
+                      <span className="font-mono font-bold text-[#E27D18]">
                         {member.bloodType}
                       </span>
                     </div>
@@ -419,7 +428,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                   </div>
                 </div>
 
-                <div className="mt-2.5 pt-2 text-center text-[10px] text-[#B87932] font-semibold border-t border-[#E9DCC4]/50">
+                <div className="mt-2.5 pt-2 text-center text-[10px] text-[#E27D18] font-bold border-t border-[#E9DCC4]/50">
                   Ver Ficha →
                 </div>
               </div>
@@ -436,17 +445,17 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
             onClick={handleExportBackup}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#FFF9ED] border border-[#E9DCC4] rounded-lg text-[#493B2A] hover:bg-[#F8E8A6]/30 transition-colors font-medium shadow-2xs"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#FFF9ED] border border-[#E9DCC4] rounded-lg text-[#493B2A] hover:bg-[#F8E8A6]/30 transition-colors font-medium shadow-2xs cursor-pointer"
           >
-            <Download className="w-3.5 h-3.5 text-[#B87932]" />
+            <Download className="w-3.5 h-3.5 text-[#E27D18]" />
             <span>Descargar Respaldo</span>
           </button>
           <button
             onClick={onResetData}
-            className="flex items-center justify-center gap-1 px-3 py-1.5 text-[#796B59] hover:text-[#493B2A] rounded-lg transition-colors"
+            className="flex items-center justify-center gap-1 px-3 py-1.5 text-[#796B59] hover:text-[#493B2A] rounded-lg transition-colors cursor-pointer"
             title="Restaurar datos predeterminados de la familia"
           >
-            <RotateCcw className="w-3.5 h-3.5 text-[#D9A441]" />
+            <RotateCcw className="w-3.5 h-3.5 text-[#E27D18]" />
             <span>Restablecer</span>
           </button>
         </div>

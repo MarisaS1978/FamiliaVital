@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   FamilyMember,
   MedicalAppointment,
@@ -17,9 +17,16 @@ import {
   FileText,
   UserPlus,
   X,
+  Camera,
+  Upload,
+  FileCheck,
+  Check,
+  Dog,
+  Cat,
 } from 'lucide-react';
+import { readFileAsDataURL, formatDate } from '../utils/healthUtils';
 
-type RecordCategory = 'appointment' | 'medicine' | 'vaccine' | 'allergy' | 'prescription' | 'member';
+export type RecordCategory = 'appointment' | 'medicine' | 'vaccine' | 'allergy' | 'prescription' | 'member' | 'pet';
 
 interface AddRecordModalProps {
   isOpen: boolean;
@@ -47,6 +54,13 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
   initialCategory = 'appointment',
 }) => {
   const [category, setCategory] = useState<RecordCategory>(initialCategory);
+
+  // Synchronize category whenever modal opens with a specific category
+  useEffect(() => {
+    if (isOpen) {
+      setCategory(initialCategory);
+    }
+  }, [isOpen, initialCategory]);
 
   // Common member ID state
   const [selectedMemberId, setSelectedMemberId] = useState<string>(members[0]?.id || '');
@@ -106,6 +120,68 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
   const [memDocPhone, setMemDocPhone] = useState('');
   const [memVitalNotes, setMemVitalNotes] = useState('');
 
+  // Form states for Pet
+  const [petName, setPetName] = useState('');
+  const [petSpecies, setPetSpecies] = useState<'Perro' | 'Gato' | 'Ave' | 'Otro'>('Perro');
+  const [petBreed, setPetBreed] = useState('');
+  const [petBirth, setPetBirth] = useState('');
+  const [petMicrochip, setPetMicrochip] = useState('');
+  const [petNeutered, setPetNeutered] = useState(false);
+  const [petVetName, setPetVetName] = useState('');
+  const [petVetPhone, setPetVetPhone] = useState('');
+  const [petVetClinic, setPetVetClinic] = useState('Hospital Veterinario Central');
+  const [petLastDeworming, setPetLastDeworming] = useState('');
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Document attachment & scanner states
+  const [docName, setDocName] = useState('');
+  const [docUrl, setDocUrl] = useState('');
+  const [docType, setDocType] = useState<'pdf' | 'image'>('pdf');
+  const [isScanningDoc, setIsScanningDoc] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const result = await readFileAsDataURL(file);
+        setDocName(result.name);
+        setDocUrl(result.url);
+        setDocType(result.type);
+        if (category === 'vaccine' && !vacName) {
+          setVacName(file.name.replace(/\.[^/.]+$/, ''));
+        }
+        if (category === 'prescription' && !rxTitle) {
+          setRxTitle(file.name.replace(/\.[^/.]+$/, ''));
+        }
+      } catch (err) {
+        console.error('Error reading document:', err);
+      }
+    }
+  };
+
+  const handleSimulateScan = () => {
+    setIsScanningDoc(true);
+    setTimeout(() => {
+      setIsScanningDoc(false);
+      if (category === 'vaccine') {
+        setVacName('Antitetánica / Doble Adultos');
+        setVacDisease('Tétanos y Difteria');
+        setVacLot(`LOT-${Math.floor(10000 + Math.random() * 90000)}`);
+        setVacCenter('Sanatorio de la Trinidad');
+        setVacDate(new Date().toISOString().split('T')[0]);
+        setVacStatus('applied');
+        setDocName('Carnet_Vacunacion_Escaneado.pdf');
+      } else if (category === 'prescription') {
+        setRxTitle('Receta - Ibuprofeno 600mg');
+        setRxDoctor('Dr. Hernán Varela (Mat. 77412)');
+        setRxMeds('Ibuprofeno 600mg comp. cada 8 horas');
+        setRxExpiry(new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().split('T')[0]);
+        setDocName('Receta_Medica_Firmada.pdf');
+      }
+    }, 1200);
+  };
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -154,6 +230,9 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
         lotNumber: vacLot || undefined,
         healthCenter: vacCenter || undefined,
         isNationalCalendar: false,
+        documentName: docName || undefined,
+        documentUrl: docUrl || undefined,
+        documentType: docType,
       };
       onAddVaccine(newVac);
     } else if (category === 'allergy') {
@@ -179,16 +258,19 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
         expiryDate: rxExpiry || undefined,
         status: 'Vigente',
         medicationsIncluded: rxMeds ? rxMeds.split(',').map((s) => s.trim()) : undefined,
+        fileName: docName || undefined,
+        fileData: docUrl || undefined,
       };
       onAddPrescription(newRx);
     } else if (category === 'member') {
+      const isPet = memRelation === 'Mascota';
       const newMem: FamilyMember = {
         id: `member-${Date.now()}`,
         name: memName,
         relationship: memRelation,
         birthDate: memBirth || '2020-01-01',
         bloodType: memBlood,
-        idNumber: memDNI || '11.222.333',
+        idNumber: memDNI || (isPet ? 'CHIP-VET-9901' : '11.222.333'),
         medicalInsurance: {
           provider: memInsurance,
           plan: 'Estándar',
@@ -198,9 +280,9 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
         primaryDoctor: memDocName
           ? {
               name: memDocName,
-              specialty: 'Cabecera',
+              specialty: isPet ? 'Veterinario' : 'Cabecera',
               phone: memDocPhone || '-',
-              clinic: 'Centro Médico',
+              clinic: isPet ? 'Hospital Veterinario' : 'Centro Médico',
             }
           : undefined,
         emergencyContacts: [
@@ -208,8 +290,55 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
         ],
         chronicConditions: [],
         vitalNotes: memVitalNotes || undefined,
+        isPet,
+        petDetails: isPet
+          ? {
+              species: 'Perro',
+              breed: 'Mestizo',
+            }
+          : undefined,
       };
       onAddMember(newMem);
+    } else if (category === 'pet') {
+      const newPet: FamilyMember = {
+        id: `member-pet-${Date.now()}`,
+        name: petName.trim() || 'Mascota',
+        relationship: 'Mascota',
+        birthDate: petBirth || '2022-01-01',
+        bloodType: 'N/A',
+        idNumber: petMicrochip.trim() || `CHIP-VET-${Math.floor(1000 + Math.random() * 9000)}`,
+        medicalInsurance: {
+          provider: petVetClinic.trim() || 'Hospital Veterinario Central',
+          plan: 'Atención Veterinaria y Guardia',
+          affiliateNumber: `VET-${Date.now().toString().slice(-6)}`,
+          emergencyPhone: petVetPhone.trim() || 'Guardia 24hs',
+        },
+        primaryDoctor: {
+          name: petVetName.trim() || 'Médico Veterinario',
+          specialty: 'Veterinaria',
+          phone: petVetPhone.trim() || '-',
+          clinic: petVetClinic.trim() || 'Hospital Veterinario Central',
+        },
+        emergencyContacts: [
+          { name: 'Dueño / Familia', relation: 'Familia', phone: '+54 11 5491-0022', isPrimary: true },
+        ],
+        chronicConditions: [],
+        vitalNotes: `Mascota de la familia. Especie: ${petSpecies}. Raza: ${petBreed || 'Mestizo'}. Castrado: ${petNeutered ? 'Sí' : 'No'}.`,
+        isPet: true,
+        avatarType: 'icon',
+        avatarIcon: petSpecies === 'Gato' ? 'cat' : 'dog',
+        petDetails: {
+          species: petSpecies,
+          breed: petBreed.trim() || 'Mestizo',
+          microchipNumber: petMicrochip.trim() || undefined,
+          vetName: petVetName.trim() || undefined,
+          vetPhone: petVetPhone.trim() || undefined,
+          vetClinic: petVetClinic.trim() || undefined,
+          lastDewormingDate: petLastDeworming || undefined,
+          isNeutered: petNeutered,
+        },
+      };
+      onAddMember(newPet);
     }
 
     onClose();
@@ -237,14 +366,15 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
         </div>
 
         {/* Category Selector Tabs */}
-        <div className="bg-[#FFF9ED] p-1.5 sm:p-2 border-b border-[#E9DCC4] grid grid-cols-3 sm:grid-cols-6 gap-1 text-center shrink-0">
+        <div className="bg-[#FFF9ED] p-1.5 sm:p-2 border-b border-[#E9DCC4] grid grid-cols-4 sm:grid-cols-7 gap-1 text-center shrink-0">
           {[
             { id: 'appointment', label: 'Turno', icon: Calendar },
             { id: 'medicine', label: 'Remedio', icon: Pill },
             { id: 'vaccine', label: 'Vacuna', icon: Syringe },
             { id: 'allergy', label: 'Alergia', icon: AlertTriangle },
             { id: 'prescription', label: 'Receta', icon: FileText },
-            { id: 'member', label: 'Integrante', icon: UserPlus },
+            { id: 'member', label: 'Familiar', icon: UserPlus },
+            { id: 'pet', label: 'Mascota', icon: Dog },
           ].map((item) => {
             const Icon = item.icon;
             const isSelected = category === item.id;
@@ -253,13 +383,13 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
                 type="button"
                 key={item.id}
                 onClick={() => setCategory(item.id as RecordCategory)}
-                className={`py-1.5 px-1 rounded-lg text-xs font-semibold flex flex-col items-center gap-1 transition-all ${
+                className={`py-1.5 px-1 rounded-lg text-xs font-semibold flex flex-col items-center gap-1 transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-white text-[#493B2A] shadow-xs'
-                    : 'text-[#796B59] hover:text-[#493B2A]'
+                    ? 'bg-white text-[#3E3020] shadow-xs'
+                    : 'text-[#6E5F4D] hover:text-[#3E3020]'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isSelected ? 'text-[#B87932]' : 'text-[#D9A441]'}`} />
+                <Icon className={`w-4 h-4 ${isSelected ? 'text-[#E27D18]' : 'text-[#6E5F4D]'}`} />
                 <span>{item.label}</span>
               </button>
             );
@@ -270,8 +400,8 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
         <form onSubmit={handleSubmit} className="flex-1 min-h-0 flex flex-col overflow-hidden">
           {/* Scrollable Form Body */}
           <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 space-y-3.5 text-xs">
-            {/* Member selector for all non-member types */}
-            {category !== 'member' && (
+            {/* Member selector for all non-member and non-pet types */}
+            {category !== 'member' && category !== 'pet' && (
             <div>
               <label className="block font-semibold text-[#493B2A] mb-1">
                 ¿A qué integrante familiar corresponde? *
@@ -543,6 +673,36 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
                   </div>
                 </div>
               )}
+
+              {/* Document Attachment & Camera OCR for Vaccine */}
+              <div className="pt-3 border-t border-[#E9DCC4] space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block font-semibold text-[#3E3020]">
+                    Carnet / Certificado Oficial (PDF o Foto)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleSimulateScan}
+                    className="text-xs font-bold text-[#E27D18] hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <Camera className="w-3.5 h-3.5" />
+                    <span>{isScanningDoc ? 'Escaneando carnet...' : 'Escanear con Cámara / OCR'}</span>
+                  </button>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#3E3020] bg-white border border-[#E9DCC4] hover:bg-[#FFF9ED] rounded-lg cursor-pointer">
+                    <Upload className="w-3.5 h-3.5 text-[#E27D18]" />
+                    <span>{docName ? 'Cambiar archivo' : 'Subir PDF / Foto'}</span>
+                    <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" />
+                  </label>
+                  {docName && (
+                    <span className="text-xs text-[#1E7E52] font-semibold flex items-center gap-1 bg-[#EDF7F2] px-2 py-1 rounded">
+                      <FileCheck className="w-3.5 h-3.5" />
+                      <span className="truncate max-w-[180px]">{docName}</span>
+                    </span>
+                  )}
+                </div>
+              </div>
             </>
           )}
 
@@ -677,12 +837,57 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
                   className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
                 />
               </div>
+
+              {/* Document Attachment & Camera OCR for Prescription */}
+              <div className="pt-3 border-t border-[#E9DCC4] space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block font-semibold text-[#3E3020]">
+                    Receta Escaneada o PDF Oficial
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleSimulateScan}
+                    className="text-xs font-bold text-[#E27D18] hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <Camera className="w-3.5 h-3.5" />
+                    <span>{isScanningDoc ? 'Escaneando receta...' : 'Escanear con Cámara / OCR'}</span>
+                  </button>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#3E3020] bg-white border border-[#E9DCC4] hover:bg-[#FFF9ED] rounded-lg cursor-pointer">
+                    <Upload className="w-3.5 h-3.5 text-[#E27D18]" />
+                    <span>{docName ? 'Cambiar archivo' : 'Subir PDF / Foto'}</span>
+                    <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" />
+                  </label>
+                  {docName && (
+                    <span className="text-xs text-[#1E7E52] font-semibold flex items-center gap-1 bg-[#EDF7F2] px-2 py-1 rounded">
+                      <FileCheck className="w-3.5 h-3.5" />
+                      <span className="truncate max-w-[180px]">{docName}</span>
+                    </span>
+                  )}
+                </div>
+              </div>
             </>
           )}
 
           {/* CATEGORY: MEMBER */}
           {category === 'member' && (
             <>
+              <div className="p-3 bg-[#FFF9ED] border border-[#E9DCC4] rounded-xl flex items-center justify-between gap-2 text-xs">
+                <div className="flex items-center gap-2 text-[#3E3020]">
+                  <UserPlus className="w-4 h-4 text-[#E27D18]" />
+                  <span className="font-semibold">Nuevo Integrante Familiar (Humano)</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setCategory('pet')}
+                  className="text-xs font-bold text-[#E27D18] hover:underline flex items-center gap-1 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-[#E9DCC4] shadow-2xs"
+                >
+                  <Dog className="w-3.5 h-3.5" />
+                  <span>¿Es una mascota? Registrarla aquí</span>
+                </button>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-[#493B2A] mb-1">Nombre Completo *</label>
@@ -774,6 +979,148 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
             </>
           )}
 
+          {/* CATEGORY: PET */}
+          {category === 'pet' && (
+            <>
+              <div className="p-3 bg-[#FFF5E5] border border-[#FEEAA2] rounded-xl flex items-center justify-between gap-2 text-xs font-semibold text-[#E27D18]">
+                <div className="flex items-center gap-2">
+                  <Dog className="w-4 h-4 text-[#E27D18]" />
+                  <span>Ficha Sanitaria de Nueva Mascota</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setCategory('member')}
+                  className="text-xs font-semibold text-[#6E5F4D] hover:underline flex items-center gap-1 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-[#E9DCC4] shadow-2xs"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>¿Es un familiar humano? Clic aquí</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-[#493B2A] mb-1">Nombre de la Mascota *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej: Simba, Milo, Luna, Rocco"
+                    value={petName}
+                    onChange={(e) => setPetName(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-[#493B2A] mb-1">Especie *</label>
+                  <select
+                    value={petSpecies}
+                    onChange={(e) => setPetSpecies(e.target.value as any)}
+                    className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
+                  >
+                    <option value="Perro">Perro</option>
+                    <option value="Gato">Gato</option>
+                    <option value="Ave">Ave</option>
+                    <option value="Otro">Otro animal</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block font-semibold text-[#493B2A] mb-1">Raza</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Golden Retriever, Mestizo"
+                    value={petBreed}
+                    onChange={(e) => setPetBreed(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-[#493B2A] mb-1">Fecha de Nacimiento / Edad</label>
+                  <input
+                    type="date"
+                    value={petBirth}
+                    onChange={(e) => setPetBirth(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-[#493B2A] mb-1">N° de Microchip / Placa</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: CHIP-9820-AR"
+                    value={petMicrochip}
+                    onChange={(e) => setPetMicrochip(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] font-mono focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-[#493B2A] mb-1">Veterinaria / Clínica de Guardia</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Hospital Veterinario Central"
+                    value={petVetClinic}
+                    onChange={(e) => setPetVetClinic(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-[#493B2A] mb-1">Teléfono Urgencias / Guardia</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: 011 4890-5566 (24hs)"
+                    value={petVetPhone}
+                    onChange={(e) => setPetVetPhone(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] font-mono focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-[#493B2A] mb-1">Veterinario de Cabecera</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Dr. Martín Soler"
+                    value={petVetName}
+                    onChange={(e) => setPetVetName(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-[#493B2A] mb-1">Última Desparasitación</label>
+                  <input
+                    type="date"
+                    value={petLastDeworming}
+                    onChange={(e) => setPetLastDeworming(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
+                  />
+                </div>
+              </div>
+
+              <div className="p-3 bg-[#FFF9ED] border border-[#E9DCC4] rounded-lg flex items-center justify-between">
+                <div>
+                  <span className="font-semibold text-[#3E3020] block">¿La mascota está castrada / esterilizada?</span>
+                  <span className="text-[11px] text-[#6E5F4D]">Importante para el historial clínico y cirugías</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPetNeutered(!petNeutered)}
+                  className={`px-3 py-1 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                    petNeutered
+                      ? 'bg-[#1E7E52] text-white border-[#1E7E52]'
+                      : 'bg-white text-[#6E5F4D] border-[#E9DCC4]'
+                  }`}
+                >
+                  {petNeutered ? '✓ Sí, castrado/a' : 'No castrado/a'}
+                </button>
+              </div>
+            </>
+          )}
+
           </div>
 
           {/* Form Actions - ALWAYS PINNED AND FULLY VISIBLE */}
@@ -781,13 +1128,13 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-[#796B59] hover:text-[#493B2A] hover:bg-white rounded-lg border border-transparent hover:border-[#E9DCC4] transition-colors"
+              className="px-4 py-2 text-xs font-semibold text-[#796B59] hover:text-[#493B2A] hover:bg-white rounded-lg border border-transparent hover:border-[#E9DCC4] transition-colors cursor-pointer"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-5 py-2 text-xs font-bold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors shadow-xs flex items-center gap-1.5"
+              className="px-5 py-2 text-xs font-bold text-white bg-[#E27D18] hover:bg-[#C66506] rounded-lg transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
             >
               Guardar en Libreta
             </button>

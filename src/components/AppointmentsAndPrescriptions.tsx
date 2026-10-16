@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   MedicalAppointment,
   PrescriptionRecord,
@@ -8,6 +8,8 @@ import {
   formatDate,
   formatDateTime,
   downloadCalendarEvent,
+  shareViaWhatsApp,
+  readFileAsDataURL,
 } from '../utils/healthUtils';
 import {
   Calendar,
@@ -22,6 +24,15 @@ import {
   FileCheck,
   Check,
   AlertCircle,
+  MessageCircle,
+  Upload,
+  Printer,
+  Download,
+  X,
+  Camera,
+  Share2,
+  Info,
+  Trash2,
 } from 'lucide-react';
 
 interface AppointmentsAndPrescriptionsProps {
@@ -30,7 +41,9 @@ interface AppointmentsAndPrescriptionsProps {
   members: FamilyMember[];
   selectedMemberId: string | 'all';
   onUpdateAppointment: (apt: MedicalAppointment) => void;
+  onDeleteAppointment?: (id: string) => void;
   onUpdatePrescription: (rx: PrescriptionRecord) => void;
+  onDeletePrescription?: (id: string) => void;
   onAddAppointment: () => void;
   onAddPrescription: () => void;
 }
@@ -41,12 +54,83 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
   members,
   selectedMemberId,
   onUpdateAppointment,
+  onDeleteAppointment,
   onUpdatePrescription,
+  onDeletePrescription,
   onAddAppointment,
   onAddPrescription,
 }) => {
   const [activeSection, setActiveSection] = useState<'appointments' | 'prescriptions'>('appointments');
   const [selectedPrescription, setSelectedPrescription] = useState<PrescriptionRecord | null>(null);
+  const rxFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Scanner modal state for prescriptions
+  const [isScanningRx, setIsScanningRx] = useState(false);
+  const [scanStepRx, setScanStepRx] = useState<'idle' | 'scanning' | 'success'>('idle');
+  const [scannedRxData, setScannedRxData] = useState<any>(null);
+
+  const [itemToDelete, setItemToDelete] = useState<{ type: 'appointment' | 'prescription'; id: string; name: string } | null>(null);
+
+  const handleSimulateRxScan = () => {
+    setIsScanningRx(true);
+    setScanStepRx('scanning');
+    setTimeout(() => {
+      setScanStepRx('success');
+      setScannedRxData({
+        title: 'Receta Digital - Amoxicilina 500mg',
+        doctorName: 'Dra. Silvina Romero (Mat. 98124)',
+        type: 'Receta Médica',
+        medications: 'Amoxicilina / Clavulánico 500/125mg comp. c/8hs por 7 días',
+        expiryDate: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().split('T')[0],
+      });
+    }, 1400);
+  };
+
+  const handleApplyScannedRx = () => {
+    if (!scannedRxData) return;
+    const targetMemberId = selectedMemberId === 'all' ? members[0]?.id : selectedMemberId;
+    const newRx: PrescriptionRecord = {
+      id: `rx-scan-${Date.now()}`,
+      memberId: targetMemberId,
+      title: scannedRxData.title,
+      type: scannedRxData.type,
+      doctorName: scannedRxData.doctorName,
+      issueDate: new Date().toISOString().split('T')[0],
+      expiryDate: scannedRxData.expiryDate,
+      status: 'Vigente',
+      medicationsIncluded: [scannedRxData.medications],
+      fileName: 'Receta_Firmada_Escaneada.pdf',
+      notes: 'Escaneada con cámara OCR',
+    };
+    onUpdatePrescription(newRx);
+    setIsScanningRx(false);
+    setScanStepRx('idle');
+    setScannedRxData(null);
+  };
+
+  const handleDirectRxUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const result = await readFileAsDataURL(file);
+        const targetMemberId = selectedMemberId === 'all' ? members[0]?.id : selectedMemberId;
+        const newRx: PrescriptionRecord = {
+          id: `rx-file-${Date.now()}`,
+          memberId: targetMemberId,
+          title: file.name.replace(/\.[^/.]+$/, ''),
+          type: file.name.toLowerCase().includes('estudio') ? 'Estudio / Laboratorio' : 'Receta Médica',
+          doctorName: 'Médico Tratante',
+          issueDate: new Date().toISOString().split('T')[0],
+          status: 'Vigente',
+          fileName: result.name,
+          fileData: result.url,
+        };
+        onUpdatePrescription(newRx);
+      } catch (err) {
+        console.error('Error uploading rx doc:', err);
+      }
+    }
+  };
 
   // Filter by selected member
   const filteredAppointments = appointments.filter(
@@ -71,6 +155,40 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
     downloadCalendarEvent(title, desc, apt.clinicAddress, apt.dateTime);
   };
 
+  const handleShareAppointmentWhatsApp = (apt: MedicalAppointment) => {
+    const member = members.find((m) => m.id === apt.memberId);
+    const msg = `*RECORDATORIO DE TURNO MÉDICO - FAMILIAVITAL*
+👤 Paciente: *${member ? member.name : 'Familiar'}*
+🩺 Especialidad: *${apt.specialty}*
+👨‍⚕️ Médico: ${apt.doctorName}
+📅 Fecha y Hora: *${formatDateTime(apt.dateTime)}*
+🏥 Lugar: ${apt.clinicAddress}
+📝 Motivo: ${apt.reason}
+${apt.preparationNotes ? `⚠️ Preparación: ${apt.preparationNotes}` : ''}
+_Enviado desde FamiliaVital_`;
+
+    shareViaWhatsApp(msg);
+  };
+
+  const handleSharePrescriptionWhatsApp = (rx: PrescriptionRecord) => {
+    const member = members.find((m) => m.id === rx.memberId);
+    const meds = rx.medicationsIncluded ? rx.medicationsIncluded.map(m => `• ${m}`).join('\n') : rx.notes;
+
+    const msg = `*RECETA MÉDICA DIGITAL - FAMILIAVITAL*
+👤 Paciente: *${member ? member.name : 'Familiar'}*
+📄 Documento: *${rx.title}* (${rx.type})
+👨‍⚕️ Profesional: ${rx.doctorName}
+📅 Fecha de Emisión: ${formatDate(rx.issueDate)}
+${rx.expiryDate ? `⏳ Vence para compra en farmacia: ${formatDate(rx.expiryDate)}` : ''}
+
+💊 *INDICACIONES / MEDICACIÓN:*
+${meds || 'Ver documento adjunto'}
+
+_Compartido desde FamiliaVital_`;
+
+    shareViaWhatsApp(msg);
+  };
+
   const handleTogglePrescriptionStatus = (rx: PrescriptionRecord) => {
     const newStatus = rx.status === 'Vigente' ? 'Utilizada en farmacia' : 'Vigente';
     onUpdatePrescription({ ...rx, status: newStatus });
@@ -78,82 +196,126 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
 
   return (
     <div className="space-y-6">
-      {/* Top Section Tabs */}
+      {/* Top Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-white rounded-xl border border-[#E9DCC4] shadow-xs">
         <div>
-          <h2 className="text-lg font-bold text-[#493B2A]">
+          <h2 className="text-lg font-bold text-[#3E3020]">
             Agenda Médica y Documentación Digital
           </h2>
-          <p className="text-xs text-[#796B59] mt-0.5">
-            Turnos programados, preparación previa, recetas de farmacia y certificados de aptitud
+          <p className="text-xs text-[#6E5F4D] mt-0.5">
+            Turnos programados, recetas escaneadas (PDF/Fotos), farmacia y certificados de aptitud
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {activeSection === 'appointments' ? (
             <button
               onClick={onAddAppointment}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors whitespace-nowrap shadow-xs"
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-[#E27D18] hover:bg-[#C66506] rounded-xl transition-colors whitespace-nowrap shadow-xs cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5 text-white" />
               <span>Agendar Turno</span>
             </button>
           ) : (
-            <button
-              onClick={onAddPrescription}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors whitespace-nowrap shadow-xs"
-            >
-              <Plus className="w-3.5 h-3.5 text-white" />
-              <span>Subir Receta / Estudio</span>
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={handleSimulateRxScan}
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-[#3E3020] bg-[#FFF9ED] border border-[#E9DCC4] hover:bg-[#FEEAA2]/50 rounded-xl transition-colors shadow-2xs whitespace-nowrap cursor-pointer"
+                title="Escanear receta física con cámara u OCR"
+              >
+                <Camera className="w-3.5 h-3.5 text-[#E27D18]" />
+                <span>Escanear con Cámara / OCR</span>
+              </button>
+
+              <input
+                ref={rxFileInputRef}
+                type="file"
+                accept=".pdf,image/*"
+                onChange={handleDirectRxUpload}
+                className="hidden"
+              />
+
+              <button
+                type="button"
+                onClick={() => rxFileInputRef.current?.click()}
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#3E3020] bg-white border border-[#E9DCC4] hover:bg-[#FFF9ED] rounded-xl transition-colors shadow-2xs whitespace-nowrap cursor-pointer"
+              >
+                <Upload className="w-3.5 h-3.5 text-[#E27D18]" />
+                <span>Subir Archivo / Foto</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onAddPrescription}
+                className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-[#E27D18] hover:bg-[#C66506] rounded-xl transition-colors whitespace-nowrap shadow-xs cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5 text-white" />
+                <span>Nueva Receta / PDF</span>
+              </button>
+            </>
           )}
         </div>
       </div>
 
       {/* Segmented Switcher between Appointments & Prescriptions */}
-      <div className="flex items-center gap-2 p-1 bg-[#FFF9ED] border border-[#E9DCC4] rounded-lg w-fit">
+      <div className="flex items-center gap-2 p-1 bg-[#FFF9ED] border border-[#E9DCC4] rounded-xl w-fit">
         <button
           onClick={() => setActiveSection('appointments')}
-          className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-md transition-all ${
+          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
             activeSection === 'appointments'
-              ? 'bg-white text-[#493B2A] shadow-xs'
-              : 'text-[#796B59] hover:text-[#493B2A]'
+              ? 'bg-white text-[#3E3020] shadow-xs'
+              : 'text-[#6E5F4D] hover:text-[#3E3020]'
           }`}
         >
-          <Calendar className="w-4 h-4 text-[#D9A441]" />
-          <span>Turnos Médicos ({upcomingAppointments.length} próximos)</span>
+          <Calendar className="w-4 h-4 text-[#E27D18]" />
+          <span>Turnos Médicos ({filteredAppointments.length})</span>
         </button>
+
         <button
           onClick={() => setActiveSection('prescriptions')}
-          className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-md transition-all ${
+          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
             activeSection === 'prescriptions'
-              ? 'bg-white text-[#493B2A] shadow-xs'
-              : 'text-[#796B59] hover:text-[#493B2A]'
+              ? 'bg-white text-[#3E3020] shadow-xs'
+              : 'text-[#6E5F4D] hover:text-[#3E3020]'
           }`}
         >
-          <FileText className="w-4 h-4 text-[#D9A441]" />
-          <span>Recetas y Estudios ({filteredPrescriptions.length})</span>
+          <FileText className="w-4 h-4 text-[#E27D18]" />
+          <span>Recetas & Escaneos ({filteredPrescriptions.length})</span>
         </button>
       </div>
+
+      {/* Explanatory Banner for Prescription Image & PDF Utility */}
+      {activeSection === 'prescriptions' && (
+        <div className="p-4 rounded-xl bg-[#FFF9ED] border border-[#E9DCC4] flex items-start gap-3">
+          <div className="w-8 h-8 rounded-lg bg-[#FEEAA2] flex items-center justify-center shrink-0 text-[#E27D18]">
+            <Info className="w-4 h-4" />
+          </div>
+          <div className="text-xs space-y-1 text-[#6E5F4D]">
+            <div className="font-bold text-[#3E3020]">
+              💡 ¿Qué utilidad tiene fotografiar o subir el PDF de la receta médica?
+            </div>
+            <p>
+              Las farmacias y coberturas médicas exigen constatar la matrícula y firma del profesional. Al guardar el escaneo o foto en FamiliaVital, puedes comprar la medicación mostrando la pantalla o enviando el archivo por WhatsApp a la farmacia sin depender del papel físico que suele extraviarse.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* SECTION 1: APPOINTMENTS */}
       {activeSection === 'appointments' && (
         <div className="space-y-6">
-          {/* Upcoming appointments */}
+          {/* Scheduled Appointments Grid */}
           <div>
-            <h3 className="text-xs font-bold text-[#493B2A] uppercase tracking-wider mb-3">
-              Próximos Turnos Programados
+            <h3 className="text-xs font-bold text-[#3E3020] uppercase tracking-wider mb-3">
+              Próximos Turnos Programados ({upcomingAppointments.length})
             </h3>
 
             {upcomingAppointments.length === 0 ? (
-              <div className="p-8 text-center bg-white rounded-xl border border-[#E9DCC4]">
-                <Calendar className="w-8 h-8 text-[#D9A441] mx-auto mb-2" />
-                <h4 className="text-sm font-semibold text-[#493B2A]">
-                  No hay turnos próximos programados
-                </h4>
-                <p className="text-xs text-[#796B59] mt-1">
-                  Mantén al día los controles médicos anuales y visitas pediátricas.
-                </p>
+              <div className="p-8 text-center bg-white rounded-xl border border-[#E9DCC4] text-xs text-[#6E5F4D] space-y-2">
+                <Calendar className="w-8 h-8 text-[#E26D14] mx-auto opacity-50" />
+                <p className="font-semibold text-[#3E3020]">No hay turnos próximos programados</p>
+                <p>Haz clic en "+ Agendar Turno" para registrar una nueva consulta.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -163,73 +325,92 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
                   return (
                     <div
                       key={apt.id}
-                      className="p-5 rounded-xl border border-[#E9DCC4] bg-white hover:border-[#D9A441] transition-all flex flex-col justify-between shadow-xs"
+                      className="p-5 rounded-xl border border-[#E9DCC4] bg-white hover:border-[#F3BA2F] transition-all flex flex-col justify-between shadow-xs"
                     >
                       <div>
-                        {/* Header: Specialty & Member */}
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <div>
-                            <span className="text-[11px] font-bold text-[#B87932] uppercase tracking-wider">
-                              {apt.specialty}
-                            </span>
-                            <h4 className="text-base font-bold text-[#493B2A] mt-0.5">
-                              {apt.doctorName}
-                            </h4>
-                          </div>
-                          {member && (
-                            <span className="text-xs font-semibold px-2 py-0.5 bg-[#FFF9ED] border border-[#E9DCC4] rounded text-[#493B2A]">
-                              {member.name.split(' ')[0]}
-                            </span>
-                          )}
+                        {/* Member & Specialty */}
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <span className="text-xs px-2.5 py-0.5 bg-[#FFF9ED] border border-[#E9DCC4] text-[#3E3020] font-bold rounded-full">
+                            {member ? member.name.split(' ')[0] : 'Familiar'}
+                          </span>
+                          <span className="text-xs font-bold font-mono text-[#E26D14] flex items-center gap-1 bg-[#FFF9ED] px-2.5 py-0.5 rounded-md border border-[#E9DCC4]">
+                            <Clock className="w-3.5 h-3.5" />
+                            {formatDateTime(apt.dateTime)}
+                          </span>
                         </div>
 
-                        {/* Date and Clinic Info */}
-                        <div className="space-y-1.5 text-xs text-[#796B59] my-3">
-                          <div className="flex items-center gap-2 font-mono font-semibold text-[#493B2A]">
-                            <Clock className="w-3.5 h-3.5 text-[#D9A441]" />
-                            <span>{formatDateTime(apt.dateTime)}</span>
+                        <h4 className="text-base font-bold text-[#3E3020]">
+                          {apt.specialty}
+                        </h4>
+
+                        <div className="text-xs text-[#6E5F4D] mt-1 space-y-1">
+                          <div className="flex items-center gap-1.5">
+                            <User className="w-3.5 h-3.5 text-[#F3BA2F]" />
+                            <span>{apt.doctorName}</span>
                           </div>
-                          <div className="flex items-center gap-2 text-[#796B59]">
-                            <MapPin className="w-3.5 h-3.5 text-[#D9A441] shrink-0" />
-                            <span className="truncate">{apt.clinicAddress}</span>
+                          <div className="flex items-center gap-1.5">
+                            <MapPin className="w-3.5 h-3.5 text-[#F3BA2F]" />
+                            <span>{apt.clinicAddress}</span>
                           </div>
                         </div>
 
                         {/* Reason */}
-                        <div className="text-xs text-[#493B2A] bg-[#FFF9ED] p-2.5 rounded-lg border border-[#E9DCC4] mb-3">
-                          <div className="font-semibold text-[#493B2A] mb-0.5">Motivo de consulta:</div>
+                        <div className="mt-3 text-xs bg-[#FFF9ED] p-2.5 rounded-lg border border-[#E9DCC4] text-[#3E3020]">
+                          <div className="font-semibold text-[#3E3020] mb-0.5">Motivo de consulta:</div>
                           {apt.reason}
                         </div>
 
                         {/* Preparation instructions */}
                         {apt.preparationNotes && (
-                          <div className="text-[11px] text-[#8A570A] bg-[#FDF5E6] p-2.5 rounded-lg border border-[#F4DF9B] mb-2 flex items-start gap-1.5">
-                            <AlertCircle className="w-3.5 h-3.5 text-[#8A570A] shrink-0 mt-0.5" />
+                          <div className="text-[11px] text-[#9A5B00] bg-[#FFF5E5] p-2.5 rounded-lg border border-[#FEEAA2] mt-2 flex items-start gap-1.5">
+                            <AlertCircle className="w-3.5 h-3.5 text-[#9A5B00] shrink-0 mt-0.5" />
                             <div>
-                              <strong>Preparación:</strong> {apt.preparationNotes}
+                              <strong>Preparación previa:</strong> {apt.preparationNotes}
                             </div>
                           </div>
                         )}
                       </div>
 
                       {/* Card actions */}
-                      <div className="mt-4 pt-3 border-t border-[#E9DCC4] flex items-center justify-between gap-2">
-                        <button
-                          onClick={() => handleExportICS(apt)}
-                          className="flex items-center gap-1.5 text-xs font-semibold text-[#493B2A] hover:text-[#B87932] bg-[#FFF9ED] hover:bg-[#F8E8A6]/40 border border-[#E9DCC4] px-3 py-1.5 rounded-lg transition-colors shadow-2xs"
-                          title="Descargar archivo .ics para Google Calendar / Apple"
-                        >
-                          <CalendarPlus className="w-3.5 h-3.5 text-[#B87932]" />
-                          <span>Añadir a Calendario</span>
-                        </button>
+                      <div className="mt-4 pt-3 border-t border-[#E9DCC4] flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleExportICS(apt)}
+                            className="flex items-center gap-1.5 text-xs font-semibold text-[#3E3020] hover:text-[#E26D14] bg-[#FFF9ED] hover:bg-[#FEEAA2]/50 border border-[#E9DCC4] px-2.5 py-1.5 rounded-lg transition-colors shadow-2xs cursor-pointer"
+                            title="Descargar archivo .ics para Google Calendar"
+                          >
+                            <CalendarPlus className="w-3.5 h-3.5 text-[#E26D14]" />
+                            <span>Calendario</span>
+                          </button>
 
-                        <button
-                          onClick={() => handleToggleComplete(apt)}
-                          className="flex items-center gap-1 text-xs font-semibold text-[#287653] bg-[#EDF6F1] hover:bg-[#DDF0E5] px-3 py-1.5 rounded-lg border border-[#B8DDCB] transition-colors"
-                        >
-                          <Check className="w-3.5 h-3.5" />
-                          <span>Marcar Realizado</span>
-                        </button>
+                          <button
+                            onClick={() => handleShareAppointmentWhatsApp(apt)}
+                            className="flex items-center gap-1 text-xs font-bold text-white bg-[#25D366] hover:bg-[#1EBE5D] px-2.5 py-1.5 rounded-lg transition-colors shadow-2xs cursor-pointer"
+                            title="Enviar recordatorio de turno por WhatsApp"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5" />
+                            <span>WhatsApp</span>
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => handleToggleComplete(apt)}
+                            className="flex items-center gap-1 text-xs font-bold text-[#1E7E52] bg-[#EDF7F2] hover:bg-[#DDF0E5] px-3 py-1.5 rounded-lg border border-[#B8DDCB] transition-colors cursor-pointer"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Marcar Realizado</span>
+                          </button>
+                          {onDeleteAppointment && (
+                            <button
+                              onClick={() => onDeleteAppointment(apt.id)}
+                              className="p-1.5 text-[#6E5F4D] hover:text-[#C21D30] hover:bg-[#FDF1F2] rounded-lg transition-colors cursor-pointer"
+                              title="Eliminar este turno"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
@@ -238,11 +419,11 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
             )}
           </div>
 
-          {/* Past / Completed Consultations */}
+          {/* Past Consultations */}
           {pastAppointments.length > 0 && (
             <div className="pt-4 border-t border-[#E9DCC4]">
-              <h3 className="text-xs font-bold text-[#796B59] uppercase tracking-wider mb-3">
-                Historial de Consultas Realizadas
+              <h3 className="text-xs font-bold text-[#6E5F4D] uppercase tracking-wider mb-3">
+                Historial de Consultas Médicas Realizadas
               </h3>
               <div className="bg-white rounded-xl border border-[#E9DCC4] divide-y divide-[#E9DCC4]/50 overflow-hidden">
                 {pastAppointments.map((apt) => {
@@ -251,20 +432,20 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
                     <div key={apt.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                       <div>
                         <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-[#287653] shrink-0" />
-                          <span className="font-bold text-[#493B2A]">{apt.specialty}</span>
-                          <span className="text-[#796B59]">· {apt.doctorName}</span>
+                          <CheckCircle2 className="w-4 h-4 text-[#1E7E52] shrink-0" />
+                          <span className="font-bold text-[#3E3020]">{apt.specialty}</span>
+                          <span className="text-[#6E5F4D]">· {apt.doctorName}</span>
                           {member && (
-                            <span className="px-1.5 py-0.2 bg-[#FFF9ED] border border-[#E9DCC4] text-[#493B2A] rounded text-[10px]">
+                            <span className="px-1.5 py-0.2 bg-[#FFF9ED] border border-[#E9DCC4] text-[#3E3020] rounded text-[10px] font-semibold">
                               {member.name.split(' ')[0]}
                             </span>
                           )}
                         </div>
-                        <div className="text-[#796B59] mt-1 pl-6">
+                        <div className="text-[#6E5F4D] mt-1 pl-6">
                           {formatDateTime(apt.dateTime)} · Motivo: {apt.reason}
                         </div>
                         {apt.postVisitNotes && (
-                          <div className="text-[#493B2A] bg-[#FFF9ED] p-2 rounded mt-2 ml-6 text-[11px] border border-[#E9DCC4]">
+                          <div className="text-[#3E3020] bg-[#FFF9ED] p-2 rounded mt-2 ml-6 text-[11px] border border-[#E9DCC4]">
                             <strong>Indicaciones del médico:</strong> {apt.postVisitNotes}
                           </div>
                         )}
@@ -278,7 +459,7 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
         </div>
       )}
 
-      {/* SECTION 2: PRESCRIPTIONS & MEDICAL DOCUMENTS */}
+      {/* SECTION 2: PRESCRIPTIONS & SCANNED DOCUMENTS */}
       {activeSection === 'prescriptions' && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -289,39 +470,45 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
               return (
                 <div
                   key={rx.id}
-                  className="p-5 rounded-xl border border-[#E9DCC4] bg-white hover:border-[#D9A441] transition-all flex flex-col justify-between shadow-xs"
+                  className="p-5 rounded-xl border border-[#E9DCC4] bg-white hover:border-[#F3BA2F] transition-all flex flex-col justify-between shadow-xs"
                 >
                   <div>
                     {/* Badge & Member */}
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <span className="text-[11px] font-semibold text-[#B87932] bg-[#F8E8A6]/40 px-2 py-0.5 rounded border border-[#E9DCC4]">
-                        {rx.type}
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                          isVigente
+                            ? 'bg-[#EDF7F2] text-[#1E7E52] border border-[#B8DDCB]'
+                            : 'bg-[#FFF9ED] text-[#6E5F4D] border border-[#E9DCC4]'
+                        }`}
+                      >
+                        {rx.status}
                       </span>
                       {member && (
-                        <span className="text-xs font-semibold text-[#796B59]">
+                        <span className="text-xs font-semibold text-[#6E5F4D]">
                           {member.name.split(' ')[0]}
                         </span>
                       )}
                     </div>
 
-                    <h4 className="font-bold text-sm text-[#493B2A] leading-snug">
+                    <h4 className="font-bold text-sm text-[#3E3020] leading-snug">
                       {rx.title}
                     </h4>
-                    <div className="text-xs text-[#796B59] mt-1 flex items-center gap-1">
-                      <User className="w-3.5 h-3.5 text-[#D9A441]" />
+                    <div className="text-xs text-[#6E5F4D] mt-1 flex items-center gap-1">
+                      <User className="w-3.5 h-3.5 text-[#F3BA2F]" />
                       <span>{rx.doctorName}</span>
                     </div>
 
                     {/* Dates */}
                     <div className="mt-3 py-2 border-y border-[#E9DCC4] text-xs space-y-1">
-                      <div className="flex justify-between text-[#796B59]">
+                      <div className="flex justify-between text-[#6E5F4D]">
                         <span>Emisión:</span>
-                        <span className="font-mono tabular-nums text-[#493B2A]">{formatDate(rx.issueDate)}</span>
+                        <span className="font-mono tabular-nums text-[#3E3020]">{formatDate(rx.issueDate)}</span>
                       </div>
                       {rx.expiryDate && (
-                        <div className="flex justify-between text-[#796B59]">
-                          <span>Vencimiento receta:</span>
-                          <span className="font-mono tabular-nums font-semibold text-[#493B2A]">
+                        <div className="flex justify-between text-[#6E5F4D]">
+                          <span>Vence receta:</span>
+                          <span className="font-mono tabular-nums font-semibold text-[#3E3020]">
                             {formatDate(rx.expiryDate)}
                           </span>
                         </div>
@@ -331,10 +518,10 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
                     {/* Medications list */}
                     {rx.medicationsIncluded && rx.medicationsIncluded.length > 0 && (
                       <div className="mt-3">
-                        <div className="text-[11px] font-semibold text-[#493B2A] mb-1">
+                        <div className="text-[11px] font-semibold text-[#3E3020] mb-1">
                           Medicamentos indicados:
                         </div>
-                        <ul className="text-xs text-[#796B59] list-disc list-inside space-y-0.5">
+                        <ul className="text-xs text-[#6E5F4D] list-disc list-inside space-y-0.5">
                           {rx.medicationsIncluded.map((med, i) => (
                             <li key={i}>{med}</li>
                           ))}
@@ -343,32 +530,61 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
                     )}
 
                     {rx.notes && (
-                      <div className="mt-2 text-[11px] text-[#796B59] italic">
+                      <div className="mt-2 text-[11px] text-[#6E5F4D] italic">
                         {rx.notes}
+                      </div>
+                    )}
+
+                    {/* Attachment badge */}
+                    {rx.fileName && (
+                      <div className="mt-2.5 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#FFF9ED] border border-[#E9DCC4] text-[11px] text-[#E26D14] font-semibold">
+                        <FileCheck className="w-3 h-3" />
+                        <span className="truncate max-w-[170px]">{rx.fileName}</span>
                       </div>
                     )}
                   </div>
 
                   {/* Actions */}
-                  <div className="mt-4 pt-3 border-t border-[#E9DCC4] flex items-center justify-between gap-2">
-                    <button
-                      onClick={() => handleTogglePrescriptionStatus(rx)}
-                      className={`text-xs px-2.5 py-1 rounded-md transition-colors font-semibold ${
-                        isVigente
-                          ? 'bg-[#FFF9ED] text-[#493B2A] border border-[#E9DCC4] hover:bg-[#F8E8A6]/40'
-                          : 'bg-[#EDF6F1] text-[#287653] border border-[#B8DDCB]'
-                      }`}
-                    >
-                      {isVigente ? 'Marcar Comprada' : 'Comprada en Farmacia'}
-                    </button>
+                  <div className="mt-4 pt-3 border-t border-[#E9DCC4] flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => handleTogglePrescriptionStatus(rx)}
+                        className={`text-xs px-2.5 py-1 rounded-md transition-colors font-semibold ${
+                          isVigente
+                            ? 'bg-[#FFF9ED] text-[#3E3020] border border-[#E9DCC4] hover:bg-[#FEEAA2]/50'
+                            : 'bg-[#EDF7F2] text-[#1E7E52] border border-[#B8DDCB]'
+                        }`}
+                      >
+                        {isVigente ? 'Marcar Comprada' : 'Comprada'}
+                      </button>
 
-                    <button
-                      onClick={() => setSelectedPrescription(rx)}
-                      className="flex items-center gap-1 text-xs font-semibold text-[#B87932] hover:text-[#A06424] hover:underline"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>Ver Receta</span>
-                    </button>
+                      <button
+                        onClick={() => handleSharePrescriptionWhatsApp(rx)}
+                        className="p-1.5 text-white bg-[#25D366] hover:bg-[#1EBE5D] rounded-md transition-colors"
+                        title="Enviar receta por WhatsApp"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setSelectedPrescription(rx)}
+                        className="flex items-center gap-1 text-xs font-bold text-[#E27D18] hover:text-[#C66506] hover:underline cursor-pointer"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Ver Receta</span>
+                      </button>
+                      {onDeletePrescription && (
+                        <button
+                          onClick={() => onDeletePrescription(rx.id)}
+                          className="p-1 text-[#6E5F4D] hover:text-[#C21D30] hover:bg-[#FDF1F2] rounded cursor-pointer"
+                          title="Eliminar esta receta"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
@@ -378,27 +594,23 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
       )}
 
       {/* Prescription Preview Modal */}
-      {/* Prescription Preview Modal */}
       {selectedPrescription && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white rounded-2xl border border-[#E9DCC4] shadow-2xl max-w-lg w-full flex flex-col max-h-[88vh] sm:max-h-[85vh] overflow-hidden">
-            <div className="flex items-center justify-between border-b border-[#E9DCC4] px-4 py-3 sm:px-6 sm:py-3.5 bg-[#493B2A] text-white shrink-0">
+            <div className="flex items-center justify-between border-b border-[#E9DCC4] px-4 py-3 sm:px-6 sm:py-3.5 bg-[#3E3020] text-white shrink-0">
               <div className="flex items-center gap-2">
-                <FileCheck className="w-5 h-5 text-[#E9C46A]" />
+                <FileCheck className="w-5 h-5 text-[#F3BA2F]" />
                 <h3 className="text-sm sm:text-base font-bold text-white truncate">
                   {selectedPrescription.title}
                 </h3>
               </div>
               <button
-                onClick={() => {
-                  setSelectedPrescription(null);
-                  scrollToTop();
-                }}
+                onClick={() => setSelectedPrescription(null)}
                 className="p-1 rounded-lg text-[#E9DCC4] hover:text-white hover:bg-white/10 transition-colors"
                 title="Cerrar"
                 aria-label="Cerrar"
               >
-                Cerrar
+                ✕
               </button>
             </div>
 
@@ -407,38 +619,38 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
               <div className="bg-[#FFF9ED] p-5 sm:p-6 rounded-xl border border-[#E9DCC4] space-y-4">
                 <div className="border-b border-[#E9DCC4] pb-3 flex justify-between items-start">
                   <div>
-                    <div className="font-bold text-[#493B2A] text-sm">
+                    <div className="font-bold text-[#3E3020] text-sm">
                       {selectedPrescription.doctorName}
                     </div>
-                    <div className="text-[#796B59]">Médico Matriculado · Receta Oficial</div>
+                    <div className="text-[#6E5F4D]">Médico Matriculado · Receta Oficial</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[#796B59] text-[10px]">FECHA DE EMISIÓN</div>
-                    <div className="font-mono font-semibold text-[#493B2A] tabular-nums">
+                    <div className="text-[#6E5F4D] text-[10px]">FECHA DE EMISIÓN</div>
+                    <div className="font-mono font-semibold text-[#3E3020] tabular-nums">
                       {formatDate(selectedPrescription.issueDate)}
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <div className="text-[11px] font-bold text-[#B87932] uppercase tracking-wider mb-1">
+                  <div className="text-[11px] font-bold text-[#E26D14] uppercase tracking-wider mb-1">
                     Rp. / Prescripción:
                   </div>
                   {selectedPrescription.medicationsIncluded ? (
                     <div className="space-y-1">
                       {selectedPrescription.medicationsIncluded.map((item, idx) => (
-                        <div key={idx} className="font-semibold text-[#493B2A] pl-2 border-l-2 border-[#D9A441]">
+                        <div key={idx} className="font-semibold text-[#3E3020] pl-2 border-l-2 border-[#F3BA2F]">
                           {item}
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-[#493B2A]">{selectedPrescription.notes}</p>
+                    <p className="text-[#3E3020]">{selectedPrescription.notes}</p>
                   )}
                 </div>
 
                 {selectedPrescription.expiryDate && (
-                  <div className="text-[11px] text-[#796B59] pt-2 border-t border-[#E9DCC4]">
+                  <div className="text-[11px] text-[#6E5F4D] pt-2 border-t border-[#E9DCC4]">
                     Válido para compra en farmacias hasta el {formatDate(selectedPrescription.expiryDate)}.
                   </div>
                 )}
@@ -447,27 +659,96 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
 
             {/* Pinned Action Footer */}
             <div className="bg-[#FFF9ED] px-4 py-3 sm:px-6 sm:py-3.5 border-t border-[#E9DCC4] flex items-center justify-between gap-2 shrink-0">
-              <div className="text-xs text-[#796B59] truncate">
-                Archivo: {selectedPrescription.fileName || 'documento_medico.pdf'}
+              <div className="text-xs text-[#6E5F4D] truncate">
+                Archivo: {selectedPrescription.fileName || 'receta_oficial.pdf'}
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => {
-                    setSelectedPrescription(null);
-                    scrollToTop();
-                  }}
-                  className="px-3.5 py-1.5 text-xs font-semibold text-[#796B59] hover:bg-white rounded-lg transition-colors border border-transparent hover:border-[#E9DCC4]"
+                  onClick={() => handleSharePrescriptionWhatsApp(selectedPrescription)}
+                  className="px-3 py-1.5 text-xs font-bold text-white bg-[#25D366] hover:bg-[#1EBE5D] rounded-lg transition-colors flex items-center gap-1"
                 >
-                  Volver
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  <span>WhatsApp</span>
                 </button>
                 <button
                   onClick={() => window.print()}
-                  className="px-4 py-1.5 text-xs font-semibold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors shadow-xs whitespace-nowrap"
+                  className="px-4 py-1.5 text-xs font-bold text-white bg-[#E26D14] hover:bg-[#C55606] rounded-lg transition-colors shadow-xs whitespace-nowrap"
                 >
                   Imprimir Documento
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* PRESCRIPTION SCANNER MODAL */}
+      {isScanningRx && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl border border-[#E9DCC4] shadow-2xl max-w-md w-full p-6 space-y-4 text-center">
+            <div className="flex items-center justify-between border-b border-[#E9DCC4] pb-3">
+              <div className="flex items-center gap-2 text-[#3E3020] font-bold text-sm">
+                <Camera className="w-4 h-4 text-[#E27D18]" />
+                <span>Escáner OCR de Recetas Médicas</span>
+              </div>
+              <button
+                onClick={() => {
+                  setIsScanningRx(false);
+                  setScanStepRx('idle');
+                }}
+                className="text-[#6E5F4D] hover:text-[#3E3020] cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {scanStepRx === 'scanning' && (
+              <div className="py-8 space-y-4">
+                <div className="relative w-44 h-52 mx-auto border-2 border-dashed border-[#E27D18] rounded-xl flex items-center justify-center bg-[#FFF9ED] overflow-hidden shadow-inner">
+                  <div className="absolute inset-x-0 h-1 bg-[#E27D18] shadow-md animate-bounce" />
+                  <FileText className="w-14 h-14 text-[#E27D18] opacity-60" />
+                </div>
+                <p className="text-xs font-semibold text-[#3E3020] animate-pulse">
+                  Extrayendo medicamentos, firma y matrícula médica...
+                </p>
+              </div>
+            )}
+
+            {scanStepRx === 'success' && scannedRxData && (
+              <div className="space-y-4 text-left">
+                <div className="p-3.5 bg-[#EDF7F2] border border-[#B8DDCB] rounded-xl space-y-1.5">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#1E7E52]">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>¡Receta Reconocida con Éxito!</span>
+                  </div>
+                  <div className="text-xs text-[#3E3020] space-y-1 pt-1">
+                    <div><strong>Título:</strong> {scannedRxData.title}</div>
+                    <div><strong>Médico:</strong> {scannedRxData.doctorName}</div>
+                    <div><strong>Indicación:</strong> {scannedRxData.medications}</div>
+                    <div><strong>Vence para farmacia:</strong> {formatDate(scannedRxData.expiryDate)}</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-2">
+                  <button
+                    onClick={() => {
+                      setIsScanningRx(false);
+                      setScanStepRx('idle');
+                    }}
+                    className="px-3 py-1.5 text-xs text-[#6E5F4D] hover:text-[#3E3020] cursor-pointer"
+                  >
+                    Descartar
+                  </button>
+                  <button
+                    onClick={handleApplyScannedRx}
+                    className="px-4 py-2 text-xs font-bold text-white bg-[#1E7E52] hover:bg-[#165E3D] rounded-lg transition-colors shadow-xs cursor-pointer flex items-center gap-1"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>Guardar Receta en la Libreta</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

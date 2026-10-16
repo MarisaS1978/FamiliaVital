@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CaregiverShareLink, FamilyMember, CaregiverAccessLevel } from '../types/health';
+import { shareViaWhatsApp } from '../utils/healthUtils';
 import {
   Share2,
   Copy,
@@ -12,6 +13,7 @@ import {
   X,
   Phone,
   Heart,
+  MessageCircle,
 } from 'lucide-react';
 
 interface ShareCaregiverModalProps {
@@ -78,6 +80,16 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
     navigator.clipboard.writeText(shareText);
     setCopiedId(link.id);
     setTimeout(() => setCopiedId(null), 2500);
+  };
+
+  const handleWhatsAppShare = (link: CaregiverShareLink) => {
+    const appUrl = window.location.origin;
+    const shareText = `*FamiliaVital - Libreta de Salud Familiar*
+Hola ${link.recipientName}, te comparto el acceso médico digital (${link.recipientRole}):
+🔗 Enlace: ${appUrl}/?caregiver=${link.id}
+🔒 PIN de Seguridad: *${link.pinCode}*
+📋 Nivel de acceso: ${link.accessLevel === 'emergency_only' ? 'Solo Emergencias' : link.accessLevel === 'pediatric_caregiver' ? 'Cuidador & Botiquín' : 'Historial Médico Completo'}`;
+    shareViaWhatsApp(shareText);
   };
 
   const toggleMemberSelection = (id: string) => {
@@ -165,26 +177,25 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
               shareLinks.map((link) => (
                 <div
                   key={link.id}
-                  className="p-4 rounded-xl border border-[#E9DCC4] bg-[#FFF9ED]/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                  className="p-4 sm:p-4.5 rounded-xl border border-[#E9DCC4] bg-white shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3.5 transition-all hover:border-[#F3BA2F]"
                 >
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-[#493B2A] text-sm">
+                  <div className="space-y-1.5 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-bold text-[#3E3020] text-sm sm:text-base">
                         {link.recipientName}
                       </span>
-                      <span className="text-[11px] px-2 py-0.5 bg-white border border-[#E9DCC4] text-[#796B59] rounded font-medium">
+                      <span className="text-[11px] px-2.5 py-0.5 bg-[#FFF9ED] border border-[#E9DCC4] text-[#6E5F4D] rounded-full font-semibold">
                         {link.recipientRole}
                       </span>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-[#796B59]">
-                      <span className="flex items-center gap-1 font-mono font-bold text-[#493B2A] bg-white px-2 py-0.5 rounded border border-[#E9DCC4]">
-                        <Lock className="w-3 h-3 text-[#B87932]" />
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-[#6E5F4D]">
+                      <span className="inline-flex items-center gap-1 font-mono font-bold text-[#3E3020] bg-[#FFF9ED] px-2 py-0.5 rounded-md border border-[#E9DCC4]">
+                        <Lock className="w-3 h-3 text-[#E26D14]" />
                         PIN: {link.pinCode}
                       </span>
                       <span>·</span>
-                      <span>
-                        Nivel:{' '}
+                      <span className="font-medium text-[#6E5F4D]">
                         {link.accessLevel === 'emergency_only'
                           ? 'Solo Emergencias'
                           : link.accessLevel === 'pediatric_caregiver'
@@ -194,20 +205,23 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                  {/* Clean, well-spaced Action Group */}
+                  <div className="flex flex-wrap items-center gap-2 pt-2 md:pt-0 border-t md:border-t-0 border-[#E9DCC4]/50">
+                    {/* Direct WhatsApp Share Button */}
                     <button
-                      onClick={() => {
-                        setPreviewingLink(link);
-                        setActiveTab('preview');
-                      }}
-                      className="px-3 py-1.5 text-xs font-semibold text-[#B87932] bg-white hover:bg-[#F8E8A6]/40 rounded-lg transition-colors border border-[#E9DCC4]"
+                      onClick={() => handleWhatsAppShare(link)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-[#25D366] hover:bg-[#1EBE5D] rounded-lg transition-colors shadow-2xs whitespace-nowrap cursor-pointer"
+                      title="Enviar acceso seguro por WhatsApp"
                     >
-                      Ver como Cuidador
+                      <MessageCircle className="w-3.5 h-3.5" />
+                      <span>WhatsApp</span>
                     </button>
 
+                    {/* Copy Link Button */}
                     <button
                       onClick={() => handleCopyLink(link)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#B87932] hover:bg-[#A06424] rounded-lg transition-colors shadow-2xs"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-[#E26D14] hover:bg-[#C55606] rounded-lg transition-colors shadow-2xs whitespace-nowrap cursor-pointer"
+                      title="Copiar texto con enlace y PIN"
                     >
                       {copiedId === link.id ? (
                         <>
@@ -217,15 +231,30 @@ export const ShareCaregiverModal: React.FC<ShareCaregiverModalProps> = ({
                       ) : (
                         <>
                           <Copy className="w-3.5 h-3.5 text-white" />
-                          <span>Copiar Acceso</span>
+                          <span>Copiar</span>
                         </>
                       )}
                     </button>
 
+                    {/* Caregiver Preview Button */}
+                    <button
+                      onClick={() => {
+                        setPreviewingLink(link);
+                        setActiveTab('preview');
+                      }}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-[#3E3020] bg-white hover:bg-[#FFF9ED] rounded-lg transition-colors border border-[#E9DCC4] whitespace-nowrap cursor-pointer"
+                      title="Previsualizar qué verá el destinatario"
+                    >
+                      <ExternalLink className="w-3 h-3 text-[#E26D14]" />
+                      <span>Ver vista</span>
+                    </button>
+
+                    {/* Revoke / Delete Button */}
                     <button
                       onClick={() => onRevokeShareLink(link.id)}
-                      className="p-1.5 text-[#796B59] hover:text-[#B42332] transition-colors rounded"
-                      title="Revocar acceso"
+                      className="p-1.5 text-[#C21D30] hover:bg-[#FDF1F2] border border-[#F5B8BE] rounded-lg transition-colors cursor-pointer"
+                      title="Revocar este acceso permanentemente"
+                      aria-label="Revocar acceso"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

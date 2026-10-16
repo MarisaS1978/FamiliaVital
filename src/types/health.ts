@@ -1,12 +1,24 @@
-export type BloodType = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
+export type BloodType = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-' | 'N/A';
 
-export type FamilyRelationship = 'Hijo/a' | 'Madre' | 'Padre' | 'Abuelo/a' | 'Tutor/a' | 'Otro';
+export type FamilyRelationship = 'Hijo/a' | 'Madre' | 'Padre' | 'Abuelo/a' | 'Tutor/a' | 'Mascota' | 'Otro';
 
 export interface EmergencyContact {
+  id?: string;
   name: string;
   relation: string;
   phone: string;
   isPrimary?: boolean;
+}
+
+export interface PetDetails {
+  species: 'Perro' | 'Gato' | 'Ave' | 'Otro';
+  breed?: string;
+  microchipNumber?: string;
+  vetName?: string;
+  vetPhone?: string;
+  vetClinic?: string;
+  lastDewormingDate?: string;
+  isNeutered?: boolean;
 }
 
 export interface FamilyMember {
@@ -15,9 +27,9 @@ export interface FamilyMember {
   relationship: FamilyRelationship;
   birthDate: string; // YYYY-MM-DD
   bloodType: BloodType;
-  idNumber: string; // DNI / Cédula
+  idNumber: string; // DNI / Cédula / Microchip
   medicalInsurance: {
-    provider: string; // e.g. OSDE, Swiss Medical, Galeno, PAMI, Sistema Público
+    provider: string; // e.g. OSDE, Swiss Medical, PAMI, Hospital Veterinario, etc.
     plan: string;
     affiliateNumber: string;
     emergencyPhone?: string;
@@ -32,6 +44,11 @@ export interface FamilyMember {
   chronicConditions: string[];
   vitalNotes?: string;
   avatarUrl?: string;
+  avatarType?: 'image' | 'initials' | 'icon';
+  avatarIcon?: string; // e.g. 'dog', 'cat', 'boy', 'girl', 'woman', 'man', 'senior'
+  avatarColor?: string; // hex color code
+  isPet?: boolean;
+  petDetails?: PetDetails;
 }
 
 export type VaccineStatus = 'applied' | 'due' | 'overdue' | 'upcoming';
@@ -42,7 +59,7 @@ export interface VaccineRecord {
   vaccineName: string;
   diseaseTarget: string;
   doseNumber: string; // e.g., '1ª Dosis', 'Refuerzo', 'Única'
-  recommendedAge: string; // e.g., 'Recién nacido', '2 meses', '5 años', '11 años', 'Adultos'
+  recommendedAge: string; // e.g., 'Recién nacido', '2 meses', '5 años', '11 años', 'Adultos', 'Cachorro'
   recommendedAgeMonths: number;
   status: VaccineStatus;
   applicationDate?: string;
@@ -50,6 +67,10 @@ export interface VaccineRecord {
   healthCenter?: string;
   notes?: string;
   isNationalCalendar: boolean;
+  documentUrl?: string; // Data URL or scanned document
+  documentName?: string;
+  documentType?: 'pdf' | 'image';
+  isPetVaccine?: boolean;
 }
 
 export type MedicineCategory = 'Analgésico / Antitérmico' | 'Antibiótico' | 'Antialérgico' | 'Respiratorio' | 'Digestivo' | 'Primeros Auxilios' | 'Crónico / Prescripción' | 'Otro';
