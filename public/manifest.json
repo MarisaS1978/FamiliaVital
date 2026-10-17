@@ -1,0 +1,37 @@
+{
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "name": "FamiliaVital - Libreta Digital de Salud",
+  "short_name": "FamiliaVital",
+  "description": "Libreta digital de salud familiar, esquemas de vacunación, recetas, botiquín inteligente y fichas de emergencia.",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#E27D18",
+  "background_color": "#FFF9ED",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

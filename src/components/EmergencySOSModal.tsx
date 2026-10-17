@@ -14,6 +14,8 @@ import {
   FileText,
   Ambulance,
   MessageCircle,
+  MapPin,
+  ArrowUpRight,
 } from 'lucide-react';
 
 interface EmergencySOSModalProps {
@@ -277,6 +279,27 @@ _Enviado desde FamiliaVital_`;
                       <span className="text-[#796B59]">107 (SAME)</span>
                     )}
                   </div>
+                  {(currentMember.medicalInsurance.address || currentMember.petDetails?.vetAddress) && (
+                    <div className="pt-1.5 border-t border-[#E9DCC4]/50 text-[11px] space-y-0.5">
+                      <div className="flex items-start gap-1 text-[#493B2A]">
+                        <MapPin className="w-3.5 h-3.5 text-[#B42332] shrink-0 mt-0.5" />
+                        <span className="font-semibold">
+                          {currentMember.medicalInsurance.address || currentMember.petDetails?.vetAddress}
+                        </span>
+                      </div>
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                          currentMember.medicalInsurance.address || currentMember.petDetails?.vetAddress || ''
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[10px] font-bold text-[#E27D18] hover:underline ml-4"
+                      >
+                        <span>Cómo llegar (Maps)</span>
+                        <ArrowUpRight className="w-2.5 h-2.5" />
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
 

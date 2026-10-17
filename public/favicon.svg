@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#E27D18" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.18" />
+    </filter>
+  </defs>
+
+  <!-- Rounded App Icon Background -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)" />
+
+  <!-- Warm Sun/Shield Halo -->
+  <circle cx="256" cy="256" r="190" fill="#FFF9ED" fill-opacity="0.15" />
+
+  <!-- Central White Shield Badge with subtle drop shadow -->
+  <path d="M256 76 C176 116 116 136 116 236 C116 348 206 416 256 442 C306 416 396 348 396 236 C396 136 336 116 256 76 Z"
+        fill="#FFFFFF"
+        filter="url(#shadow)" />
+
+  <!-- Medical Cross & HeartPulse in Amber/Toasted Red -->
+  <!-- Cross -->
+  <rect x="232" y="170" width="48" height="132" rx="14" fill="#E27D18" />
+  <rect x="190" y="212" width="132" height="48" rx="14" fill="#E27D18" />
+
+  <!-- Little Paw at Bottom of Badge -->
+  <g fill="#F59E0B" transform="translate(256, 342) scale(0.95)">
+    <!-- Main pad -->
+    <ellipse cx="0" cy="14" rx="20" ry="15" />
+    <!-- Toe 1 -->
+    <circle cx="-22" cy="-6" r="8" />
+    <!-- Toe 2 -->
+    <circle cx="-8" cy="-18" r="9" />
+    <!-- Toe 3 -->
+    <circle cx="8" cy="-18" r="9" />
+    <!-- Toe 4 -->
+    <circle cx="22" cy="-6" r="8" />
+  </g>
+
+  <!-- Inner Sparkle Heart in Red on top of cross -->
+  <path d="M256 226 C256 226 244 212 232 212 C220 212 210 222 210 234 C210 248 224 260 256 278 C288 260 302 248 302 234 C302 222 292 212 280 212 C268 212 256 226 256 226 Z"
+        fill="#C21D30" />
+</svg>

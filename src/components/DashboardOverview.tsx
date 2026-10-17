@@ -33,6 +33,7 @@ interface DashboardOverviewProps {
   onSelectMember: (id: string | 'all') => void;
   onOpenEmergencySOS: () => void;
   onOpenShare: () => void;
+  onOpenInstall?: () => void;
   onResetData: () => void;
 }
 
@@ -47,6 +48,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   onSelectMember,
   onOpenEmergencySOS,
   onOpenShare,
+  onOpenInstall,
   onResetData,
 }) => {
   const [globalSearch, setGlobalSearch] = useState('');
@@ -149,6 +151,16 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#E27D18] shrink-0" />
             <span className="truncate">Compartir</span>
           </button>
+          {onOpenInstall && (
+            <button
+              onClick={onOpenInstall}
+              className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl bg-white text-[#3E3020] border border-[#E9DCC4] hover:bg-[#FFF9ED] text-xs font-semibold transition-all shadow-2xs whitespace-nowrap cursor-pointer"
+              title="Instalar ícono de acceso directo en tu pantalla de inicio"
+            >
+              <img src="/favicon.svg" alt="" className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Acceso Directo</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -160,6 +172,11 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           placeholder="Buscar medicamentos, vacunas, turnos, alergias o integrantes..."
           value={globalSearch}
           onChange={(e) => setGlobalSearch(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              (e.target as HTMLElement).blur();
+            }
+          }}
           className="w-full pl-10 pr-16 py-2.5 text-xs bg-white border border-[#E9DCC4] rounded-xl text-[#493B2A] placeholder:text-[#796B59]/70 focus:outline-none focus:ring-2 focus:ring-[#E9C46A] focus:border-transparent shadow-xs"
         />
         {globalSearch && (
@@ -364,16 +381,21 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             const memberAllergies = allergies.filter((a) => a.memberId === member.id);
 
             return (
-              <div
+              <button
+                type="button"
                 key={member.id}
                 onClick={() => {
                   onSelectMember(member.id);
-                  onSelectTab('perfiles');
+                  if (member.isPet || member.relationship === 'Mascota') {
+                    onSelectTab('mascotas');
+                  } else {
+                    onSelectTab('perfiles');
+                  }
                 }}
-                className="p-3.5 sm:p-4 rounded-xl border border-[#E9DCC4] bg-white hover:border-[#D9A441] hover:shadow-xs transition-all cursor-pointer flex flex-col justify-between"
+                className="p-3.5 sm:p-4 rounded-xl border border-[#E9DCC4] bg-white hover:border-[#D9A441] hover:shadow-xs transition-all cursor-pointer flex flex-col justify-between text-left w-full group focus:outline-none focus:ring-2 focus:ring-[#E27D18]"
               >
-                <div>
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-[#FFF9ED] border border-[#E9DCC4] mb-2 sm:mb-3 mx-auto flex items-center justify-center">
+                <div className="w-full">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-[#FFF9ED] border border-[#E9DCC4] mb-2 sm:mb-3 mx-auto flex items-center justify-center group-hover:scale-105 transition-transform">
                     {member.avatarUrl ? (
                       <img
                         src={member.avatarUrl}
@@ -398,7 +420,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                   </div>
 
                   <div className="text-center">
-                    <h4 className="font-bold text-xs text-[#493B2A] truncate">
+                    <h4 className="font-bold text-xs text-[#493B2A] truncate group-hover:text-[#E27D18] transition-colors">
                       {member.name}
                     </h4>
                     <div className="text-[11px] text-[#796B59]">
@@ -428,10 +450,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                   </div>
                 </div>
 
-                <div className="mt-2.5 pt-2 text-center text-[10px] text-[#E27D18] font-bold border-t border-[#E9DCC4]/50">
+                <div className="mt-2.5 pt-2 text-center text-[10px] text-[#E27D18] font-bold border-t border-[#E9DCC4]/50 group-hover:underline w-full">
                   Ver Ficha →
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>

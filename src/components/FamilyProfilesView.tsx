@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FamilyMember, AllergyRecord, EmergencyContact, BloodType, FamilyRelationship } from '../types/health';
 import { formatAge, shareViaWhatsApp, readFileAsDataURL } from '../utils/healthUtils';
 import {
@@ -23,6 +23,8 @@ import {
   Sparkles,
   Info,
   UserPlus,
+  MapPin,
+  ArrowUpRight,
 } from 'lucide-react';
 
 interface FamilyProfilesViewProps {
@@ -50,6 +52,19 @@ export const FamilyProfilesView: React.FC<FamilyProfilesViewProps> = ({
 }) => {
   const [filterType, setFilterType] = useState<'all' | 'human' | 'pet'>('all');
   const [editingMember, setEditingMember] = useState<FamilyMember | null>(null);
+
+  // Ensure filter doesn't hide a specifically selected member
+  useEffect(() => {
+    if (selectedMemberId && selectedMemberId !== 'all') {
+      const match = members.find((m) => m.id === selectedMemberId);
+      if (match) {
+        const isPet = match.isPet || match.relationship === 'Mascota';
+        if (isPet && filterType === 'human') setFilterType('all');
+        if (!isPet && filterType === 'pet') setFilterType('all');
+      }
+    }
+  }, [selectedMemberId, members, filterType]);
+
   const [memberToDelete, setMemberToDelete] = useState<FamilyMember | null>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
@@ -219,8 +234,32 @@ _Compartido desde FamiliaVital_`;
       );
     }
 
-    if (member.avatarType === 'icon' || member.isPet || member.relationship === 'Mascota') {
-      if (member.avatarIcon === 'cat' || member.petDetails?.species === 'Gato') {
+    if (member.avatarType === 'icon' || member.avatarIcon) {
+      const emojiMap: Record<string, string> = {
+        dog: '🐶',
+        cat: '🐱',
+        boy: '👦',
+        girl: '👧',
+        woman: '👩',
+        man: '👨',
+        baby: '👶',
+        grandma: '👵',
+        grandpa: '👴',
+        rabbit: '🐰',
+        bird: '🦜',
+      };
+      const emoji = member.avatarIcon ? emojiMap[member.avatarIcon] : null;
+      if (emoji) {
+        return (
+          <div className="w-full h-full flex items-center justify-center text-3xl bg-[#FEEAA2]/70 select-none">
+            <span>{emoji}</span>
+          </div>
+        );
+      }
+    }
+
+    if (member.isPet || member.relationship === 'Mascota') {
+      if (member.petDetails?.species === 'Gato') {
         return (
           <div className="w-full h-full flex items-center justify-center bg-[#FEEAA2] text-[#E26D14]">
             <Cat className="w-8 h-8" />
@@ -462,6 +501,31 @@ _Compartido desde FamiliaVital_`;
                           </a>
                         </div>
                       )}
+
+                      {member.medicalInsurance.address && (
+                        <div className="pt-1.5 border-t border-[#E9DCC4] space-y-0.5">
+                          <span className="text-[10px] font-bold text-[#6E5F4D] uppercase tracking-wider block">
+                            {isPet ? 'Dirección Veterinaria / Guardia:' : 'Dirección Centro Médico / Guardia:'}
+                          </span>
+                          <div className="flex items-start gap-1 text-[#3E3020]">
+                            <MapPin className="w-3.5 h-3.5 text-[#E26D14] shrink-0 mt-0.5" />
+                            <span className="font-semibold text-xs leading-tight">
+                              {member.medicalInsurance.address}
+                            </span>
+                          </div>
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                              member.medicalInsurance.address
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-[11px] font-bold text-[#E26D14] hover:underline pt-0.5"
+                          >
+                            <span>Ver en Google Maps</span>
+                            <ArrowUpRight className="w-3 h-3" />
+                          </a>
+                        </div>
+                      )}
                     </div>
 
                     {/* Primary Doctor or Vet */}
@@ -476,7 +540,7 @@ _Compartido desde FamiliaVital_`;
                         </div>
                         <div className="text-[#6E5F4D]">{member.primaryDoctor.specialty}</div>
                         <div className="text-[#6E5F4D]">{member.primaryDoctor.clinic}</div>
-                        <div className="pt-1.5">
+                        <div className="pt-1">
                           <a
                             href={`tel:${member.primaryDoctor.phone}`}
                             className="inline-flex items-center gap-1 text-[#E26D14] font-bold hover:underline"
@@ -485,6 +549,31 @@ _Compartido desde FamiliaVital_`;
                             <span>{member.primaryDoctor.phone}</span>
                           </a>
                         </div>
+
+                        {(member.primaryDoctor.address || (isPet && member.petDetails?.vetAddress)) && (
+                          <div className="pt-1.5 border-t border-[#E9DCC4] space-y-0.5">
+                            <span className="text-[10px] font-bold text-[#6E5F4D] uppercase tracking-wider block">
+                              Dirección Consultorio:
+                            </span>
+                            <div className="flex items-start gap-1 text-[#3E3020]">
+                              <MapPin className="w-3.5 h-3.5 text-[#E26D14] shrink-0 mt-0.5" />
+                              <span className="font-medium text-xs leading-tight">
+                                {member.primaryDoctor.address || member.petDetails?.vetAddress}
+                              </span>
+                            </div>
+                            <a
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                                member.primaryDoctor.address || member.petDetails?.vetAddress || ''
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-[11px] font-bold text-[#E26D14] hover:underline pt-0.5"
+                            >
+                              <span>Ver en Google Maps</span>
+                              <ArrowUpRight className="w-3 h-3" />
+                            </a>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -594,7 +683,7 @@ _Compartido desde FamiliaVital_`;
                           title="Añadir contacto de urgencia a esta ficha"
                         >
                           <Plus className="w-3.5 h-3.5" />
-                          <span>+ Contacto</span>
+                          <span>Contacto</span>
                         </button>
                       </div>
 
@@ -905,7 +994,7 @@ _Compartido desde FamiliaVital_`;
                     {renderAvatarDisplay(editingMember)}
                   </div>
 
-                  <div className="flex-1 space-y-2">
+                  <div className="flex-1 space-y-2.5">
                     <div className="flex flex-wrap items-center gap-2">
                       <input
                         ref={avatarInputRef}
@@ -920,70 +1009,97 @@ _Compartido desde FamiliaVital_`;
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#E9DCC4] text-[#3E3020] rounded-lg hover:bg-[#FFF9ED] text-xs font-semibold cursor-pointer shadow-2xs"
                       >
                         <Upload className="w-3.5 h-3.5 text-[#E27D18]" />
-                        <span>Subir mi foto</span>
+                        <span>Subir desde mi dispositivo</span>
                       </button>
 
                       {editingMember.avatarUrl && (
                         <button
                           type="button"
-                          onClick={() => setEditingMember({ ...editingMember, avatarUrl: undefined })}
-                          className="px-2.5 py-1.5 text-xs text-[#C21D30] hover:underline"
+                          onClick={() => setEditingMember({ ...editingMember, avatarUrl: undefined, avatarType: 'initials' })}
+                          className="px-2.5 py-1.5 text-xs text-[#C21D30] hover:bg-[#FDF1F2] rounded-lg font-medium"
                         >
                           Quitar foto
                         </button>
                       )}
                     </div>
 
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[11px] text-[#6E5F4D]">O elegir ícono:</span>
-                      <button
-                        type="button"
-                        onClick={() => handleSelectIconAvatar('dog')}
-                        className="px-2 py-1 bg-white border border-[#E9DCC4] rounded text-xs hover:border-[#E26D14]"
-                        title="Perro"
-                      >
-                        🐶
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleSelectIconAvatar('cat')}
-                        className="px-2 py-1 bg-white border border-[#E9DCC4] rounded text-xs hover:border-[#E26D14]"
-                        title="Gato"
-                      >
-                        🐱
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleSelectIconAvatar('boy')}
-                        className="px-2 py-1 bg-white border border-[#E9DCC4] rounded text-xs hover:border-[#E26D14]"
-                        title="Niño"
-                      >
-                        👦
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleSelectIconAvatar('girl')}
-                        className="px-2 py-1 bg-white border border-[#E9DCC4] rounded text-xs hover:border-[#E26D14]"
-                        title="Niña"
-                      >
-                        👧
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleSelectIconAvatar('woman')}
-                        className="px-2 py-1 bg-white border border-[#E9DCC4] rounded text-xs hover:border-[#E26D14]"
-                        title="Mujer"
-                      >
-                        👩
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleSelectIconAvatar('man')}
-                        className="px-2 py-1 bg-white border border-[#E9DCC4] rounded text-xs hover:border-[#E26D14]"
-                        title="Hombre"
-                      >
-                        👨
-                      </button>
+                    {/* Web URL Photo Input */}
+                    <div className="pt-2 border-t border-[#E9DCC4]/60">
+                      <label className="block text-[11px] font-semibold text-[#3E3020] mb-1">
+                        O pegar enlace de foto (URL web):
+                      </label>
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="url"
+                          placeholder="https://ejemplo.com/foto-perfil.jpg"
+                          value={editingMember.avatarUrl || ''}
+                          onChange={(e) =>
+                            setEditingMember({
+                              ...editingMember,
+                              avatarUrl: e.target.value.trim() || undefined,
+                              avatarType: e.target.value.trim() ? 'image' : 'initials',
+                            })
+                          }
+                          className="flex-1 px-2.5 py-1.5 text-xs border border-[#E9DCC4] bg-white rounded-lg text-[#3E3020] placeholder:text-[#796B59]/60"
+                        />
+                        {editingMember.avatarUrl && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setEditingMember({
+                                ...editingMember,
+                                avatarUrl: undefined,
+                                avatarType: 'initials',
+                              })
+                            }
+                            className="px-2.5 py-1.5 text-xs text-[#C21D30] bg-[#FDF1F2] border border-[#F5B8BE] rounded-lg hover:bg-[#FCE3E5]"
+                          >
+                            Quitar
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Icon Selection */}
+                    <div className="pt-2 border-t border-[#E9DCC4]/60">
+                      <div className="text-[11px] font-semibold text-[#3E3020] mb-1.5">
+                        O elegir ícono ilustrado:
+                      </div>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {[
+                          { id: 'boy', emoji: '👦', label: 'Niño' },
+                          { id: 'girl', emoji: '👧', label: 'Niña' },
+                          { id: 'woman', emoji: '👩', label: 'Mujer' },
+                          { id: 'man', emoji: '👨', label: 'Hombre' },
+                          { id: 'baby', emoji: '👶', label: 'Bebé' },
+                          { id: 'grandma', emoji: '👵', label: 'Abuela' },
+                          { id: 'grandpa', emoji: '👴', label: 'Abuelo' },
+                          { id: 'dog', emoji: '🐶', label: 'Perro' },
+                          { id: 'cat', emoji: '🐱', label: 'Gato' },
+                          { id: 'rabbit', emoji: '🐰', label: 'Conejo' },
+                          { id: 'bird', emoji: '🦜', label: 'Ave' },
+                        ].map((icon) => {
+                          const isSelected =
+                            editingMember.avatarType === 'icon' &&
+                            editingMember.avatarIcon === icon.id &&
+                            !editingMember.avatarUrl;
+                          return (
+                            <button
+                              key={icon.id}
+                              type="button"
+                              onClick={() => handleSelectIconAvatar(icon.id)}
+                              className={`px-2 py-1 rounded text-sm transition-all border cursor-pointer ${
+                                isSelected
+                                  ? 'bg-[#FEEAA2] border-[#E27D18] ring-2 ring-[#E27D18]/50 shadow-xs scale-105'
+                                  : 'bg-white border-[#E9DCC4] hover:border-[#E27D18] hover:bg-[#FFF9ED]'
+                              }`}
+                              title={icon.label}
+                            >
+                              <span>{icon.emoji}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1109,6 +1225,63 @@ _Compartido desde FamiliaVital_`;
                         })
                       }
                       className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#3E3020] font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[#E9DCC4]/50">
+                  <div>
+                    <label className="block font-semibold text-[#3E3020] mb-1">
+                      {editingMember.relationship === 'Mascota'
+                        ? 'Dirección Veterinaria / Guardia'
+                        : 'Dirección Centro Médico / Guardia'}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ej: Av. Cerviño 4720, Palermo, CABA"
+                      value={editingMember.medicalInsurance.address || ''}
+                      onChange={(e) =>
+                        setEditingMember({
+                          ...editingMember,
+                          medicalInsurance: {
+                            ...editingMember.medicalInsurance,
+                            address: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#3E3020]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-[#3E3020] mb-1">
+                      {editingMember.relationship === 'Mascota'
+                        ? 'Dirección Consultorio Veterinario'
+                        : 'Dirección Consultorio Médico'}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ej: Av. Cerviño 4720, Consultorio 312"
+                      value={editingMember.primaryDoctor?.address || editingMember.petDetails?.vetAddress || ''}
+                      onChange={(e) =>
+                        setEditingMember({
+                          ...editingMember,
+                          primaryDoctor: {
+                            name: editingMember.primaryDoctor?.name || '',
+                            specialty: editingMember.primaryDoctor?.specialty || '',
+                            phone: editingMember.primaryDoctor?.phone || '',
+                            clinic: editingMember.primaryDoctor?.clinic || '',
+                            address: e.target.value,
+                          },
+                          petDetails: editingMember.petDetails
+                            ? {
+                                ...editingMember.petDetails,
+                                vetAddress: e.target.value,
+                              }
+                            : undefined,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#3E3020]"
                     />
                   </div>
                 </div>

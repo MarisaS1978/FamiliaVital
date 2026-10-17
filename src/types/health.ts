@@ -17,6 +17,7 @@ export interface PetDetails {
   vetName?: string;
   vetPhone?: string;
   vetClinic?: string;
+  vetAddress?: string; // Dirección de la clínica veterinaria / guardia
   lastDewormingDate?: string;
   isNeutered?: boolean;
 }
@@ -33,12 +34,14 @@ export interface FamilyMember {
     plan: string;
     affiliateNumber: string;
     emergencyPhone?: string;
+    address?: string; // Dirección de la clínica / guardia médica
   };
   primaryDoctor?: {
     name: string;
     specialty: string;
     phone: string;
     clinic: string;
+    address?: string; // Dirección del consultorio / centro médico
   };
   emergencyContacts: EmergencyContact[];
   chronicConditions: string[];
@@ -92,6 +95,8 @@ export interface MedicineItem {
   notes?: string;
   requiresPrescription: boolean;
   openedDate?: string; // some syrups/drops expire 1-3 months after opening
+  photoUrl?: string; // Foto de la caja, envase o prospecto
+  photoName?: string;
 }
 
 export type AppointmentStatus = 'scheduled' | 'completed' | 'cancelled';

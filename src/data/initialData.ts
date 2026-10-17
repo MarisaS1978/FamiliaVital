@@ -21,12 +21,14 @@ export const INITIAL_MEMBERS: FamilyMember[] = [
       plan: '310',
       affiliateNumber: '44892019-03',
       emergencyPhone: '0810-888-7788',
+      address: 'Av. Cerviño 4720, Palermo, CABA',
     },
     primaryDoctor: {
       name: 'Dra. Silvina Romero',
       specialty: 'Pediatra de Cabecera',
       phone: '+54 11 4890-2211',
       clinic: 'Sanatorio de la Trinidad Palermo',
+      address: 'Av. Cerviño 4720, Consultorio 312, CABA',
     },
     emergencyContacts: [
       { name: 'Laura Gómez (Mamá)', relation: 'Madre', phone: '+54 11 5491-0022', isPrimary: true },
@@ -48,12 +50,14 @@ export const INITIAL_MEMBERS: FamilyMember[] = [
       plan: '310',
       affiliateNumber: '44892019-02',
       emergencyPhone: '0810-888-7788',
+      address: 'Av. Cerviño 4720, Palermo, CABA',
     },
     primaryDoctor: {
       name: 'Dra. Silvina Romero',
       specialty: 'Pediatra de Cabecera',
       phone: '+54 11 4890-2211',
       clinic: 'Sanatorio de la Trinidad Palermo',
+      address: 'Av. Cerviño 4720, Consultorio 312, CABA',
     },
     emergencyContacts: [
       { name: 'Laura Gómez (Mamá)', relation: 'Madre', phone: '+54 11 5491-0022', isPrimary: true },
@@ -75,12 +79,14 @@ export const INITIAL_MEMBERS: FamilyMember[] = [
       plan: '310',
       affiliateNumber: '44892019-01',
       emergencyPhone: '0810-888-7788',
+      address: 'Av. Corrientes 1500, CABA',
     },
     primaryDoctor: {
       name: 'Dr. Hernán Varela',
       specialty: 'Clínica Médica',
       phone: '+54 11 4772-9900',
       clinic: 'Centro Médico Belgrano',
+      address: 'Av. Cabildo 1850, 4° Piso, Belgrano, CABA',
     },
     emergencyContacts: [
       { name: 'Martín Rossi (Esposo)', relation: 'Cónyuge', phone: '+54 11 6321-4455', isPrimary: true },
@@ -102,12 +108,14 @@ export const INITIAL_MEMBERS: FamilyMember[] = [
       plan: '310',
       affiliateNumber: '44892019-00',
       emergencyPhone: '0810-888-7788',
+      address: 'Av. Corrientes 1500, CABA',
     },
     primaryDoctor: {
       name: 'Dra. Gabriela Casares',
       specialty: 'Médica de Familia',
       phone: '+54 11 4802-3311',
       clinic: 'Hospital Alemán',
+      address: 'Av. Pueyrredón 1640, Recoleta, CABA',
     },
     emergencyContacts: [
       { name: 'Laura Gómez (Esposa)', relation: 'Cónyuge', phone: '+54 11 5491-0022', isPrimary: true },
@@ -128,12 +136,14 @@ export const INITIAL_MEMBERS: FamilyMember[] = [
       plan: 'Qualitas Red',
       affiliateNumber: '110982-44',
       emergencyPhone: '0800-777-7800',
+      address: 'Av. Belgrano 1746, Montserrat, CABA',
     },
     primaryDoctor: {
       name: 'Dr. Roberto Soria',
       specialty: 'Cardiología / Gerontología',
       phone: '+54 11 4788-1200',
       clinic: 'Fundación Favaloro',
+      address: 'Av. Belgrano 1746, 2° Piso, Montserrat, CABA',
     },
     emergencyContacts: [
       { name: 'Laura Gómez (Hija)', relation: 'Hija', phone: '+54 11 5491-0022', isPrimary: true },
@@ -154,12 +164,14 @@ export const INITIAL_MEMBERS: FamilyMember[] = [
       plan: 'Plan Salud Canino Integral',
       affiliateNumber: 'VET-8831',
       emergencyPhone: '+54 11 4781-9999',
+      address: 'Av. Cabildo 1250, Belgrano, CABA (Guardia 24hs)',
     },
     primaryDoctor: {
       name: 'Dr. Alejandro Peña (Veterinario)',
       specialty: 'Medicina Veterinaria y Cirugía',
       phone: '+54 11 4781-9999',
       clinic: 'Hospital Veterinario Central',
+      address: 'Av. Cabildo 1250, Belgrano, CABA',
     },
     emergencyContacts: [
       { name: 'Laura Gómez (Dueña)', relation: 'Familia', phone: '+54 11 5491-0022', isPrimary: true },
@@ -175,6 +187,7 @@ export const INITIAL_MEMBERS: FamilyMember[] = [
       vetName: 'Dr. Alejandro Peña',
       vetPhone: '+54 11 4781-9999',
       vetClinic: 'Hospital Veterinario Central',
+      vetAddress: 'Av. Cabildo 1250, Belgrano, CABA (Guardia 24hs)',
       lastDewormingDate: '2026-08-15',
       isNeutered: true,
     },

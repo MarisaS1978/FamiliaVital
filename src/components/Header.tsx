@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldAlert, Plus, Share2, HeartPulse } from 'lucide-react';
+import { ShieldAlert, Plus, Share2, HeartPulse, Download } from 'lucide-react';
 
 interface HeaderProps {
   activeTab: string;
@@ -7,6 +7,7 @@ interface HeaderProps {
   onOpenQuickAdd: () => void;
   onOpenShare: () => void;
   onOpenEmergencySOS: () => void;
+  onOpenInstall?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -15,6 +16,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenQuickAdd,
   onOpenShare,
   onOpenEmergencySOS,
+  onOpenInstall,
 }) => {
   const navItems = [
     { id: 'resumen', label: 'Inicio & Alertas', shortLabel: 'Inicio' },
@@ -91,6 +93,19 @@ export const Header: React.FC<HeaderProps> = ({
               <Share2 className="w-3.5 h-3.5 text-[#E27D18] shrink-0" />
               <span className="hidden sm:inline">Compartir</span>
             </button>
+
+            {/* Instalar Acceso Directo Button */}
+            {onOpenInstall && (
+              <button
+                onClick={onOpenInstall}
+                className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 text-xs font-semibold text-[#3E3020] bg-white border border-[#E9DCC4] rounded-lg hover:bg-[#FFF9ED] transition-colors whitespace-nowrap shadow-2xs cursor-pointer shrink-0"
+                title="Instalar ícono de acceso directo en tu celular o PC"
+              >
+                <img src="/favicon.svg" alt="" className="w-3.5 h-3.5 shrink-0" />
+                <span className="hidden sm:inline">Acceso Directo</span>
+                <span className="sm:hidden">App</span>
+              </button>
+            )}
 
             {/* Nuevo Registro Primary Action Button */}
             <button

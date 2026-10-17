@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FamilyMember, VaccineRecord, MedicalAppointment } from '../types/health';
 import { formatAge, formatDate, shareViaWhatsApp, readFileAsDataURL } from '../utils/healthUtils';
 import {
@@ -26,12 +26,15 @@ import {
   Download,
   Eye,
   Heart,
+  MapPin,
+  ArrowUpRight,
 } from 'lucide-react';
 
 interface PetsViewProps {
   members: FamilyMember[];
   vaccines: VaccineRecord[];
   appointments: MedicalAppointment[];
+  selectedMemberId?: string | 'all';
   onUpdateMember: (member: FamilyMember) => void;
   onDeleteMember: (id: string) => void;
   onUpdateVaccine: (vaccine: VaccineRecord) => void;
@@ -44,6 +47,7 @@ export const PetsView: React.FC<PetsViewProps> = ({
   members,
   vaccines,
   appointments,
+  selectedMemberId,
   onUpdateMember,
   onDeleteMember,
   onUpdateVaccine,
@@ -55,6 +59,14 @@ export const PetsView: React.FC<PetsViewProps> = ({
 
   const [selectedPetId, setSelectedPetId] = useState<string>(pets[0]?.id || '');
   const [editingPet, setEditingPet] = useState<FamilyMember | null>(null);
+
+  // Sync selectedPetId when selectedMemberId changes from parent
+  useEffect(() => {
+    if (selectedMemberId && selectedMemberId !== 'all') {
+      const match = pets.find((p) => p.id === selectedMemberId);
+      if (match) setSelectedPetId(match.id);
+    }
+  }, [selectedMemberId, pets]);
   const [petToDelete, setPetToDelete] = useState<FamilyMember | null>(null);
   const [viewingDoc, setViewingDoc] = useState<{ url: string; name: string; type: string } | null>(null);
 
@@ -397,6 +409,31 @@ _Compartido desde FamiliaVital_`;
                       </a>
                     </div>
                   )}
+
+                  {(activePet.petDetails?.vetAddress || activePet.medicalInsurance.address) && (
+                    <div className="pt-2 border-t border-[#E9DCC4] space-y-1">
+                      <div className="text-[10px] uppercase font-bold text-[#6E5F4D] tracking-wider">
+                        Dirección Veterinaria / Guardia:
+                      </div>
+                      <div className="flex items-start gap-1.5 text-[#3E3020]">
+                        <MapPin className="w-3.5 h-3.5 text-[#E27D18] shrink-0 mt-0.5" />
+                        <span className="font-semibold text-xs leading-tight">
+                          {activePet.petDetails?.vetAddress || activePet.medicalInsurance.address}
+                        </span>
+                      </div>
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                          activePet.petDetails?.vetAddress || activePet.medicalInsurance.address || ''
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[11px] font-bold text-[#E27D18] hover:underline pt-0.5"
+                      >
+                        <span>Ver en Google Maps</span>
+                        <ArrowUpRight className="w-3 h-3" />
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -483,7 +520,7 @@ _Compartido desde FamiliaVital_`;
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-[#E27D18] hover:bg-[#C66506] rounded-lg transition-colors shadow-xs cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5 text-white" />
-                  <span>+ Registrar Dosis</span>
+                  <span>Registrar Dosis</span>
                 </button>
               </div>
             </div>
@@ -887,6 +924,32 @@ _Compartido desde FamiliaVital_`;
                     className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#3E3020] font-mono focus:outline-none focus:ring-2 focus:ring-[#E27D18]"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-[#3E3020] mb-1">
+                  Dirección de la Veterinaria / Guardia 24hs
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ej: Av. Cabildo 1250, Belgrano, CABA"
+                  value={editingPet.petDetails?.vetAddress || editingPet.medicalInsurance.address || ''}
+                  onChange={(e) =>
+                    setEditingPet({
+                      ...editingPet,
+                      medicalInsurance: {
+                        ...editingPet.medicalInsurance,
+                        address: e.target.value,
+                      },
+                      petDetails: {
+                        ...editingPet.petDetails,
+                        species: editingPet.petDetails?.species || 'Perro',
+                        vetAddress: e.target.value,
+                      },
+                    })
+                  }
+                  className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#3E3020] focus:outline-none focus:ring-2 focus:ring-[#E27D18]"
+                />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

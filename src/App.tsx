@@ -28,6 +28,7 @@ import { PetsView } from './components/PetsView';
 import { EmergencySOSModal } from './components/EmergencySOSModal';
 import { ShareCaregiverModal } from './components/ShareCaregiverModal';
 import { AddRecordModal } from './components/AddRecordModal';
+import { InstallShortcutModal } from './components/InstallShortcutModal';
 import { scrollToTop } from './utils/healthUtils';
 import { ArrowUp } from 'lucide-react';
 
@@ -76,8 +77,23 @@ export default function App() {
   const [isEmergencySOSOpen, setIsEmergencySOSOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
   const [addModalInitialCategory, setAddModalInitialCategory] = useState<any>('appointment');
   const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // Global listener: dismiss mobile virtual keyboard when pressing Enter on inputs
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        const activeEl = document.activeElement as HTMLElement | null;
+        if (activeEl && activeEl.tagName === 'INPUT') {
+          activeEl.blur();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -95,6 +111,18 @@ export default function App() {
 
   const handleSelectMember = (id: string | 'all') => {
     setSelectedMemberId(id);
+    if (activeTab === 'resumen') {
+      if (id !== 'all') {
+        const found = members.find((m) => m.id === id);
+        if (found?.isPet || found?.relationship === 'Mascota') {
+          setActiveTab('mascotas');
+        } else {
+          setActiveTab('perfiles');
+        }
+      } else {
+        setActiveTab('perfiles');
+      }
+    }
     scrollToTop();
   };
 
@@ -222,6 +250,7 @@ export default function App() {
         onOpenQuickAdd={() => openAddCategory('appointment')}
         onOpenShare={() => setIsShareOpen(true)}
         onOpenEmergencySOS={() => setIsEmergencySOSOpen(true)}
+        onOpenInstall={() => setIsInstallModalOpen(true)}
       />
 
       {/* Family Member Switcher Strip */}
@@ -246,6 +275,7 @@ export default function App() {
             onSelectMember={handleSelectMember}
             onOpenEmergencySOS={() => setIsEmergencySOSOpen(true)}
             onOpenShare={() => setIsShareOpen(true)}
+            onOpenInstall={() => setIsInstallModalOpen(true)}
             onResetData={handleResetData}
           />
         )}
@@ -304,6 +334,7 @@ export default function App() {
             members={members}
             vaccines={vaccines}
             appointments={appointments}
+            selectedMemberId={selectedMemberId}
             onUpdateMember={handleUpdateMember}
             onDeleteMember={handleDeleteMember}
             onUpdateVaccine={handleUpdateVaccine}
@@ -322,7 +353,15 @@ export default function App() {
             <span>·</span>
             <span>Libreta Digital de Salud & Mascotas Familiares</span>
           </div>
-          <div className="flex items-center gap-4 text-[11px] text-[#6E5F4D]">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[11px] text-[#6E5F4D]">
+            <button
+              onClick={() => setIsInstallModalOpen(true)}
+              className="flex items-center gap-1 text-[#E27D18] hover:underline font-bold cursor-pointer"
+            >
+              <img src="/favicon.svg" alt="" className="w-3.5 h-3.5" />
+              <span>Instalar Acceso Directo</span>
+            </button>
+            <span>·</span>
             <span>Privacidad protegida · Almacenamiento local</span>
             <span>·</span>
             <button
@@ -336,6 +375,11 @@ export default function App() {
       </footer>
 
       {/* MODALS */}
+      <InstallShortcutModal
+        isOpen={isInstallModalOpen}
+        onClose={() => setIsInstallModalOpen(false)}
+      />
+
       <EmergencySOSModal
         isOpen={isEmergencySOSOpen}
         onClose={handleCloseEmergencySOS}
