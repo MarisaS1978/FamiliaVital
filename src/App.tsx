@@ -30,6 +30,7 @@ import { ShareCaregiverModal } from './components/ShareCaregiverModal';
 import { AddRecordModal } from './components/AddRecordModal';
 import { InstallShortcutModal } from './components/InstallShortcutModal';
 import { scrollToTop } from './utils/healthUtils';
+import { checkAndNotifyUpcomingAppointments } from './utils/appointmentNotifications';
 import { ArrowUp } from 'lucide-react';
 
 export default function App() {
@@ -103,6 +104,16 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Automatic check and notification for medical appointments within next 72 hours
+  useEffect(() => {
+    checkAndNotifyUpcomingAppointments(appointments, members);
+    // Periodically check every 15 minutes
+    const interval = setInterval(() => {
+      checkAndNotifyUpcomingAppointments(appointments, members);
+    }, 15 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [appointments, members]);
+
   // Navigation handlers that return scroll to the top
   const handleSelectTab = (tab: string) => {
     setActiveTab(tab);
@@ -111,16 +122,22 @@ export default function App() {
 
   const handleSelectMember = (id: string | 'all') => {
     setSelectedMemberId(id);
-    if (activeTab === 'resumen') {
-      if (id !== 'all') {
-        const found = members.find((m) => m.id === id);
-        if (found?.isPet || found?.relationship === 'Mascota') {
+    if (id === 'all') {
+      if (activeTab === 'mascotas' || activeTab === 'resumen') {
+        setActiveTab('perfiles');
+      }
+    } else {
+      const found = members.find((m) => m.id === id);
+      const isPet = found?.isPet || found?.relationship === 'Mascota';
+      if (isPet) {
+        if (activeTab === 'perfiles' || activeTab === 'resumen') {
           setActiveTab('mascotas');
-        } else {
-          setActiveTab('perfiles');
         }
       } else {
-        setActiveTab('perfiles');
+        // Human family member selected: if in mascotas or resumen, go directly to their ficha!
+        if (activeTab === 'mascotas' || activeTab === 'resumen') {
+          setActiveTab('perfiles');
+        }
       }
     }
     scrollToTop();
@@ -290,16 +307,7 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'botiquin' && (
-          <MedicineCabinet
-            medicines={medicines}
-            members={members}
-            onUpdateMedicine={handleUpdateMedicine}
-            onDeleteMedicine={handleDeleteMedicine}
-            onAddMedicine={() => openAddCategory('medicine')}
-          />
-        )}
-
+        {/* Agenda Médica y Turnos ANTES del Botiquín Familiar */}
         {activeTab === 'turnos-recetas' && (
           <AppointmentsAndPrescriptions
             appointments={appointments}
@@ -312,6 +320,17 @@ export default function App() {
             onDeletePrescription={handleDeletePrescription}
             onAddAppointment={() => openAddCategory('appointment')}
             onAddPrescription={() => openAddCategory('prescription')}
+          />
+        )}
+
+        {/* Botiquín Familiar */}
+        {activeTab === 'botiquin' && (
+          <MedicineCabinet
+            medicines={medicines}
+            members={members}
+            onUpdateMedicine={handleUpdateMedicine}
+            onDeleteMedicine={handleDeleteMedicine}
+            onAddMedicine={() => openAddCategory('medicine')}
           />
         )}
 
@@ -341,6 +360,8 @@ export default function App() {
             onAddVaccine={() => openAddCategory('vaccine')}
             onAddMember={() => openAddCategory('pet')}
             onAddAppointment={() => openAddCategory('appointment')}
+            onSelectMember={handleSelectMember}
+            onSelectTab={handleSelectTab}
           />
         )}
       </main>

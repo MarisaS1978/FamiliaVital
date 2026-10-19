@@ -21,8 +21,8 @@ export const Header: React.FC<HeaderProps> = ({
   const navItems = [
     { id: 'resumen', label: 'Inicio & Alertas', shortLabel: 'Inicio' },
     { id: 'vacunas', label: 'Calendario de Vacunación', shortLabel: 'Vacunas' },
+    { id: 'turnos-recetas', label: 'Agenda & Recetas', shortLabel: 'Agenda' },
     { id: 'botiquin', label: 'Botiquín Familiar', shortLabel: 'Botiquín' },
-    { id: 'turnos-recetas', label: 'Turnos & Recetas', shortLabel: 'Turnos & Recetas' },
     { id: 'perfiles', label: 'Fichas Familiares', shortLabel: 'Fichas' },
     { id: 'mascotas', label: 'Mascotas & Veterinaria', shortLabel: 'Mascotas' },
   ];

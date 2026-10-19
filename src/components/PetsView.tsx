@@ -41,6 +41,8 @@ interface PetsViewProps {
   onAddVaccine: () => void;
   onAddMember: () => void;
   onAddAppointment: () => void;
+  onSelectMember?: (id: string | 'all') => void;
+  onSelectTab?: (tab: string) => void;
 }
 
 export const PetsView: React.FC<PetsViewProps> = ({
@@ -54,6 +56,8 @@ export const PetsView: React.FC<PetsViewProps> = ({
   onAddVaccine,
   onAddMember,
   onAddAppointment,
+  onSelectMember,
+  onSelectTab,
 }) => {
   const pets = members.filter((m) => m.isPet || m.relationship === 'Mascota');
 
@@ -470,28 +474,72 @@ _Compartido desde FamiliaVital_`;
               <div className="space-y-3">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-[#3E3020] uppercase tracking-wider">
                   <Heart className="w-4 h-4 text-[#D96B47]" />
-                  <span>Dueños / Contactos</span>
+                  <span>Dueños / Contactos de la Mascota</span>
                 </div>
 
                 <div className="space-y-2">
-                  {activePet.emergencyContacts.map((contact, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-between p-2.5 rounded-lg bg-[#FFF9ED] border border-[#E9DCC4] text-xs"
-                    >
-                      <div>
-                        <div className="font-semibold text-[#3E3020]">{contact.name}</div>
-                        <div className="text-[10px] text-[#6E5F4D]">{contact.relation}</div>
-                      </div>
-                      <a
-                        href={`tel:${contact.phone}`}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-white border border-[#E9DCC4] font-bold text-[#E27D18] hover:bg-[#FFF9ED] text-xs font-mono"
+                  {activePet.emergencyContacts.map((contact, idx) => {
+                    const matchedMember = members.find(
+                      (m) =>
+                        !m.isPet &&
+                        m.relationship !== 'Mascota' &&
+                        (m.name.toLowerCase().includes(contact.name.toLowerCase()) ||
+                          contact.name.toLowerCase().includes(m.name.toLowerCase()))
+                    );
+
+                    return (
+                      <div
+                        key={idx}
+                        className="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 rounded-lg bg-[#FFF9ED] border border-[#E9DCC4] text-xs gap-2"
                       >
-                        <Phone className="w-3 h-3 text-[#E27D18]" />
-                        <span>{contact.phone}</span>
-                      </a>
-                    </div>
-                  ))}
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          {matchedMember && (
+                            <div className="w-7 h-7 rounded-full overflow-hidden bg-white border border-[#E9DCC4] flex items-center justify-center shrink-0">
+                              {matchedMember.avatarUrl ? (
+                                <img
+                                  src={matchedMember.avatarUrl}
+                                  alt={matchedMember.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <span className="font-bold text-xs text-[#E27D18]">
+                                  {matchedMember.name.charAt(0)}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <div className="font-semibold text-[#3E3020] truncate">{contact.name}</div>
+                            <div className="text-[10px] text-[#6E5F4D]">{contact.relation}</div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                          {matchedMember && onSelectMember && onSelectTab && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                onSelectMember(matchedMember.id);
+                                onSelectTab('perfiles');
+                              }}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#FEEAA2] hover:bg-[#FCD867] text-[#3E3020] font-bold text-xs transition-colors cursor-pointer shadow-2xs"
+                              title={`Ver ficha médica completa de ${matchedMember.name}`}
+                            >
+                              <span>Ver Ficha</span>
+                              <ArrowUpRight className="w-3 h-3 text-[#E27D18]" />
+                            </button>
+                          )}
+                          <a
+                            href={`tel:${contact.phone}`}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-white border border-[#E9DCC4] font-bold text-[#E27D18] hover:bg-[#FFF9ED] text-xs font-mono"
+                          >
+                            <Phone className="w-3 h-3 text-[#E27D18]" />
+                            <span>{contact.phone}</span>
+                          </a>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -652,6 +700,40 @@ _Compartido desde FamiliaVital_`;
           </button>
         </div>
       )}
+
+      {/* Quick navigation to human family members */}
+      <div className="p-4 rounded-xl bg-white border border-[#E9DCC4] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-2xs">
+        <div className="flex items-center gap-2">
+          <span className="text-base">👨‍👩‍👧‍👦</span>
+          <div>
+            <span className="font-bold text-[#3E3020]">Integrantes de la Familia:</span>
+            <span className="text-[#6E5F4D] ml-1 hidden sm:inline">
+              Toca la ficha de cualquier integrante para ir directo a su historial médico
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
+          {members
+            .filter((m) => !m.isPet && m.relationship !== 'Mascota')
+            .map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => {
+                  onSelectMember?.(m.id);
+                  onSelectTab?.('perfiles');
+                }}
+                className="px-2.5 py-1.5 rounded-lg bg-[#FFF9ED] border border-[#E9DCC4] hover:bg-[#FEEAA2] hover:border-[#E27D18] text-[#3E3020] font-semibold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                title={`Ir a ficha médica de ${m.name}`}
+              >
+                <span>{m.name.split(' ')[0]}</span>
+                <span className="text-[10px] text-[#6E5F4D]">({m.relationship})</span>
+                <ArrowUpRight className="w-3 h-3 text-[#E27D18]" />
+              </button>
+            ))}
+        </div>
+      </div>
 
       {/* SCANNER MODAL */}
       {isScanning && (

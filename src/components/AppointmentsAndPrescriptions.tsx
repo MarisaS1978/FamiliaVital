@@ -33,7 +33,19 @@ import {
   Share2,
   Info,
   Trash2,
+  Bell,
+  BellRing,
+  ExternalLink,
 } from 'lucide-react';
+import {
+  isNotificationSupported,
+  getNotificationPermission,
+  requestNotificationPermission,
+  isNotificationsEnabled,
+  setNotificationsEnabled,
+  triggerImmediateTestNotification,
+  generateGoogleCalendarUrl,
+} from '../utils/appointmentNotifications';
 
 interface AppointmentsAndPrescriptionsProps {
   appointments: MedicalAppointment[];
@@ -70,6 +82,45 @@ export const AppointmentsAndPrescriptions: React.FC<AppointmentsAndPrescriptions
   const [scannedRxData, setScannedRxData] = useState<any>(null);
 
   const [itemToDelete, setItemToDelete] = useState<{ type: 'appointment' | 'prescription'; id: string; name: string } | null>(null);
+
+  // Notification states and controls
+  const [notifPermission, setNotifPermission] = useState(getNotificationPermission());
+  const [notifEnabled, setNotifEnabled] = useState(isNotificationsEnabled());
+  const [notifFeedback, setNotifFeedback] = useState<string | null>(null);
+
+  const handleEnableNotifications = async () => {
+    const granted = await requestNotificationPermission();
+    setNotifPermission(getNotificationPermission());
+    setNotifEnabled(granted);
+    if (granted) {
+      setNotifFeedback('¡Notificaciones activadas! Recibirás recordatorios automáticos de turnos.');
+      triggerImmediateTestNotification();
+    } else {
+      setNotifFeedback('Tu navegador requiere autorizar las alertas desde la configuración del sitio.');
+    }
+    setTimeout(() => setNotifFeedback(null), 5000);
+  };
+
+  const handleTestNotification = (apt?: MedicalAppointment) => {
+    const member = apt ? members.find((m) => m.id === apt.memberId) : undefined;
+    const memberName = member ? member.name.split(' ')[0] : 'Familiar';
+    const sent = triggerImmediateTestNotification(apt, memberName);
+    if (sent) {
+      setNotifFeedback('🔔 ¡Notificación de prueba enviada a tu pantalla!');
+    } else {
+      setNotifFeedback('Activa primero el permiso de notificaciones para recibir alertas.');
+    }
+    setTimeout(() => setNotifFeedback(null), 5000);
+  };
+
+  const handleToggleNotifications = () => {
+    const next = !notifEnabled;
+    setNotificationsEnabled(next);
+    setNotifEnabled(next);
+    if (next && notifPermission !== 'granted') {
+      handleEnableNotifications();
+    }
+  };
 
   const handleSimulateRxScan = () => {
     setIsScanningRx(true);
@@ -305,6 +356,85 @@ _Compartido desde FamiliaVital_`;
       {/* SECTION 1: APPOINTMENTS */}
       {activeSection === 'appointments' && (
         <div className="space-y-6">
+          {/* Notification Center Banner for Medical Appointments */}
+          <div className="p-4 rounded-xl border border-[#E9DCC4] bg-[#FFF9ED] shadow-2xs space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#FEEAA2] flex items-center justify-center shrink-0 text-[#E27D18] shadow-2xs">
+                  <BellRing className="w-5 h-5 text-[#E27D18]" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-sm text-[#3E3020]">
+                      Notificaciones & Recordatorios de Turnos Médicos
+                    </h3>
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                        notifPermission === 'granted' && notifEnabled
+                          ? 'bg-[#EDF7F2] text-[#1E7E52] border-[#B8DDCB]'
+                          : notifPermission === 'denied'
+                          ? 'bg-[#FDF1F2] text-[#C21D30] border-[#F5B8BE]'
+                          : 'bg-[#FFF5E5] text-[#9A5B00] border-[#FEEAA2]'
+                      }`}
+                    >
+                      {notifPermission === 'granted' && notifEnabled
+                        ? 'Alertas Activas ✅'
+                        : notifPermission === 'denied'
+                        ? 'Bloqueadas en navegador ❌'
+                        : 'Alertas Disponibles 🔔'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#6E5F4D] mt-0.5">
+                    FamiliaVital emite alertas automáticas en tu dispositivo 72 horas y 24 horas antes de cada consulta agendada para evitar olvidos o cancelaciones de turnos.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                {notifPermission !== 'granted' ? (
+                  <button
+                    type="button"
+                    onClick={handleEnableNotifications}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-[#E27D18] hover:bg-[#C66506] rounded-lg transition-colors shadow-xs cursor-pointer"
+                  >
+                    <Bell className="w-3.5 h-3.5 text-white" />
+                    <span>Activar Alertas</span>
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => handleTestNotification()}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold text-[#3E3020] bg-white border border-[#E9DCC4] hover:bg-[#FFF9ED] rounded-lg transition-colors shadow-2xs cursor-pointer"
+                      title="Lanza una notificación de prueba en pantalla ahora"
+                    >
+                      <BellRing className="w-3.5 h-3.5 text-[#E27D18]" />
+                      <span>Probar Notificación</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleToggleNotifications}
+                      className={`px-2 py-1.5 text-xs font-semibold rounded-lg border transition-colors cursor-pointer ${
+                        notifEnabled
+                          ? 'bg-white text-[#6E5F4D] border-[#E9DCC4] hover:bg-[#FDF1F2] hover:text-[#C21D30]'
+                          : 'bg-[#E27D18] text-white border-transparent'
+                      }`}
+                    >
+                      {notifEnabled ? 'Pausar' : 'Reanudar'}
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {notifFeedback && (
+              <div className="p-2.5 rounded-lg bg-white border border-[#E9DCC4] text-xs font-semibold text-[#E27D18] flex items-center gap-2 animate-fade-in">
+                <CheckCircle2 className="w-4 h-4 text-[#1E7E52] shrink-0" />
+                <span>{notifFeedback}</span>
+              </div>
+            )}
+          </div>
+
           {/* Scheduled Appointments Grid */}
           <div>
             <h3 className="text-xs font-bold text-[#3E3020] uppercase tracking-wider mb-3">
@@ -333,10 +463,16 @@ _Compartido desde FamiliaVital_`;
                           <span className="text-xs px-2.5 py-0.5 bg-[#FFF9ED] border border-[#E9DCC4] text-[#3E3020] font-bold rounded-full">
                             {member ? member.name.split(' ')[0] : 'Familiar'}
                           </span>
-                          <span className="text-xs font-bold font-mono text-[#E26D14] flex items-center gap-1 bg-[#FFF9ED] px-2.5 py-0.5 rounded-md border border-[#E9DCC4]">
-                            <Clock className="w-3.5 h-3.5" />
-                            {formatDateTime(apt.dateTime)}
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FFF9ED] text-[#E27D18] border border-[#E9DCC4]">
+                              <Bell className="w-2.5 h-2.5 text-[#E27D18]" />
+                              <span>Alerta Activa</span>
+                            </span>
+                            <span className="text-xs font-bold font-mono text-[#E26D14] flex items-center gap-1 bg-[#FFF9ED] px-2.5 py-0.5 rounded-md border border-[#E9DCC4]">
+                              <Clock className="w-3.5 h-3.5" />
+                              {formatDateTime(apt.dateTime)}
+                            </span>
+                          </div>
                         </div>
 
                         <h4 className="text-base font-bold text-[#3E3020]">
@@ -373,19 +509,40 @@ _Compartido desde FamiliaVital_`;
 
                       {/* Card actions */}
                       <div className="mt-4 pt-3 border-t border-[#E9DCC4] flex flex-wrap items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleTestNotification(apt)}
+                            className="flex items-center gap-1 text-xs font-semibold text-[#3E3020] hover:text-[#E27D18] bg-[#FFF9ED] hover:bg-[#FEEAA2]/60 border border-[#E9DCC4] px-2 sm:px-2.5 py-1.5 rounded-lg transition-colors shadow-2xs cursor-pointer"
+                            title="Lanza notificación de recordatorio en pantalla para este turno"
+                          >
+                            <BellRing className="w-3.5 h-3.5 text-[#E27D18]" />
+                            <span>Notificar</span>
+                          </button>
+
+                          <a
+                            href={generateGoogleCalendarUrl(apt, member ? member.name.split(' ')[0] : 'Familiar')}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-xs font-semibold text-[#3E3020] hover:text-[#E27D18] bg-white hover:bg-[#FFF9ED] border border-[#E9DCC4] px-2 sm:px-2.5 py-1.5 rounded-lg transition-colors shadow-2xs"
+                            title="Guardar en Google Calendar con alarma de recordatorio automático"
+                          >
+                            <CalendarPlus className="w-3.5 h-3.5 text-[#E27D18]" />
+                            <span>Google Cal</span>
+                            <ExternalLink className="w-2.5 h-2.5 text-[#6E5F4D]" />
+                          </a>
+
                           <button
                             onClick={() => handleExportICS(apt)}
-                            className="flex items-center gap-1.5 text-xs font-semibold text-[#3E3020] hover:text-[#E26D14] bg-[#FFF9ED] hover:bg-[#FEEAA2]/50 border border-[#E9DCC4] px-2.5 py-1.5 rounded-lg transition-colors shadow-2xs cursor-pointer"
-                            title="Descargar archivo .ics para Google Calendar"
+                            className="hidden sm:flex items-center gap-1 text-xs font-semibold text-[#6E5F4D] hover:text-[#3E3020] bg-white hover:bg-[#FFF9ED] border border-[#E9DCC4] px-2 py-1.5 rounded-lg transition-colors shadow-2xs cursor-pointer"
+                            title="Descargar archivo .ics"
                           >
-                            <CalendarPlus className="w-3.5 h-3.5 text-[#E26D14]" />
-                            <span>Calendario</span>
+                            <span>.ics</span>
                           </button>
 
                           <button
                             onClick={() => handleShareAppointmentWhatsApp(apt)}
-                            className="flex items-center gap-1 text-xs font-bold text-white bg-[#25D366] hover:bg-[#1EBE5D] px-2.5 py-1.5 rounded-lg transition-colors shadow-2xs cursor-pointer"
+                            className="flex items-center gap-1 text-xs font-bold text-white bg-[#25D366] hover:bg-[#1EBE5D] px-2 sm:px-2.5 py-1.5 rounded-lg transition-colors shadow-2xs cursor-pointer"
                             title="Enviar recordatorio de turno por WhatsApp"
                           >
                             <MessageCircle className="w-3.5 h-3.5" />
@@ -396,10 +553,10 @@ _Compartido desde FamiliaVital_`;
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => handleToggleComplete(apt)}
-                            className="flex items-center gap-1 text-xs font-bold text-[#1E7E52] bg-[#EDF7F2] hover:bg-[#DDF0E5] px-3 py-1.5 rounded-lg border border-[#B8DDCB] transition-colors cursor-pointer"
+                            className="flex items-center gap-1 text-xs font-bold text-[#1E7E52] bg-[#EDF7F2] hover:bg-[#DDF0E5] px-2.5 sm:px-3 py-1.5 rounded-lg border border-[#B8DDCB] transition-colors cursor-pointer"
                           >
                             <Check className="w-3.5 h-3.5" />
-                            <span>Marcar Realizado</span>
+                            <span>Realizado</span>
                           </button>
                           {onDeleteAppointment && (
                             <button

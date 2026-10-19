@@ -23,8 +23,14 @@ import {
   Check,
   Dog,
   Cat,
+  Bell,
 } from 'lucide-react';
 import { readFileAsDataURL, formatDate } from '../utils/healthUtils';
+import {
+  isNotificationSupported,
+  requestNotificationPermission,
+  sendAppointmentNotification,
+} from '../utils/appointmentNotifications';
 
 export type RecordCategory = 'appointment' | 'medicine' | 'vaccine' | 'allergy' | 'prescription' | 'member' | 'pet';
 
@@ -72,6 +78,7 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
   const [aptDateTime, setAptDateTime] = useState('');
   const [aptReason, setAptReason] = useState('');
   const [aptPrep, setAptPrep] = useState('');
+  const [aptNotify, setAptNotify] = useState(true);
 
   // Form states for Medicine
   const [medName, setMedName] = useState('');
@@ -200,6 +207,30 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
         preparationNotes: aptPrep || undefined,
       };
       onAddAppointment(newApt);
+
+      if (aptNotify) {
+        const member = members.find((m) => m.id === selectedMemberId);
+        const memberName = member ? member.name.split(' ')[0] : 'Familiar';
+        if (isNotificationSupported()) {
+          if (Notification.permission === 'granted') {
+            sendAppointmentNotification(
+              newApt,
+              memberName,
+              `✅ Turno agendado: ${memberName} tiene consulta de ${newApt.specialty} el ${new Date(newApt.dateTime).toLocaleString()}. Lugar: ${newApt.clinicAddress}`
+            );
+          } else if (Notification.permission === 'default') {
+            requestNotificationPermission().then((granted) => {
+              if (granted) {
+                sendAppointmentNotification(
+                  newApt,
+                  memberName,
+                  `✅ Turno agendado: ${memberName} tiene consulta de ${newApt.specialty} el ${new Date(newApt.dateTime).toLocaleString()}.`
+                );
+              }
+            });
+          }
+        }
+      }
     } else if (category === 'medicine') {
       const newMed: MedicineItem = {
         id: `med-${Date.now()}`,
@@ -491,6 +522,25 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
                   onChange={(e) => setAptPrep(e.target.value)}
                   className="w-full px-3 py-2 border border-[#E9DCC4] bg-[#FFF9ED]/30 rounded-lg text-[#493B2A] focus:outline-none focus:ring-2 focus:ring-[#E9C46A]"
                 />
+              </div>
+
+              {/* Notification & Reminder Option */}
+              <div className="p-3 bg-[#FFF9ED] border border-[#E9DCC4] rounded-lg space-y-1">
+                <label className="flex items-center gap-2 cursor-pointer font-bold text-[#3E3020]">
+                  <input
+                    type="checkbox"
+                    checked={aptNotify}
+                    onChange={(e) => setAptNotify(e.target.checked)}
+                    className="w-4 h-4 rounded text-[#E27D18] focus:ring-[#E27D18] border-[#E9DCC4] accent-[#E27D18]"
+                  />
+                  <span className="flex items-center gap-1.5">
+                    <Bell className="w-3.5 h-3.5 text-[#E27D18]" />
+                    <span>Crear notificación y recordatorio de este turno</span>
+                  </span>
+                </label>
+                <p className="text-[11px] text-[#6E5F4D] pl-6 leading-tight">
+                  Se programará una alerta en tu pantalla/celular 72hs y 24hs antes del horario fijado.
+                </p>
               </div>
             </>
           )}

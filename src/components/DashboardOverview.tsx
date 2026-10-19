@@ -20,6 +20,7 @@ import {
   HeartPulse,
   Download,
   RotateCcw,
+  Bell,
 } from 'lucide-react';
 
 interface DashboardOverviewProps {
@@ -197,14 +198,14 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-            {/* Meds */}
+            {/* Turnos / Agenda */}
             <div className="p-3 bg-[#FFF9ED] rounded-lg border border-[#E9DCC4]">
               <span className="font-semibold text-[#493B2A] block mb-1">
-                Medicamentos ({searchResults.medicines.length})
+                Turnos ({searchResults.appointments.length})
               </span>
-              {searchResults.medicines.map((m) => (
-                <div key={m.id} className="text-[11px] text-[#796B59] truncate">
-                  • {m.name} ({m.location})
+              {searchResults.appointments.map((a) => (
+                <div key={a.id} className="text-[11px] text-[#796B59] truncate">
+                  • {a.specialty} ({a.doctorName})
                 </div>
               ))}
             </div>
@@ -221,14 +222,14 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               ))}
             </div>
 
-            {/* Turnos */}
+            {/* Meds / Botiquín */}
             <div className="p-3 bg-[#FFF9ED] rounded-lg border border-[#E9DCC4]">
               <span className="font-semibold text-[#493B2A] block mb-1">
-                Turnos ({searchResults.appointments.length})
+                Medicamentos ({searchResults.medicines.length})
               </span>
-              {searchResults.appointments.map((a) => (
-                <div key={a.id} className="text-[11px] text-[#796B59] truncate">
-                  • {a.specialty} ({a.doctorName})
+              {searchResults.medicines.map((m) => (
+                <div key={m.id} className="text-[11px] text-[#796B59] truncate">
+                  • {m.name} ({m.location})
                 </div>
               ))}
             </div>
@@ -282,7 +283,50 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           </button>
         </div>
 
-        {/* 2. Botiquín & Vencimientos */}
+        {/* 2. Agenda Médica Inmediata & Turnos (colocada antes del botiquín a pedido del usuario) */}
+        <div className="p-4 rounded-xl border border-[#E9DCC4] bg-white flex flex-col justify-between shadow-2xs">
+          <div>
+            <div className="flex items-center justify-between gap-1.5 mb-2">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-[#493B2A] uppercase tracking-wider">
+                <Calendar className="w-4 h-4 text-[#D9A441] shrink-0" />
+                <span>Agenda Médica Inmediata</span>
+              </div>
+              <span className="text-[10px] bg-[#FFF9ED] text-[#E27D18] font-bold px-2 py-0.5 rounded-full border border-[#E9DCC4] flex items-center gap-1">
+                <Bell className="w-3 h-3 text-[#E27D18]" />
+                <span>Turnos</span>
+              </span>
+            </div>
+            <div className="space-y-2 text-xs">
+              {upcomingAppointments.length > 0 ? (
+                <div className="p-2.5 bg-[#FFF9ED] rounded-lg border border-[#E9DCC4]">
+                  <div className="font-bold text-[#493B2A]">
+                    {upcomingAppointments[0].specialty} · {upcomingAppointments[0].doctorName}
+                  </div>
+                  <div className="text-[11px] text-[#796B59] mt-0.5">
+                    {formatDateTime(upcomingAppointments[0].dateTime)}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-[#796B59]">No hay turnos próximos programados.</div>
+              )}
+
+              {overdueVaccines.length > 0 && (
+                <div className="p-2 bg-[#FDF1F2] text-[#B42332] rounded-lg border border-[#F5B8BE] text-[11px]">
+                  <strong>Vacuna atrasada:</strong> {overdueVaccines[0].vaccineName} ({members.find(m => m.id === overdueVaccines[0].memberId)?.name.split(' ')[0]})
+                </div>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={() => onSelectTab('turnos-recetas')}
+            className="mt-3.5 text-xs font-semibold text-[#B87932] bg-[#FFF9ED] border border-[#E9DCC4] hover:bg-[#F8E8A6]/40 px-3 py-1.5 rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors shadow-2xs self-start cursor-pointer"
+          >
+            <span>Ver agenda y recetas</span>
+            <ArrowRight className="w-3.5 h-3.5 text-[#B87932]" />
+          </button>
+        </div>
+
+        {/* 3. Botiquín & Vencimientos */}
         <div className="p-4 rounded-xl border border-[#E9DCC4] bg-white flex flex-col justify-between shadow-2xs">
           <div>
             <div className="flex items-center gap-1.5 text-xs font-bold text-[#493B2A] uppercase tracking-wider mb-2">
@@ -318,46 +362,9 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           </div>
           <button
             onClick={() => onSelectTab('botiquin')}
-            className="mt-3.5 text-xs font-semibold text-[#B87932] bg-[#FFF9ED] border border-[#E9DCC4] hover:bg-[#F8E8A6]/40 px-3 py-1.5 rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors shadow-2xs self-start"
+            className="mt-3.5 text-xs font-semibold text-[#B87932] bg-[#FFF9ED] border border-[#E9DCC4] hover:bg-[#F8E8A6]/40 px-3 py-1.5 rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors shadow-2xs self-start cursor-pointer"
           >
             <span>Administrar botiquín</span>
-            <ArrowRight className="w-3.5 h-3.5 text-[#B87932]" />
-          </button>
-        </div>
-
-        {/* 3. Vacunas & Próximos Turnos */}
-        <div className="p-4 rounded-xl border border-[#E9DCC4] bg-white flex flex-col justify-between shadow-2xs">
-          <div>
-            <div className="flex items-center gap-1.5 text-xs font-bold text-[#493B2A] uppercase tracking-wider mb-2">
-              <Calendar className="w-4 h-4 text-[#D9A441] shrink-0" />
-              <span>Agenda Médica Inmediata</span>
-            </div>
-            <div className="space-y-2 text-xs">
-              {upcomingAppointments.length > 0 ? (
-                <div className="p-2.5 bg-[#FFF9ED] rounded-lg border border-[#E9DCC4]">
-                  <div className="font-bold text-[#493B2A]">
-                    {upcomingAppointments[0].specialty} · {upcomingAppointments[0].doctorName}
-                  </div>
-                  <div className="text-[11px] text-[#796B59] mt-0.5">
-                    {formatDateTime(upcomingAppointments[0].dateTime)}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-[#796B59]">No hay turnos próximos programados.</div>
-              )}
-
-              {overdueVaccines.length > 0 && (
-                <div className="p-2 bg-[#FDF1F2] text-[#B42332] rounded-lg border border-[#F5B8BE] text-[11px]">
-                  <strong>Vacuna atrasada:</strong> {overdueVaccines[0].vaccineName} ({members.find(m => m.id === overdueVaccines[0].memberId)?.name.split(' ')[0]})
-                </div>
-              )}
-            </div>
-          </div>
-          <button
-            onClick={() => onSelectTab('turnos-recetas')}
-            className="mt-3.5 text-xs font-semibold text-[#B87932] bg-[#FFF9ED] border border-[#E9DCC4] hover:bg-[#F8E8A6]/40 px-3 py-1.5 rounded-lg inline-flex items-center justify-center gap-1.5 transition-colors shadow-2xs self-start"
-          >
-            <span>Ver agenda y recetas</span>
             <ArrowRight className="w-3.5 h-3.5 text-[#B87932]" />
           </button>
         </div>
