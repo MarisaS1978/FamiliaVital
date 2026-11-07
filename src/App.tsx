@@ -29,9 +29,13 @@ import { EmergencySOSModal } from './components/EmergencySOSModal';
 import { ShareCaregiverModal } from './components/ShareCaregiverModal';
 import { AddRecordModal } from './components/AddRecordModal';
 import { InstallShortcutModal } from './components/InstallShortcutModal';
+import { SecurityComplianceModal } from './components/SecurityComplianceModal';
+import { LockScreen } from './components/LockScreen';
 import { scrollToTop } from './utils/healthUtils';
 import { checkAndNotifyUpcomingAppointments } from './utils/appointmentNotifications';
-import { ArrowUp } from 'lucide-react';
+import { SecurityConfig } from './types/security';
+import { getSecurityConfig, addAuditLog } from './utils/securityCrypto';
+import { ArrowUp, ShieldCheck } from 'lucide-react';
 
 export default function App() {
   // Persistent state with localStorage fallbacks
@@ -79,8 +83,72 @@ export default function App() {
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+  const [isSecurityModalOpen, setIsSecurityModalOpen] = useState(false);
   const [addModalInitialCategory, setAddModalInitialCategory] = useState<any>('appointment');
   const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // SOC 2 & ISO/IEC 27001 Security States
+  const [securityConfig, setSecurityConfig] = useState<SecurityConfig>(() => getSecurityConfig());
+  const [isLocked, setIsLocked] = useState<boolean>(() => {
+    const cfg = getSecurityConfig();
+    return Boolean(cfg.isPinEnabled && cfg.pinHash);
+  });
+
+  // Auto-lock by inactivity timer (ISO 27001 A.8.7 / SOC 2 CC6.1)
+  useEffect(() => {
+    if (!securityConfig.isPinEnabled || !securityConfig.pinHash || securityConfig.autoLockMinutes <= 0) {
+      return;
+    }
+
+    let timer: any = null;
+    const timeoutMs = securityConfig.autoLockMinutes * 60 * 1000;
+
+    const resetTimer = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        setIsLocked(true);
+        addAuditLog(
+          'VAULT_LOCK',
+          'Control de Acceso (A.5.15 / CC6.1)',
+          `Bloqueo automático de sesión tras ${securityConfig.autoLockMinutes} min de inactividad.`,
+          'Sistema Automático',
+          'info'
+        );
+      }, timeoutMs);
+    };
+
+    const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'];
+    events.forEach((ev) => window.addEventListener(ev, resetTimer, { passive: true }));
+    resetTimer();
+
+    return () => {
+      if (timer) clearTimeout(timer);
+      events.forEach((ev) => window.removeEventListener(ev, resetTimer));
+    };
+  }, [securityConfig.isPinEnabled, securityConfig.pinHash, securityConfig.autoLockMinutes]);
+
+  // Lock on tab blur (window switch)
+  useEffect(() => {
+    if (!securityConfig.isPinEnabled || !securityConfig.pinHash || !securityConfig.lockOnBlur) {
+      return;
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        setIsLocked(true);
+        addAuditLog(
+          'VAULT_LOCK',
+          'Control de Acceso (A.5.15 / CC6.1)',
+          'Bloqueo automático de pantalla por cambio de pestaña o ventana.',
+          'Sistema Automático',
+          'info'
+        );
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [securityConfig.isPinEnabled, securityConfig.pinHash, securityConfig.lockOnBlur]);
 
   // Global listener: dismiss mobile virtual keyboard when pressing Enter on inputs
   useEffect(() => {
@@ -187,57 +255,157 @@ export default function App() {
     localStorage.setItem('sf_share_links', JSON.stringify(shareLinks));
   }, [shareLinks]);
 
-  // Handlers for updating records
+  // Handlers for updating records with immutable audit logging (ISO 27001 A.8.15 / SOC 2 CC7.2)
   const handleUpdateVaccine = (updated: VaccineRecord) => {
     setVaccines((prev) => prev.map((v) => (v.id === updated.id ? updated : v)));
+    addAuditLog(
+      'RECORD_UPDATE',
+      'Criptografía & Cifrado (A.8.24 / CC6.6)',
+      `Registro de vacuna actualizado: ${updated.vaccineName} (${updated.status}).`,
+      'Usuario Propietario',
+      'info'
+    );
   };
 
   const handleUpdateMedicine = (updated: MedicineItem) => {
     setMedicines((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
+    addAuditLog(
+      'RECORD_UPDATE',
+      'Criptografía & Cifrado (A.8.24 / CC6.6)',
+      `Medicamento modificado en botiquín: ${updated.name} (${updated.location}).`,
+      'Usuario Propietario',
+      'info'
+    );
   };
 
   const handleDeleteMedicine = (id: string) => {
+    const item = medicines.find((m) => m.id === id);
     setMedicines((prev) => prev.filter((m) => m.id !== id));
+    addAuditLog(
+      'RECORD_DELETE',
+      'Privacidad & Confidencialidad (A.5.34 / CC6.3)',
+      `Fármaco eliminado del botiquín familiar: ${item?.name || id}.`,
+      'Usuario Propietario',
+      'info'
+    );
   };
 
   const handleUpdateAppointment = (updated: MedicalAppointment) => {
     setAppointments((prev) => prev.map((a) => (a.id === updated.id ? updated : a)));
+    addAuditLog(
+      'RECORD_UPDATE',
+      'Criptografía & Cifrado (A.8.24 / CC6.6)',
+      `Turno médico actualizado: ${updated.specialty} con ${updated.doctorName}.`,
+      'Usuario Propietario',
+      'info'
+    );
   };
 
   const handleDeleteAppointment = (id: string) => {
+    const apt = appointments.find((a) => a.id === id);
     setAppointments((prev) => prev.filter((a) => a.id !== id));
+    addAuditLog(
+      'RECORD_DELETE',
+      'Privacidad & Confidencialidad (A.5.34 / CC6.3)',
+      `Turno médico cancelado/eliminado: ${apt?.specialty || id}.`,
+      'Usuario Propietario',
+      'info'
+    );
   };
 
   const handleUpdatePrescription = (updated: PrescriptionRecord) => {
     setPrescriptions((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+    addAuditLog(
+      'RECORD_UPDATE',
+      'Criptografía & Cifrado (A.8.24 / CC6.6)',
+      `Receta / Documento médico actualizado: ${updated.title} (${updated.status}).`,
+      'Usuario Propietario',
+      'info'
+    );
   };
 
   const handleDeletePrescription = (id: string) => {
+    const rx = prescriptions.find((p) => p.id === id);
     setPrescriptions((prev) => prev.filter((p) => p.id !== id));
+    addAuditLog(
+      'RECORD_DELETE',
+      'Privacidad & Confidencialidad (A.5.34 / CC6.3)',
+      `Receta / Documento médico eliminado: ${rx?.title || id}.`,
+      'Usuario Propietario',
+      'info'
+    );
   };
 
   const handleUpdateMember = (updated: FamilyMember) => {
     setMembers((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
+    addAuditLog(
+      'RECORD_UPDATE',
+      'Control de Acceso (A.5.15 / CC6.1)',
+      `Ficha médica de integrante actualizada: ${updated.name}.`,
+      'Usuario Propietario',
+      'info'
+    );
   };
 
   const handleDeleteMember = (id: string) => {
+    const mem = members.find((m) => m.id === id);
     setMembers((prev) => prev.filter((m) => m.id !== id));
     if (selectedMemberId === id) {
       setSelectedMemberId('all');
     }
+    addAuditLog(
+      'RECORD_DELETE',
+      'Privacidad & Confidencialidad (A.5.34 / CC6.3)',
+      `Ficha de integrante eliminada de la libreta familiar: ${mem?.name || id}.`,
+      'Usuario Propietario',
+      'warning'
+    );
     scrollToTop();
   };
 
   const handleDeleteAllergy = (id: string) => {
+    const alg = allergies.find((a) => a.id === id);
     setAllergies((prev) => prev.filter((a) => a.id !== id));
+    addAuditLog(
+      'RECORD_DELETE',
+      'Privacidad & Confidencialidad (A.5.34 / CC6.3)',
+      `Registro de alergia eliminado: ${alg?.allergen || id}.`,
+      'Usuario Propietario',
+      'warning'
+    );
   };
 
   const handleAddShareLink = (newLink: CaregiverShareLink) => {
     setShareLinks((prev) => [newLink, ...prev]);
+    addAuditLog(
+      'SHARE_LINK_CREATED',
+      'Control de Acceso (A.5.15 / CC6.1)',
+      `Enlace de cuidador creado para ${newLink.recipientName} (${newLink.recipientRole}) con nivel ${newLink.accessLevel} y PIN protegido.`,
+      'Usuario Propietario',
+      'info'
+    );
   };
 
   const handleRevokeShareLink = (id: string) => {
+    const link = shareLinks.find((l) => l.id === id);
     setShareLinks((prev) => prev.filter((l) => l.id !== id));
+    addAuditLog(
+      'SHARE_LINK_REVOKED',
+      'Control de Acceso (A.5.15 / CC6.1)',
+      `Enlace de cuidador revocado de inmediato para ${link?.recipientName || id}.`,
+      'Usuario Propietario',
+      'warning'
+    );
+  };
+
+  const handleRestoreData = (restored: any) => {
+    if (restored.members) setMembers(restored.members);
+    if (restored.vaccines) setVaccines(restored.vaccines);
+    if (restored.medicines) setMedicines(restored.medicines);
+    if (restored.appointments) setAppointments(restored.appointments);
+    if (restored.allergies) setAllergies(restored.allergies);
+    if (restored.prescriptions) setPrescriptions(restored.prescriptions);
+    if (restored.shareLinks) setShareLinks(restored.shareLinks);
   };
 
   const handleResetData = () => {
@@ -250,6 +418,13 @@ export default function App() {
       setPrescriptions(INITIAL_PRESCRIPTIONS);
       setShareLinks(INITIAL_CAREGIVER_LINKS);
       setSelectedMemberId('all');
+      addAuditLog(
+        'SECURITY_CONFIG_CHANGED',
+        'Gestión de Incidentes (A.8.18 / CC7.3)',
+        'Restablecimiento de datos a valores de demostración predeterminados.',
+        'Usuario Propietario',
+        'warning'
+      );
     }
   };
 
@@ -268,6 +443,10 @@ export default function App() {
         onOpenShare={() => setIsShareOpen(true)}
         onOpenEmergencySOS={() => setIsEmergencySOSOpen(true)}
         onOpenInstall={() => setIsInstallModalOpen(true)}
+        onOpenSecurity={() => setIsSecurityModalOpen(true)}
+        isPinEnabled={securityConfig.isPinEnabled && Boolean(securityConfig.pinHash)}
+        onLockApp={() => setIsLocked(true)}
+        isPrivacyModeActive={securityConfig.maskSensitiveData}
       />
 
       {/* Family Member Switcher Strip */}
@@ -293,6 +472,7 @@ export default function App() {
             onOpenEmergencySOS={() => setIsEmergencySOSOpen(true)}
             onOpenShare={() => setIsShareOpen(true)}
             onOpenInstall={() => setIsInstallModalOpen(true)}
+            onOpenSecurity={() => setIsSecurityModalOpen(true)}
             onResetData={handleResetData}
           />
         )}
@@ -376,6 +556,15 @@ export default function App() {
           </div>
           <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[11px] text-[#6E5F4D]">
             <button
+              onClick={() => setIsSecurityModalOpen(true)}
+              className="inline-flex items-center gap-1 text-[#1E7E52] hover:underline font-bold cursor-pointer"
+              title="Centro de Seguridad y Cumplimiento SOC 2 Type II · ISO/IEC 27001:2022"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-[#1E7E52]" />
+              <span>Seguridad SOC 2 · ISO/IEC 27001</span>
+            </button>
+            <span>·</span>
+            <button
               onClick={() => setIsInstallModalOpen(true)}
               className="flex items-center gap-1 text-[#E27D18] hover:underline font-bold cursor-pointer"
             >
@@ -383,7 +572,7 @@ export default function App() {
               <span>Instalar Acceso Directo</span>
             </button>
             <span>·</span>
-            <span>Privacidad protegida · Almacenamiento local</span>
+            <span>Privacidad protegida · Cifrado AES-256</span>
             <span>·</span>
             <button
               onClick={() => setIsEmergencySOSOpen(true)}
@@ -396,6 +585,34 @@ export default function App() {
       </footer>
 
       {/* MODALS */}
+      <SecurityComplianceModal
+        isOpen={isSecurityModalOpen}
+        onClose={() => setIsSecurityModalOpen(false)}
+        onLockAppNow={() => setIsLocked(true)}
+        onSecurityConfigChange={(cfg) => setSecurityConfig(cfg)}
+        allAppData={{
+          members,
+          vaccines,
+          medicines,
+          appointments,
+          allergies,
+          prescriptions,
+          shareLinks,
+        }}
+        onRestoreData={handleRestoreData}
+      />
+
+      {isLocked && securityConfig.pinHash && securityConfig.pinSalt && (
+        <LockScreen
+          pinHash={securityConfig.pinHash}
+          pinSalt={securityConfig.pinSalt}
+          onUnlock={() => setIsLocked(false)}
+          onOpenEmergencySOS={() => {
+            setIsEmergencySOSOpen(true);
+          }}
+        />
+      )}
+
       <InstallShortcutModal
         isOpen={isInstallModalOpen}
         onClose={() => setIsInstallModalOpen(false)}

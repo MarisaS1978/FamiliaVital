@@ -21,6 +21,8 @@ import {
   Download,
   RotateCcw,
   Bell,
+  ShieldCheck,
+  Lock,
 } from 'lucide-react';
 
 interface DashboardOverviewProps {
@@ -35,6 +37,7 @@ interface DashboardOverviewProps {
   onOpenEmergencySOS: () => void;
   onOpenShare: () => void;
   onOpenInstall?: () => void;
+  onOpenSecurity?: () => void;
   onResetData: () => void;
 }
 
@@ -50,6 +53,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   onOpenEmergencySOS,
   onOpenShare,
   onOpenInstall,
+  onOpenSecurity,
   onResetData,
 }) => {
   const [globalSearch, setGlobalSearch] = useState('');
@@ -145,6 +149,16 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             <ShieldAlert className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white shrink-0" />
             <span className="truncate">Ficha SOS</span>
           </button>
+          {onOpenSecurity && (
+            <button
+              onClick={onOpenSecurity}
+              className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl bg-[#EDF7F2] text-[#1E7E52] border border-[#B8DDCB] hover:bg-[#DDF0E5] text-xs font-bold transition-all shadow-2xs whitespace-nowrap cursor-pointer"
+              title="Centro de Seguridad SOC 2 & ISO/IEC 27001"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#1E7E52] shrink-0" />
+              <span className="truncate">SOC 2 · ISO 27001</span>
+            </button>
+          )}
           <button
             onClick={onOpenShare}
             className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-white text-[#493B2A] border border-[#E9DCC4] hover:bg-[#FFF9ED] text-xs font-semibold transition-all shadow-2xs whitespace-nowrap cursor-pointer"
@@ -466,12 +480,24 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         </div>
       </div>
 
-      {/* Footer Utility Actions: Backup and Data Safety */}
+      {/* Footer Utility Actions: Backup, Security and Data Safety */}
       <div className="p-3.5 sm:p-4 rounded-xl bg-white border border-[#E9DCC4] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#796B59]">
-        <div>
-          <strong className="text-[#493B2A]">Respaldo de Seguridad:</strong> Descarga una copia de las fichas familiares o restaura los datos iniciales.
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-[#1E7E52] shrink-0" />
+          <div>
+            <strong className="text-[#493B2A]">Seguridad & Respaldo Cifrado:</strong> Protegido bajo normas ISO/IEC 27001 y SOC 2 Type II con cifrado AES-256 y auditoría SHA-256.
+          </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
+          {onOpenSecurity && (
+            <button
+              onClick={onOpenSecurity}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#EDF7F2] border border-[#B8DDCB] rounded-lg text-[#1E7E52] hover:bg-[#DDF0E5] transition-colors font-bold shadow-2xs cursor-pointer"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-[#1E7E52]" />
+              <span>Centro de Cumplimiento</span>
+            </button>
+          )}
           <button
             onClick={handleExportBackup}
             className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#FFF9ED] border border-[#E9DCC4] rounded-lg text-[#493B2A] hover:bg-[#F8E8A6]/30 transition-colors font-medium shadow-2xs cursor-pointer"

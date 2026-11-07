@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FamilyMember, AllergyRecord, EmergencyContact, BloodType, FamilyRelationship } from '../types/health';
 import { formatAge, shareViaWhatsApp, readFileAsDataURL } from '../utils/healthUtils';
+import { maskSensitiveId, getSecurityConfig } from '../utils/securityCrypto';
 import {
   Shield,
   AlertTriangle,
@@ -422,7 +423,7 @@ _Compartido desde FamiliaVital_`;
                         <span aria-hidden="true">·</span>
                         <span className="font-mono tabular-nums">
                           {isPet ? 'Microchip: ' : 'DNI: '}
-                          {member.idNumber}
+                          {getSecurityConfig().maskSensitiveData ? maskSensitiveId(member.idNumber) : member.idNumber}
                         </span>
                       </div>
                     </div>
@@ -488,7 +489,10 @@ _Compartido desde FamiliaVital_`;
                       </div>
                       <div className="text-[#6E5F4D]">Plan: {member.medicalInsurance.plan}</div>
                       <div className="text-[#6E5F4D] font-mono">
-                        N° Afiliado / Cuenta: {member.medicalInsurance.affiliateNumber}
+                        N° Afiliado / Cuenta:{' '}
+                        {getSecurityConfig().maskSensitiveData
+                          ? maskSensitiveId(member.medicalInsurance.affiliateNumber)
+                          : member.medicalInsurance.affiliateNumber}
                       </div>
                       {member.medicalInsurance.emergencyPhone && (
                         <div className="pt-1.5 border-t border-[#E9DCC4] flex items-center justify-between">

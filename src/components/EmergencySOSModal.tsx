@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FamilyMember, AllergyRecord } from '../types/health';
 import { formatAge, shareViaWhatsApp } from '../utils/healthUtils';
+import { addAuditLog } from '../utils/securityCrypto';
 import {
   ShieldAlert,
   Phone,
@@ -37,6 +38,19 @@ export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
     activeMemberId !== 'all' ? activeMemberId : members[0]?.id || ''
   );
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      const target = members.find((m) => m.id === selectedId) || members[0];
+      addAuditLog(
+        'SOS_ACCESSED',
+        'Gestión de Incidentes (A.8.18 / CC7.3)',
+        `Acceso a Ficha Médica de Emergencia (SOS) para ${target?.name || 'Familiar'}.`,
+        'Personal Médico / Rescatista',
+        'warning'
+      );
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

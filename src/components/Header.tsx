@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldAlert, Plus, Share2, HeartPulse, Download } from 'lucide-react';
+import { ShieldAlert, Plus, Share2, HeartPulse, Download, ShieldCheck, Lock, Eye, EyeOff } from 'lucide-react';
 
 interface HeaderProps {
   activeTab: string;
@@ -8,6 +8,11 @@ interface HeaderProps {
   onOpenShare: () => void;
   onOpenEmergencySOS: () => void;
   onOpenInstall?: () => void;
+  onOpenSecurity?: () => void;
+  isPinEnabled?: boolean;
+  onLockApp?: () => void;
+  isPrivacyModeActive?: boolean;
+  onTogglePrivacyMode?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -17,6 +22,11 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenShare,
   onOpenEmergencySOS,
   onOpenInstall,
+  onOpenSecurity,
+  isPinEnabled,
+  onLockApp,
+  isPrivacyModeActive,
+  onTogglePrivacyMode,
 }) => {
   const navItems = [
     { id: 'resumen', label: 'Inicio & Alertas', shortLabel: 'Inicio' },
@@ -72,7 +82,32 @@ export const Header: React.FC<HeaderProps> = ({
           </nav>
 
           {/* Zone 3: Primary Actions & SOS - ALWAYS 100% VISIBLE WITH CLEAR LABELS */}
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+            {/* Centro de Seguridad SOC 2 / ISO 27001 */}
+            {onOpenSecurity && (
+              <button
+                onClick={onOpenSecurity}
+                className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 text-xs font-bold text-[#1E7E52] bg-[#EDF7F2] border border-[#B8DDCB] rounded-lg hover:bg-[#DDF0E5] transition-colors whitespace-nowrap shadow-2xs cursor-pointer shrink-0"
+                title="Centro de Seguridad, Auditoría y Cumplimiento SOC 2 & ISO/IEC 27001"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-[#1E7E52] shrink-0" />
+                <span className="hidden sm:inline">SOC 2 · ISO 27001</span>
+                <span className="sm:hidden">SGSI</span>
+              </button>
+            )}
+
+            {/* Quick Lock button when PIN is enabled */}
+            {isPinEnabled && onLockApp && (
+              <button
+                onClick={onLockApp}
+                className="flex items-center gap-1 px-2 py-1.5 text-xs font-semibold text-[#3E3020] bg-white border border-[#E9DCC4] rounded-lg hover:bg-[#FFF9ED] transition-colors whitespace-nowrap shadow-2xs cursor-pointer shrink-0"
+                title="Bloquear pantalla ahora con PIN"
+              >
+                <Lock className="w-3.5 h-3.5 text-[#E27D18]" />
+                <span className="hidden md:inline">Bloquear</span>
+              </button>
+            )}
+
             {/* Ficha SOS Button */}
             <button
               onClick={onOpenEmergencySOS}
@@ -98,12 +133,12 @@ export const Header: React.FC<HeaderProps> = ({
             {onOpenInstall && (
               <button
                 onClick={onOpenInstall}
-                className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 text-xs font-semibold text-[#3E3020] bg-white border border-[#E9DCC4] rounded-lg hover:bg-[#FFF9ED] transition-colors whitespace-nowrap shadow-2xs cursor-pointer shrink-0"
+                className="hidden sm:flex items-center gap-1 px-2 sm:px-2.5 py-1.5 text-xs font-semibold text-[#3E3020] bg-white border border-[#E9DCC4] rounded-lg hover:bg-[#FFF9ED] transition-colors whitespace-nowrap shadow-2xs cursor-pointer shrink-0"
                 title="Instalar ícono de acceso directo en tu celular o PC"
               >
                 <img src="/favicon.svg" alt="" className="w-3.5 h-3.5 shrink-0" />
-                <span className="hidden sm:inline">Acceso Directo</span>
-                <span className="sm:hidden">App</span>
+                <span className="hidden md:inline">Acceso Directo</span>
+                <span className="md:hidden">App</span>
               </button>
             )}
 
