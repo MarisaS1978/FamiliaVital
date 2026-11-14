@@ -1,75 +1,217 @@
-# 🩺 FamiliaVital – Libreta Digital de Salud y Fichas Familiares
+# 🩺 FamiliaVital | Libreta Digital de Salud Familiar
 
-Una aplicación digital pensada para centralizar y organizar la información de salud del grupo familiar en un solo lugar.
+**Organizá la información de salud de tu familia en un solo lugar.**
 
-**FamiliaVital** busca facilitar el acceso y la consulta de información familiar mediante fichas digitales, ofreciendo una alternativa práctica a los registros tradicionales en papel.
+FamiliaVital es una aplicación web diseñada para facilitar la organización y consulta de información relacionada con la salud familiar mediante fichas digitales.
 
-🌐 **Aplicación online:** [Abrir FamiliaVital](https://saludfamliar.ai.studio/)
+🌐 **[Acceder a FamiliaVital](https://saludfamliar.ai.studio/)**
 
 ---
 
-## 🇦🇷 Español
+# 🇦🇷 Español
 
-### 🎯 Objetivo del proyecto
+## 🎯 Sobre el proyecto
 
-Desarrollar una herramienta digital que permita organizar la información de salud familiar y facilitar su consulta, promoviendo una gestión más ordenada y accesible de los datos.
+FamiliaVital nace con la idea de ofrecer una herramienta digital que permita centralizar la información de salud de los integrantes de una familia.
 
-### 💡 Características generales
+Su objetivo es facilitar el registro, la organización y la consulta de datos, promoviendo una gestión más práctica y ordenada de la información familiar.
 
-- Libreta digital de salud familiar.
-- Organización de información mediante fichas familiares.
-- Acceso centralizado a la información.
-- Interfaz orientada a facilitar la consulta y organización de datos.
+## 💡 Propuesta de valor
 
-### 🛠️ Tecnologías
+- Centralización de información de salud familiar.
+- Organización mediante fichas digitales.
+- Acceso más práctico a los registros familiares.
+- Digitalización de la libreta tradicional de salud.
 
-Las tecnologías y herramientas utilizadas se incorporarán una vez documentada la estructura técnica del proyecto.
+## 🛠️ Tecnologías utilizadas
 
-### 🚀 Acceso a la aplicación
+| Tecnología | Aplicación |
+|---|---|
+| React 19 | Desarrollo de la interfaz |
+| TypeScript | Tipado y desarrollo |
+| Vite | Entorno de desarrollo y compilación |
+| Tailwind CSS 4 | Estilos y diseño |
+| Google Gemini API | Integración de inteligencia artificial |
+| Express | Entorno de servidor |
+| Lucide React | Iconografía |
+| Motion | Animaciones e interacciones |
+| Bun | Gestión de dependencias y lockfile |
 
-Podés conocer y utilizar la aplicación desde el siguiente enlace:
+## 🧰 Herramientas y recursos
 
-👉 [FamiliaVital – Aplicación online](https://saludfamliar.ai.studio/)
+- Google AI Studio
+- Git y GitHub
+- Node.js
+- TypeScript
 
-### 👩‍💻 Autora
+## 🚀 Aplicación online
+
+Podés conocer el proyecto y acceder a su versión publicada:
+
+👉 **[Abrir FamiliaVital](https://saludfamliar.ai.studio/)**
+
+## 📂 Estructura del proyecto
+
+```text
+FamiliaVital/
+├── public/
+├── scripts/
+├── src/
+├── .env.example
+├── .gitignore
+├── index.html
+├── metadata.json
+├── package.json
+├── bun.lock
+├── tsconfig.json
+└── vite.config.ts
+```
+
+## ⚙️ Instalación y ejecución local
+
+Clonar el repositorio:
+
+```bash
+git clone https://github.com/MarisaS1978/FamiliaVital.git
+```
+
+Ingresar al proyecto:
+
+```bash
+cd FamiliaVital
+```
+
+Instalar dependencias:
+
+```bash
+npm install
+```
+
+Configurar las variables de entorno según `.env.example`. Para utilizar la API de Gemini, necesitás una clave válida.
+
+Iniciar el entorno de desarrollo:
+
+```bash
+npm run dev
+```
+
+Generar la versión de producción:
+
+```bash
+npm run build
+```
+
+## 👩‍💻 Autora
 
 **Marisa Silvina Sandroni**
 
-[GitHub](https://github.com/MarisaS1978) · [LinkedIn](https://www.linkedin.com/in/marisa-silvina-sandroni/)
+- GitHub: [MarisaS1978](https://github.com/MarisaS1978)
+- LinkedIn: [Marisa Silvina Sandroni](https://www.linkedin.com/in/marisa-silvina-sandroni/)
 
 ---
 
-## 🇬🇧 English
+# 🇬🇧 English
 
-### 🎯 Project Overview
+## 🎯 About the Project
 
-FamiliaVital is a digital application designed to centralize and organize family health information in one place.
+FamiliaVital is a web application designed to help families organize and access health-related information through digital records.
 
-It aims to provide a practical way to manage family health records through digital profiles, offering an alternative to traditional paper-based records.
+Its main goal is to centralize family health information and provide a more practical and organized alternative to traditional paper-based health records.
 
-🌐 **Live Application:** [Open FamiliaVital](https://saludfamliar.ai.studio/)
+## 💡 Key Value Proposition
 
-### 💡 General Features
+- Centralized family health information.
+- Digital family records.
+- Easier access to organized information.
+- Digital alternative to traditional health notebooks.
 
-- Digital family health notebook.
-- Family information organized into digital records.
-- Centralized access to information.
-- User-oriented interface for organizing and consulting data.
+## 🛠️ Technologies Used
 
-### 🛠️ Technologies
+| Technology | Purpose |
+|---|---|
+| React 19 | User interface development |
+| TypeScript | Type-safe development |
+| Vite | Development and build environment |
+| Tailwind CSS 4 | Styling and design |
+| Google Gemini API | Artificial intelligence integration |
+| Express | Server environment |
+| Lucide React | Icons |
+| Motion | Animations and interactions |
+| Bun | Dependency management and lockfile |
 
-The technologies and tools used will be added once the project's technical structure has been documented.
+## 🧰 Tools and Resources
 
-### 🚀 Try the Application
+- Google AI Studio
+- Git and GitHub
+- Node.js
+- TypeScript
 
-👉 [FamiliaVital – Live Application](https://saludfamliar.ai.studio/)
+## 🚀 Live Application
 
-### 👩‍💻 Author
+Explore the published application:
+
+👉 **[Open FamiliaVital](https://saludfamliar.ai.studio/)**
+
+## 📂 Project Structure
+
+```text
+FamiliaVital/
+├── public/
+├── scripts/
+├── src/
+├── .env.example
+├── .gitignore
+├── index.html
+├── metadata.json
+├── package.json
+├── bun.lock
+├── tsconfig.json
+└── vite.config.ts
+```
+
+## ⚙️ Installation and Local Setup
+
+Clone the repository:
+
+```bash
+git clone https://github.com/MarisaS1978/FamiliaVital.git
+```
+
+Navigate to the project directory:
+
+```bash
+cd FamiliaVital
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Configure the environment variables using `.env.example`. A valid Gemini API key is required to use Gemini API features.
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Build the production version:
+
+```bash
+npm run build
+```
+
+## 👩‍💻 Author
 
 **Marisa Silvina Sandroni**
 
-[GitHub](https://github.com/MarisaS1978) · [LinkedIn](https://www.linkedin.com/in/marisa-silvina-sandroni/)
+- GitHub: [MarisaS1978](https://github.com/MarisaS1978)
+- LinkedIn: [Marisa Silvina Sandroni](https://www.linkedin.com/in/marisa-silvina-sandroni/)
 
 ---
 
-*This project is part of my portfolio of digital solutions and technology projects.*
+*FamiliaVital is part of my portfolio of digital solutions, web development and artificial intelligence projects.*
+
+
