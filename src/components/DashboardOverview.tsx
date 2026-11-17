@@ -149,16 +149,6 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             <ShieldAlert className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white shrink-0" />
             <span className="truncate">Ficha SOS</span>
           </button>
-          {onOpenSecurity && (
-            <button
-              onClick={onOpenSecurity}
-              className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl bg-[#EDF7F2] text-[#1E7E52] border border-[#B8DDCB] hover:bg-[#DDF0E5] text-xs font-bold transition-all shadow-2xs whitespace-nowrap cursor-pointer"
-              title="Centro de Seguridad SOC 2 & ISO/IEC 27001"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#1E7E52] shrink-0" />
-              <span className="truncate">SOC 2 · ISO 27001</span>
-            </button>
-          )}
           <button
             onClick={onOpenShare}
             className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-white text-[#493B2A] border border-[#E9DCC4] hover:bg-[#FFF9ED] text-xs font-semibold transition-all shadow-2xs whitespace-nowrap cursor-pointer"
@@ -445,7 +435,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                       {member.name}
                     </h4>
                     <div className="text-[11px] text-[#796B59]">
-                      {member.isPet ? '🐾 ' : ''}{member.relationship} · {formatAge(member.birthDate)}
+                      {member.relationship} · {formatAge(member.birthDate)}
                     </div>
                   </div>
 

@@ -75,11 +75,74 @@ export const PetsView: React.FC<PetsViewProps> = ({
   const [viewingDoc, setViewingDoc] = useState<{ url: string; name: string; type: string } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const petAvatarInputRef = useRef<HTMLInputElement>(null);
 
   // Scanner modal state for pet vaccines/documents
   const [isScanning, setIsScanning] = useState(false);
   const [scanStep, setScanStep] = useState<'idle' | 'scanning' | 'success'>('idle');
   const [scannedData, setScannedData] = useState<any>(null);
+
+  const handlePetAvatarFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && editingPet) {
+      try {
+        const result = await readFileAsDataURL(file);
+        setEditingPet({
+          ...editingPet,
+          avatarUrl: result.url,
+          avatarType: 'image',
+        });
+      } catch (err) {
+        console.error('Error reading pet avatar file:', err);
+      }
+    }
+    e.target.value = '';
+  };
+
+  const handleSelectPetIconAvatar = (iconName: string) => {
+    if (!editingPet) return;
+    setEditingPet({
+      ...editingPet,
+      avatarType: 'icon',
+      avatarIcon: iconName,
+      avatarUrl: undefined,
+    });
+  };
+
+  const renderPetAvatar = (pet: FamilyMember, iconSizeClass = 'w-10 h-10') => {
+    if (pet.avatarUrl) {
+      return (
+        <img
+          src={pet.avatarUrl}
+          alt={pet.name}
+          referrerPolicy="no-referrer"
+          className="w-full h-full object-cover"
+        />
+      );
+    }
+
+    if (pet.avatarType === 'icon' || pet.avatarIcon) {
+      const emojiMap: Record<string, string> = {
+        dog: '🐶',
+        cat: '🐱',
+        rabbit: '🐰',
+        bird: '🦜',
+      };
+      const emoji = pet.avatarIcon ? emojiMap[pet.avatarIcon] : null;
+      if (emoji) {
+        return (
+          <div className="w-full h-full flex items-center justify-center text-3xl bg-[#FEEAA2]/70 select-none">
+            <span>{emoji}</span>
+          </div>
+        );
+      }
+    }
+
+    if (pet.petDetails?.species === 'Gato') {
+      return <Cat className={`${iconSizeClass} text-[#E27D18]`} />;
+    }
+    return <Dog className={`${iconSizeClass} text-[#E27D18]`} />;
+  };
 
   // Active pet
   const activePet = pets.find((p) => p.id === selectedPetId) || pets[0];
@@ -303,18 +366,7 @@ _Compartido desde FamiliaVital_`;
             <div className="p-4 sm:p-6 border-b border-[#E9DCC4] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#FFF9ED]/60">
               <div className="flex items-center gap-4 min-w-0">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-white border border-[#E9DCC4] shrink-0 shadow-2xs flex items-center justify-center">
-                  {activePet.avatarUrl ? (
-                    <img
-                      src={activePet.avatarUrl}
-                      alt={activePet.name}
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : activePet.petDetails?.species === 'Gato' ? (
-                    <Cat className="w-10 h-10 text-[#E27D18]" />
-                  ) : (
-                    <Dog className="w-10 h-10 text-[#E27D18]" />
-                  )}
+                  {renderPetAvatar(activePet)}
                 </div>
 
                 <div className="min-w-0">
@@ -693,10 +745,10 @@ _Compartido desde FamiliaVital_`;
           </div>
           <button
             onClick={onAddMember}
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-[#E27D18] hover:bg-[#C66506] rounded-xl transition-colors shadow-xs"
+            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-[#E27D18] hover:bg-[#C66506] rounded-xl transition-colors shadow-xs cursor-pointer"
           >
             <Plus className="w-4 h-4 text-white" />
-            <span>+ Registrar Mascota Ahora</span>
+            <span>Registrar Mascota Ahora</span>
           </button>
         </div>
       )}
@@ -888,6 +940,113 @@ _Compartido desde FamiliaVital_`;
 
             {/* Scrollable Form Body */}
             <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4 text-xs">
+              {/* Foto o Ícono de Identificación de la Mascota */}
+              <div className="space-y-3 pb-4 border-b border-[#E9DCC4]">
+                <div>
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-[#E27D18]">
+                    Foto o Ícono de la Mascota
+                  </h4>
+                  <p className="text-[11px] text-[#6E5F4D] mt-0.5">
+                    Sube una foto desde tu dispositivo, pega un enlace web o elige un ícono representativo.
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-[#FFF9ED] p-3 rounded-xl border border-[#E9DCC4]">
+                  <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white border border-[#E9DCC4] shrink-0 shadow-2xs flex items-center justify-center">
+                    {renderPetAvatar(editingPet, 'w-8 h-8')}
+                  </div>
+
+                  <div className="flex-1 space-y-2.5 w-full">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <input
+                        ref={petAvatarInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePetAvatarFileUpload}
+                        className="hidden"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => petAvatarInputRef.current?.click()}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#E9DCC4] text-[#3E3020] rounded-lg hover:bg-[#FFF9ED] text-xs font-semibold cursor-pointer shadow-2xs"
+                      >
+                        <Upload className="w-3.5 h-3.5 text-[#E27D18]" />
+                        <span>Subir imagen</span>
+                      </button>
+
+                      {editingPet.avatarUrl && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setEditingPet({
+                              ...editingPet,
+                              avatarUrl: undefined,
+                              avatarType: 'initials',
+                            })
+                          }
+                          className="px-2.5 py-1.5 text-xs text-[#C21D30] hover:bg-[#FDF1F2] rounded-lg font-medium cursor-pointer"
+                        >
+                          Quitar foto
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="pt-2 border-t border-[#E9DCC4]/60">
+                      <label className="block text-[11px] font-semibold text-[#3E3020] mb-1">
+                        O pegar enlace de imagen (URL web):
+                      </label>
+                      <input
+                        type="url"
+                        placeholder="https://ejemplo.com/foto-mascota.jpg"
+                        value={editingPet.avatarUrl || ''}
+                        onChange={(e) =>
+                          setEditingPet({
+                            ...editingPet,
+                            avatarUrl: e.target.value.trim() || undefined,
+                            avatarType: e.target.value.trim() ? 'image' : 'initials',
+                          })
+                        }
+                        className="w-full px-2.5 py-1.5 text-xs border border-[#E9DCC4] bg-white rounded-lg text-[#3E3020] placeholder:text-[#796B59]/60 focus:outline-none focus:ring-2 focus:ring-[#E27D18]"
+                      />
+                    </div>
+
+                    <div className="pt-2 border-t border-[#E9DCC4]/60">
+                      <div className="text-[11px] font-semibold text-[#3E3020] mb-1.5">
+                        O elegir ícono rápido:
+                      </div>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {[
+                          { id: 'dog', emoji: '🐶', label: 'Perro' },
+                          { id: 'cat', emoji: '🐱', label: 'Gato' },
+                          { id: 'rabbit', emoji: '🐰', label: 'Conejo' },
+                          { id: 'bird', emoji: '🦜', label: 'Ave' },
+                        ].map((icon) => {
+                          const isSelected =
+                            editingPet.avatarType === 'icon' &&
+                            editingPet.avatarIcon === icon.id &&
+                            !editingPet.avatarUrl;
+                          return (
+                            <button
+                              key={icon.id}
+                              type="button"
+                              onClick={() => handleSelectPetIconAvatar(icon.id)}
+                              className={`px-2 py-1 rounded text-sm transition-all border cursor-pointer ${
+                                isSelected
+                                  ? 'bg-[#FEEAA2] border-[#E27D18] ring-2 ring-[#E27D18]/50 shadow-xs scale-105'
+                                  : 'bg-white border-[#E9DCC4] hover:border-[#E27D18] hover:bg-[#FFF9ED]'
+                              }`}
+                              title={icon.label}
+                            >
+                              <span>{icon.emoji}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-[#3E3020] mb-1">Nombre de la Mascota *</label>

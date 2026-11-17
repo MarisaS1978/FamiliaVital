@@ -18,6 +18,7 @@ import {
   INITIAL_CAREGIVER_LINKS,
 } from './data/initialData';
 import { Header } from './components/Header';
+import { Footer } from './components/Footer';
 import { MemberSelector } from './components/MemberSelector';
 import { DashboardOverview } from './components/DashboardOverview';
 import { VaccinationSchedule } from './components/VaccinationSchedule';
@@ -35,7 +36,7 @@ import { scrollToTop } from './utils/healthUtils';
 import { checkAndNotifyUpcomingAppointments } from './utils/appointmentNotifications';
 import { SecurityConfig } from './types/security';
 import { getSecurityConfig, addAuditLog } from './utils/securityCrypto';
-import { ArrowUp, ShieldCheck } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 
 export default function App() {
   // Persistent state with localStorage fallbacks
@@ -443,10 +444,8 @@ export default function App() {
         onOpenShare={() => setIsShareOpen(true)}
         onOpenEmergencySOS={() => setIsEmergencySOSOpen(true)}
         onOpenInstall={() => setIsInstallModalOpen(true)}
-        onOpenSecurity={() => setIsSecurityModalOpen(true)}
         isPinEnabled={securityConfig.isPinEnabled && Boolean(securityConfig.pinHash)}
         onLockApp={() => setIsLocked(true)}
-        isPrivacyModeActive={securityConfig.maskSensitiveData}
       />
 
       {/* Family Member Switcher Strip */}
@@ -546,43 +545,14 @@ export default function App() {
         )}
       </main>
 
-      {/* Quiet, warm footer */}
-      <footer className="no-print bg-white border-t border-[#E9DCC4] py-6 mt-12 text-xs text-[#6E5F4D]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-[#3E3020]">FamiliaVital</span>
-            <span>·</span>
-            <span>Libreta Digital de Salud & Mascotas Familiares</span>
-          </div>
-          <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[11px] text-[#6E5F4D]">
-            <button
-              onClick={() => setIsSecurityModalOpen(true)}
-              className="inline-flex items-center gap-1 text-[#1E7E52] hover:underline font-bold cursor-pointer"
-              title="Centro de Seguridad y Cumplimiento SOC 2 Type II · ISO/IEC 27001:2022"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#1E7E52]" />
-              <span>Seguridad SOC 2 · ISO/IEC 27001</span>
-            </button>
-            <span>·</span>
-            <button
-              onClick={() => setIsInstallModalOpen(true)}
-              className="flex items-center gap-1 text-[#E27D18] hover:underline font-bold cursor-pointer"
-            >
-              <img src="/favicon.svg" alt="" className="w-3.5 h-3.5" />
-              <span>Instalar Acceso Directo</span>
-            </button>
-            <span>·</span>
-            <span>Privacidad protegida · Cifrado AES-256</span>
-            <span>·</span>
-            <button
-              onClick={() => setIsEmergencySOSOpen(true)}
-              className="text-[#C21D30] hover:underline font-bold cursor-pointer"
-            >
-              Ficha de Emergencia (SOS)
-            </button>
-          </div>
-        </div>
-      </footer>
+      {/* Professional, responsive application footer */}
+      <Footer
+        activeTab={activeTab}
+        onSelectTab={handleSelectTab}
+        onOpenEmergencySOS={() => setIsEmergencySOSOpen(true)}
+        onOpenShare={() => setIsShareOpen(true)}
+        onOpenInstall={() => setIsInstallModalOpen(true)}
+      />
 
       {/* MODALS */}
       <SecurityComplianceModal
